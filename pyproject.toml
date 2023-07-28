@@ -174,5 +174,6 @@ python_files = [
 ]
 testpaths = "tests"
 markers = [
-  "value"
+  "value",
+  "results_file"
 ]
