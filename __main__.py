@@ -5,7 +5,7 @@
 
 Usage::
 
-    $ mypy path/to/project | ./mypy-upgrade <package>
+    $ mypy path/to/project | pythom -m mypy-upgrade <package>
 """
 
 import argparse
@@ -14,62 +14,71 @@ import re
 import sys
 
 
-def process_report(package: str) -> dict[str, list[tuple[int, str]]]:
+def process_piped_report(package: str) -> list[tuple[str, int, str, str]]:
     """
-    Parses a mypy error report.
+    Parse a mypy error report from stdin.
 
     Args:
-        package: a string representing the package name used in import statements.
+        package: a string representing the package name used in import
+            statements.
 
     Returns:
-        A dictionary representing the mypy errors in each module in which each key is a
-        string representing the path to a module containing a mypy error and each
-        corresponding value is a list of two-tuples whose first and second entries are an integer
-        representing the line number of the error and a string representing the mypy error code,
-        respectively.
+        A list of four-tuples which represent a mypy error. The elements of
+        the tuple are as follows:
+            0) a string representing the path to module containing the error
+            1) an int representing the line number of the error
+            2) a string representing the mypy error code
+            3) a string describing the error
+        Note that the line numbers are 1-indexed.
 
-        Usage::
+        Example::
 
-           errors = process_report('ase')
-           line_no, error_code = errors['ase/atoms.py']
+           >> errors = process_report('ase')
+           >> module, line_no, error_code, description = errors[0]
     """
-    del sys.argv[1]  # ensure fileinput works as expected; there's gotta be a better way to do this
-    # captures: 1) file path 2) line number 3) error code
-    info = re.compile(r"(" + re.escape(package) + r"/[^:]+):(\d+):.+\[(.+)\]$")
-    errors = {}
+    # ensure fileinput works as expected; there's gotta be a better way to do this
+    del sys.argv[1]
+    # captures:
+    # 1) file path to module
+    # 2) line number
+    # 3) error description
+    # 4) error code
+    info = re.compile(
+        r"(" + re.escape(package) + r"/[^:]+):(\d+): error: (.+)\s+\[(.+)\]$"
+    )
+    errors = []
 
     with fileinput.input() as report:
         for line in report:
             package_error = info.search(line)
             if package_error:
-                module, error_code = package_error.group(1, 3)
+                module, description, error_code = package_error.group(1, 3, 4)
                 line_no = int(package_error.group(2))
-                if module not in errors:
-                    errors[module] = []
-
-                errors[module].append((line_no, error_code))
+                errors.append((module, line_no, error_code, description))
 
     return errors
 
 
-def silence_error(file: str, errors: list[tuple[int, str]]):
+def silence_errors(
+    module: str, line_no: int, error_code: str, description: str
+):
     """
     Silences all errors in a given file.
 
     Args:
-        file: a string representing the path to the module with the errors to fix.
-        errors: a list of two-tuples representing the errors in the given module wherein
-            for each tuple, the first entry is an int representing the line number (1-indexed)
-            and the second entry is a string representing the error code.
+        module: a string representing the path to the module with the errors
+            to fix.
+        errors: a dictionary representing the errors in a module in the same
+            format as the values of the return vale of `process_piped_report`.
     """
-    with open(file, mode='r', encoding="utf-8") as f:
+    with open(module, mode="r", encoding="utf-8") as f:
         lines = f.readlines()
 
-    for line_no, error_code in errors:
-        line = lines[line_no - 1].removesuffix("\n")
-        lines[line_no - 1] = f"{line}  # type: ignore[{error_code}]\n"
+    line = lines[line_no - 1].removesuffix("\n")
+    comment = f"# type: ignore[{error_code}]  # {description}"
+    lines[line_no - 1] = f"{line}  {comment}\n"
 
-    with open(file, "w", encoding="utf-8") as f:
+    with open(module, "w", encoding="utf-8") as f:
         _ = f.write("".join(lines))
 
 
@@ -85,12 +94,14 @@ Usage::
     )
     parser.add_argument("package")
     args = parser.parse_args()
-    errors = process_report(args.package)
-    for module in errors:
-        silence_error(module, errors[module])
+    errors = process_piped_report(args.package)
+    modules = []
+    for module, line_no, error_code, description in errors:
+        silence_errors(module, line_no, error_code, description)
+        if module not in modules:
+            modules.append(module)
 
-    silenced = sum(map(len, errors.values()))
-    print(f"{silenced} errors silenced across {len(errors)} modules.")
+    print(f"{len(errors)} errors silenced across {len(modules)} modules.")
 
 
 if __name__ == "__main__":
