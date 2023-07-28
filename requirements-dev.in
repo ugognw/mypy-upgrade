@@ -1,0 +1,7 @@
+black
+mypy
+pip-tools
+pytest
+pytest-datadir
+ruff
+virtualenv
