@@ -115,6 +115,39 @@ def parse_report(
     return errors
 
 
+def files_to_modules(files: Iterable[str]) -> list[str]:
+    """Determine fully qualified module names of files.
+
+    Args:
+        files: a list of files whose fully qualified names are to be
+        determined.
+
+    Raises:
+        ModuleNotFoundError: Unable to determine the fully qualified module
+        name of a file.
+
+    Returns:
+        A list of fully qualified module names of files.
+    """
+    modules: list[str] = []
+    for package in files:
+        module = package.removesuffix(".py")
+        module = module.replace("/", ".")
+        while True:
+            try:
+                _ = importlib.import_module(module)
+                break
+            except ModuleNotFoundError:
+                module = ".".join(module.split(".")[1:])
+
+        if not module:
+            raise ModuleNotFoundError
+
+        modules.append(module)
+
+    return modules
+
+
 def filter_errors(
     errors: list[tuple[str, int, str, str]],
     packages: list[str],
@@ -154,38 +187,6 @@ def filter_errors(
             filtered.append((module, line_no, error_code, description))
 
     return errors
-
-
-def files_to_modules(files: Iterable[str]) -> list[str]:
-    """Determine fully qualified module names of files.
-
-    Args:
-        files: a list of files whose fully qualified names are to be
-        determined.
-
-    Raises:
-        ModuleNotFoundError: Unable to determine the fully qualified module
-        name of a file.
-
-    Returns:
-        A list of fully qualified module names of files.
-    """
-    modules: list[str] = []
-    for i, package in enumerate(files):
-        module = package.removesuffix(".py")
-        module = module.replace("/", ".")
-        while "/" in module:
-            try:
-                _ = importlib.import_module(module)
-            except ModuleNotFoundError:
-                module = ".".join(module.split(".")[1:])
-
-        if not module:
-            raise ModuleNotFoundError
-
-        modules[i] = module
-
-    return modules
 
 
 def silence_errors(
