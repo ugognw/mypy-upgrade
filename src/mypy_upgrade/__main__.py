@@ -10,6 +10,7 @@ Usage::
 
 import argparse
 import importlib
+import io
 import pathlib
 import re
 import subprocess
@@ -24,7 +25,9 @@ class Consume(argparse.Action, ABC):
     def __init__(self, option_strings, dest, **kwargs) -> None:
         super().__init__(option_strings, dest, **kwargs)
 
-    def __call__(self, parser, namespace, values, option_string=None):  # noqa: ARG002
+    def __call__(
+        self, parser, namespace, values, option_string=None  # noqa: ARG002
+    ):
         if option_string is not None:
             sys.argv.remove(option_string)
 
@@ -42,9 +45,7 @@ class StorePath(Consume):
         file = pathlib.Path(values)
         if not file.exists():
             msg = f"{file} does not exist."
-            raise FileNotFoundError(
-                msg
-            )
+            raise FileNotFoundError(msg)
         setattr(namespace, self.dest, file)
         super().__call__(parser, namespace, values, option_string)
 
@@ -63,13 +64,16 @@ def open_report_file(file: str | None) -> typing.IO:
     """
     if file:
         return open(file, encoding="utf-8")
-    elif sys.argv[1:]:
-        return open(0, encoding="utf-8")
-    else:
-        temp = tempfile.NamedTemporaryFile(mode="r+", encoding="utf-8")
-        _ = subprocess.run(["python", "-m", "mypy"], stdout=temp)  # noqa: S603, S607
-        _ = temp.seek(0)
-        return temp
+
+    if sys.argv[:1] and "checked" in sys.argv[-1]:
+        return io.StringIO(sys.argv[-1])
+
+    temp = tempfile.NamedTemporaryFile(mode="r+", encoding="utf-8")
+    _ = subprocess.run(
+        ["python", "-m", "mypy", "."], stderr=subprocess.STDOUT, stdout=temp  # noqa: S603, S607
+    )
+    _ = temp.seek(0)
+    return temp
 
 
 def parse_report(
@@ -260,7 +264,9 @@ def main():
         if module not in modules:
             modules.append(module)
 
-    print(f"{len(errors)} errors silenced across {len(modules)} modules.")  # noqa: T201
+    print(  # noqa: T201
+        f"{len(errors)} errors silenced across {len(modules)} modules."
+    )
 
 
 if __name__ == "__main__":

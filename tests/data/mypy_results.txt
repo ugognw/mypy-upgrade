@@ -1,0 +1,249 @@
+ase/utils/plotting.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str")  [assignment]
+ase/utils/plotting.py:13: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/utils/plotting.py:13: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:27: error: Incompatible default for argument "info" (default has type "None", argument has type "dict[str, str]")  [assignment]
+ase/spectrum/dosdata.py:27: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:27: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:31: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/dosdata.py:80: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/dosdata.py:113: error: Incompatible default for argument "xmin" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/dosdata.py:113: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:113: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:114: error: Incompatible default for argument "xmax" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/dosdata.py:114: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:114: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:143: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/dosdata.py:147: error: Incompatible default for argument "xmin" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/dosdata.py:147: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:147: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:148: error: Incompatible default for argument "xmax" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/dosdata.py:148: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:148: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:153: error: Incompatible default for argument "filename" (default has type "None", argument has type "str")  [assignment]
+ase/spectrum/dosdata.py:153: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:153: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:154: error: Incompatible default for argument "mplargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+ase/spectrum/dosdata.py:154: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:154: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:181: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/dosdata.py:212: error: Incompatible default for argument "info" (default has type "None", argument has type "dict[str, str]")  [assignment]
+ase/spectrum/dosdata.py:212: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:212: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:234: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/dosdata.py:277: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/dosdata.py:290: error: Incompatible default for argument "filename" (default has type "None", argument has type "str")  [assignment]
+ase/spectrum/dosdata.py:290: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:290: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:291: error: Incompatible default for argument "mplargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+ase/spectrum/dosdata.py:291: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:291: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:353: error: Incompatible default for argument "info" (default has type "None", argument has type "dict[str, str]")  [assignment]
+ase/spectrum/dosdata.py:353: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:353: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:400: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/dosdata.py:411: error: Incompatible default for argument "width" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/dosdata.py:411: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:411: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:429: error: Incompatible default for argument "xmin" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/dosdata.py:429: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:429: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:430: error: Incompatible default for argument "xmax" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/dosdata.py:430: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:430: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:431: error: Incompatible default for argument "width" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/dosdata.py:431: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:431: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:435: error: Incompatible default for argument "filename" (default has type "None", argument has type "str")  [assignment]
+ase/spectrum/dosdata.py:435: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:435: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:436: error: Incompatible default for argument "mplargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+ase/spectrum/dosdata.py:436: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/dosdata.py:436: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/dosdata.py:468: error: Incompatible types in assignment (expression has type "float | None", variable has type "float")  [assignment]
+ase/spectrum/dosdata.py:473: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/doscollection.py:50: error: Incompatible default for argument "xmin" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/doscollection.py:50: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:50: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:51: error: Incompatible default for argument "xmax" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/doscollection.py:51: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:51: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:56: error: Incompatible default for argument "filename" (default has type "None", argument has type "str")  [assignment]
+ase/spectrum/doscollection.py:56: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:56: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:57: error: Incompatible default for argument "mplargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+ase/spectrum/doscollection.py:57: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:57: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:90: error: Incompatible default for argument "xmin" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/doscollection.py:90: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:90: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:91: error: Incompatible default for argument "xmax" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/doscollection.py:91: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:91: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:131: error: Incompatible default for argument "info" (default has type "None", argument has type "Sequence[dict[str, str]]")  [assignment]
+ase/spectrum/doscollection.py:131: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:131: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:198: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/doscollection.py:221: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/doscollection.py:224: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/doscollection.py:314: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/doscollection.py:315: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/doscollection.py:403: error: Cannot determine type of "info"  [has-type]
+ase/spectrum/doscollection.py:436: error: Incompatible default for argument "info" (default has type "None", argument has type "Sequence[dict[str, str]]")  [assignment]
+ase/spectrum/doscollection.py:436: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:436: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:533: error: Incompatible default for argument "xmin" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/doscollection.py:533: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:533: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:534: error: Incompatible default for argument "xmax" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/doscollection.py:534: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:534: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:535: error: Incompatible default for argument "width" (default has type "None", argument has type "float")  [assignment]
+ase/spectrum/doscollection.py:535: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:535: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:539: error: Incompatible default for argument "filename" (default has type "None", argument has type "str")  [assignment]
+ase/spectrum/doscollection.py:539: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:539: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:540: error: Incompatible default for argument "mplargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+ase/spectrum/doscollection.py:540: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spectrum/doscollection.py:540: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spectrum/doscollection.py:570: error: Incompatible types in assignment (expression has type "float | None", variable has type "float")  [assignment]
+ase/formula.py:18: error: Incompatible default for argument "_tree" (default has type "None", argument has type "Tree")  [assignment]
+ase/formula.py:18: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/formula.py:18: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/formula.py:19: error: Incompatible default for argument "_count" (default has type "None", argument has type "dict[str, int]")  [assignment]
+ase/formula.py:19: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/formula.py:19: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/formula.py:253: error: List item 0 has incompatible type "tuple[Sequence[str], int]"; expected "str | tuple[Tree, int] | list[Tree]"  [list-item]
+ase/formula.py:421: error: Incompatible return value type (got "list[tuple[str | tuple[Tree, int] | list[Tree], int]]", expected "str | tuple[Tree, int] | list[Tree]")  [return-value]
+ase/symbols.py:80: error: Invalid index type "generic | bool | int | float | complex | str | bytes | memoryview" for "list[str]"; expected type "SupportsIndex"  [index]
+ase/cell.py:122: error: Incompatible default for argument "path" (default has type "None", argument has type "str")  [assignment]
+ase/cell.py:122: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/cell.py:122: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/cell.py:123: error: Incompatible default for argument "npoints" (default has type "None", argument has type "int")  [assignment]
+ase/cell.py:123: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/cell.py:123: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/cell.py:125: error: Incompatible default for argument "density" (default has type "None", argument has type "float")  [assignment]
+ase/cell.py:125: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/cell.py:125: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/cell.py:126: error: Incompatible default for argument "special_points" (default has type "None", argument has type "Mapping[str, Sequence[float]]")  [assignment]
+ase/cell.py:126: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/cell.py:126: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spacegroup/utils.py:89: error: Incompatible default for argument "spacegroup" (default has type "None", argument has type "int | str | Spacegroup")  [assignment]
+ase/spacegroup/utils.py:89: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spacegroup/utils.py:89: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/spacegroup/utils.py:104: error: Incompatible default for argument "spacegroup" (default has type "None", argument has type "int | str | Spacegroup")  [assignment]
+ase/spacegroup/utils.py:104: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/spacegroup/utils.py:104: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/formats.py:48: error: Incompatible default for argument "encoding" (default has type "None", argument has type "str")  [assignment]
+ase/io/formats.py:48: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/formats.py:48: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/formats.py:609: error: Incompatible default for argument "format" (default has type "None", argument has type "str")  [assignment]
+ase/io/formats.py:609: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/formats.py:609: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/formats.py:725: error: Incompatible default for argument "format" (default has type "None", argument has type "str")  [assignment]
+ase/io/formats.py:725: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/formats.py:725: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/formats.py:783: error: Incompatible default for argument "format" (default has type "None", argument has type "str")  [assignment]
+ase/io/formats.py:783: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/formats.py:783: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/dft/kpoints.py:360: error: Incompatible default for argument "path" (default has type "None", argument has type "str")  [assignment]
+ase/dft/kpoints.py:360: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/dft/kpoints.py:360: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/dft/kpoints.py:361: error: Incompatible default for argument "npoints" (default has type "None", argument has type "int")  [assignment]
+ase/dft/kpoints.py:361: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/dft/kpoints.py:361: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/dft/kpoints.py:362: error: Incompatible default for argument "special_points" (default has type "None", argument has type "dict[str, ndarray[Any, Any]]")  [assignment]
+ase/dft/kpoints.py:362: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/dft/kpoints.py:362: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/dft/kpoints.py:363: error: Incompatible default for argument "density" (default has type "None", argument has type "float")  [assignment]
+ase/dft/kpoints.py:363: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/dft/kpoints.py:363: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/pickletrajectory.py:10: error: Name "unicode" is used before definition  [used-before-def]
+ase/io/pickletrajectory.py:16: error: Name "WindowsError" is used before definition  [used-before-def]
+ase/io/trajectory.py:340: error: Incompatible default for argument "header" (default has type "None", argument has type "tuple[Any, ...]")  [assignment]
+ase/io/trajectory.py:340: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/trajectory.py:340: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/trajectory.py:341: error: Incompatible default for argument "traj" (default has type "None", argument has type "TrajectoryReader")  [assignment]
+ase/io/trajectory.py:341: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/trajectory.py:341: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/db/core.py:354: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+ase/db/table.py:71: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+ase/vibrations/data.py:60: error: Incompatible default for argument "indices" (default has type "None", argument has type "Sequence[int] | ndarray[Any, Any]")  [assignment]
+ase/vibrations/data.py:60: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/vibrations/data.py:60: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/vibrations/data.py:66: error: Cannot determine type of "_indices"  [has-type]
+ase/vibrations/data.py:69: error: Cannot determine type of "_indices"  [has-type]
+ase/vibrations/data.py:69: error: Argument "indices" to "_check_dimensions" of "VibrationsData" has incompatible type "ndarray[Any, dtype[Any]]"; expected "Sequence[int]"  [arg-type]
+ase/vibrations/data.py:82: error: Incompatible default for argument "indices" (default has type "None", argument has type "Sequence[int]")  [assignment]
+ase/vibrations/data.py:82: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/vibrations/data.py:82: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/vibrations/data.py:198: error: Cannot determine type of "_indices"  [has-type]
+ase/vibrations/data.py:263: error: Cannot determine type of "_indices"  [has-type]
+ase/vibrations/data.py:285: error: Argument "indices" to "VibrationsData" has incompatible type "Sequence[Any] | ndarray[Any, Any] | None"; expected "Sequence[int] | ndarray[Any, Any]"  [arg-type]
+ase/vibrations/data.py:511: error: Incompatible default for argument "ir_intensities" (default has type "None", argument has type "Sequence[float] | ndarray[Any, Any]")  [assignment]
+ase/vibrations/data.py:511: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/vibrations/data.py:511: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/vibrations/data.py:539: error: Incompatible default for argument "ir_intensities" (default has type "None", argument has type "Sequence[float] | ndarray[Any, Any]")  [assignment]
+ase/vibrations/data.py:539: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/vibrations/data.py:539: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/vasp_parsers/vasp_outcar_parsers.py:147: error: Incompatible default for argument "header" (default has type "None", argument has type "dict[str, Any]")  [assignment]
+ase/io/vasp_parsers/vasp_outcar_parsers.py:147: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/vasp_parsers/vasp_outcar_parsers.py:147: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/vasp_parsers/vasp_outcar_parsers.py:648: error: Incompatible default for argument "header" (default has type "None", argument has type "dict[str, Any]")  [assignment]
+ase/io/vasp_parsers/vasp_outcar_parsers.py:648: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/vasp_parsers/vasp_outcar_parsers.py:648: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/vasp_parsers/vasp_outcar_parsers.py:649: error: Incompatible default for argument "parsers" (default has type "None", argument has type "Sequence[VaspChunkPropertyParser]")  [assignment]
+ase/io/vasp_parsers/vasp_outcar_parsers.py:649: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/vasp_parsers/vasp_outcar_parsers.py:649: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/vasp_parsers/vasp_outcar_parsers.py:688: error: Incompatible default for argument "parsers" (default has type "None", argument has type "Sequence[VaspHeaderPropertyParser]")  [assignment]
+ase/io/vasp_parsers/vasp_outcar_parsers.py:688: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/vasp_parsers/vasp_outcar_parsers.py:688: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/vasp_parsers/vasp_outcar_parsers.py:689: error: Incompatible default for argument "workdir" (default has type "None", argument has type "str | PurePath")  [assignment]
+ase/io/vasp_parsers/vasp_outcar_parsers.py:689: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/vasp_parsers/vasp_outcar_parsers.py:689: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/vasp_parsers/vasp_outcar_parsers.py:769: error: Incompatible default for argument "parser" (default has type "None", argument has type "ChunkParser")  [assignment]
+ase/io/vasp_parsers/vasp_outcar_parsers.py:769: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/vasp_parsers/vasp_outcar_parsers.py:769: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/vasp_parsers/vasp_outcar_parsers.py:808: error: Incompatible default for argument "chunk_parser" (default has type "None", argument has type "ChunkParser")  [assignment]
+ase/io/vasp_parsers/vasp_outcar_parsers.py:808: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/vasp_parsers/vasp_outcar_parsers.py:808: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/vasp_parsers/vasp_outcar_parsers.py:809: error: Incompatible default for argument "header_parser" (default has type "None", argument has type "HeaderParser")  [assignment]
+ase/io/vasp_parsers/vasp_outcar_parsers.py:809: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/vasp_parsers/vasp_outcar_parsers.py:809: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/db/mysql.py:3: error: Library stubs not installed for "pymysql"  [import]
+ase/db/mysql.py:4: error: Library stubs not installed for "pymysql.err"  [import]
+ase/db/mysql.py:4: note: Hint: "python3 -m pip install types-PyMySQL"
+ase/db/mysql.py:4: note: (or run "mypy --install-types" to install all missing stub packages)
+ase/db/mysql.py:4: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+ase/test/calculator/ace/test_ace_calculator.py:2: error: Module "ase.calculators.acemolecule" has no attribute "ACE"  [attr-defined]
+ase/test/calculator/ace/test_ace.py:2: error: Module "ase.calculators.acemolecule" has no attribute "ACE"  [attr-defined]
+ase/io/gpaw_out.py:63: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+ase/io/gpaw_out.py:72: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+ase/geometry/rdf.py:130: error: Value of type variable "SupportsRichComparisonT" of "min" cannot be "object"  [type-var]
+ase/geometry/rdf.py:130: error: Incompatible types in assignment (expression has type "object", variable has type "float")  [assignment]
+ase/dft/bee.py:26: error: Incompatible default for argument "e" (default has type "None", argument has type "float")  [assignment]
+ase/dft/bee.py:26: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/dft/bee.py:26: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/dft/bee.py:27: error: Incompatible default for argument "contribs" (default has type "None", argument has type "ndarray[Any, Any]")  [assignment]
+ase/dft/bee.py:27: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/dft/bee.py:27: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/dft/bee.py:28: error: Incompatible default for argument "xc" (default has type "None", argument has type "str")  [assignment]
+ase/dft/bee.py:28: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/dft/bee.py:28: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/utils/sphinx.py:9: error: Library stubs not installed for "docutils"  [import]
+ase/utils/sphinx.py:10: error: Library stubs not installed for "docutils.parsers.rst.roles"  [import]
+ase/utils/sphinx.py:10: note: Hint: "python3 -m pip install types-docutils"
+ase/test/fio/test_jsonio_atoms.py:65: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+ase/test/fio/aims/test_aims_out_chunks.py:1146: error: Name "molecular_positions" already defined on line 990  [no-redef]
+ase/io/lammpsdata.py:410: error: Incompatible default for argument "specorder" (default has type "None", argument has type "list[Any]")  [assignment]
+ase/io/lammpsdata.py:410: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/lammpsdata.py:410: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/io/lammpsdata.py:412: error: Incompatible default for argument "prismobj" (default has type "None", argument has type "Prism")  [assignment]
+ase/io/lammpsdata.py:412: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/io/lammpsdata.py:412: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/db/cli.py:322: error: Incompatible default for argument "length" (default has type "None", argument has type "int")  [assignment]
+ase/db/cli.py:322: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+ase/db/cli.py:322: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+ase/test/lammpsdata/test_write_and_read.py:28: error: Incompatible types in assignment (expression has type overloaded function, variable has type "Callable[[_SupportsArray[dtype[Any]] | _NestedSequence[_SupportsArray[dtype[Any]]] | bool | int | float | complex | str | bytes | _NestedSequence[bool | int | float | complex | str | bytes], _SupportsArray[dtype[Any]] | _NestedSequence[_SupportsArray[dtype[Any]]] | bool | int | float | complex | str | bytes | _NestedSequence[bool | int | float | complex | str | bytes], str, bool, DefaultNamedArg(bool, 'strict')], None]")  [assignment]
+ase/optimize/test/test.py:41: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+Found 104 errors in 23 files (checked 1083 source files)
