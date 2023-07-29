@@ -9,16 +9,23 @@ Usage::
 
     # Use saved report file
     $ mypy -p ase > mypy_report.txt
-    $ pythom -m mypy_upgrade --packages ase --report mypy_report.txt
+    $ pythom -m mypy_upgrade --package ase --report mypy_report.txt
 
     # Only silence errors in subpackage
-    $ pythom -m mypy_upgrade --packages ase.build --report mypy_report.txt
+    $ mypy -p ase > mypy_report.txt
+    $ pythom -m mypy_upgrade --package ase.build --report mypy_report.txt
 
-    # Only silence errors in module
-    $ pythom -m mypy_upgrade --packages ase.atoms --report mypy_report.txt
+    # Only silence errors in modules
+    $ mypy -p ase > mypy_report.txt
+    $ pythom -m mypy_upgrade --module ase.atoms --report mypy_report.txt
 
     # Only silence errors in file
-    $ pythom -m mypy_upgrade --packages ase/atoms.py --report mypy_report.txt
+    $ mypy -p ase > mypy_report.txt
+    $ pythom -m mypy_upgrade --report mypy_report.txt ase/atoms.py
+
+    # Only silence errors in directory
+    $ mypy -p ase > mypy_report.txt
+    $ pythom -m mypy_upgrade --report mypy_report.txt doc
 """
 
 import argparse
@@ -142,6 +149,27 @@ def select_errors(
     return filtered
 
 
+def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
+    """Extract error code and description from mypy error suppression comment.
+
+    Args:
+        line: a string representing a line to search.
+
+    Returns:
+        A tuple containing the whole comment, the error code and the
+        description. If either the error code or the description is
+        not found, its corresponding entry is ``None``.
+    """
+    comment, code, description = None, None, None
+    suppressed = re.search(r"(#\s*type:\s*ignore(\[([^\]]+)\])*\s*\#*(.*))", line)
+    if suppressed:
+        comment = suppressed.group(1) or None
+        code = suppressed.group(3) or None
+        description = suppressed.group(4) or None
+
+    return comment, code, description
+
+
 def silence_errors(
     module: str, line_no: int, error_code: str, description: str
 ):
@@ -157,6 +185,16 @@ def silence_errors(
         lines = f.readlines()
 
     line = lines[line_no - 1].removesuffix("\n")
+    comment, old_code, old_description = extract_old_error(line)
+
+    if comment is not None:
+        line = line.replace(comment, "")
+
+    if old_code:
+        error_code = ",".join((old_code.strip(), error_code))
+    if old_description:
+        description = ", ".join((old_description.strip(), description))
+
     comment = f"# type: ignore[{error_code}]  # {description}"
     lines[line_no - 1] = f"{line}  {comment}\n"
 
@@ -172,28 +210,18 @@ def _parse_arguments() -> argparse.Namespace:
         """,
     )
     parser.add_argument(
-        "-f",
-        "--files",
-        default=[],
-        nargs="*",
-        help="A space-separated list of files for which errors will be "
-        "suppressed.",
-    )
-    parser.add_argument(
         "-m",
-        "--modules",
+        "--module",
         default=[],
-        nargs="*",
-        help="A space-separated list of modules for which errors will be "
-        "suppressed. The modules must be importable.",
+        action="append",
+        help="Silence errors from the provided (importable) module.",
     )
     parser.add_argument(
         "-p",
-        "--packages",
+        "--package",
         default=[],
-        nargs="*",
-        help="A space-separated list of packages for which errors will be "
-        "suppressed. The packages must be importable.",
+        action="append",
+        help="Silence errors from the provided (importable) package.",
     )
     parser.add_argument(
         "-r",
@@ -203,6 +231,12 @@ def _parse_arguments() -> argparse.Namespace:
         The path to a text file containing a mypy type checking report. If not
         specified, input is read from stdin.
         """,
+    )
+    parser.add_argument(
+        "files",
+        default=[],
+        nargs="*",
+        help="Silence errors from the provided files/directories.",
     )
     return parser.parse_args()
 
@@ -217,9 +251,9 @@ def main():
     else:
         errors = parse_report(sys.stdin)
 
-    filtered = select_errors(errors, args.packages, args.modules, args.files)
+    selected = select_errors(errors, args.package, args.module, args.files)
     modules = []
-    for module, line_no, error_code, description in filtered:
+    for module, line_no, error_code, description in selected:
         silence_errors(module, line_no, error_code, description)
         if module not in modules:
             modules.append(module)
