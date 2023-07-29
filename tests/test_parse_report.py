@@ -6,8 +6,12 @@ import pytest
 from mypy_upgrade.__main__ import parse_report
 
 
-@pytest.fixture(name="report", params=["mypy_results.txt", "relative_mypy_results.txt"])
-def fixture_report(shared_datadir: pathlib.Path, request: pytest.FixtureRequest) -> typing.IO:
+@pytest.fixture(
+    name="report", params=["mypy_results.txt", "relative_mypy_results.txt"]
+)
+def fixture_report(
+    shared_datadir: pathlib.Path, request: pytest.FixtureRequest
+) -> typing.IO:
     marker = request.node.get_closest_marker("results_file")
     if marker is not None:
         file = shared_datadir / marker.args[0]

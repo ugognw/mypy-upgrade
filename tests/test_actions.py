@@ -21,9 +21,7 @@ def fixture_args(
     value = request.node.get_closest_marker("value").args[0]
     args = [name, value] if "--" in name else [value]
     sys.argv.extend(args)
-    yield parser.parse_args(
-        args
-    )
+    yield parser.parse_args(args)
     try:
         sys.argv.remove(name)
     except ValueError:
@@ -41,28 +39,22 @@ class TestSplit:
 
     @staticmethod
     @pytest.mark.value("test")
-    def test_should_remove_argument_from_stdin1(
-        name: str
-    ):
+    def test_should_remove_argument_from_stdin1(name: str):
         assert name.removeprefix("--") not in sys.argv[1:]
 
     @staticmethod
     @pytest.mark.value("test1,test2")
-    def test_should_remove_argument_from_stdin2(
-        name: str
-    ):
+    def test_should_remove_argument_from_stdin2(name: str):
         assert name.removeprefix("--") not in sys.argv[1:]
 
     @staticmethod
     @pytest.mark.value("test")
-    def test_should_remove_value_from_stdin1(
-    ):
+    def test_should_remove_value_from_stdin1():
         assert "test" not in sys.argv[1:]
 
     @staticmethod
     @pytest.mark.value("test1,test2")
-    def test_should_remove_value_from_stdin2(
-    ):
+    def test_should_remove_value_from_stdin2():
         assert "test" not in sys.argv[1:]
 
     @staticmethod
@@ -88,20 +80,15 @@ class TestStorePath:
 
     @staticmethod
     @pytest.mark.value(__file__)
-    def test_should_remove_argument_from_stdin(
-        name: str
-    ):
+    def test_should_remove_argument_from_stdin(name: str):
         assert name.removeprefix("--") not in sys.argv[1:]
 
     @staticmethod
     @pytest.mark.value(__file__)
-    def test_should_remove_value_from_stdin(
-    ):
+    def test_should_remove_value_from_stdin():
         assert __file__ not in sys.argv[1:]
 
     @staticmethod
     @pytest.mark.value(__file__)
-    def test_should_store_path(
-        args: argparse.Namespace, name: str
-    ):
+    def test_should_store_path(args: argparse.Namespace, name: str):
         assert vars(args)[name.removeprefix("--")] == pathlib.Path(__file__)
