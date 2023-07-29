@@ -9,7 +9,6 @@ Usage::
 """
 
 import argparse
-import importlib
 import io
 import pathlib
 import re
@@ -18,7 +17,6 @@ import sys
 import tempfile
 import typing
 from abc import ABC
-from collections.abc import Iterable
 from importlib import util
 
 
