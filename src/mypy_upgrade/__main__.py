@@ -150,11 +150,6 @@ def _parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="mypy-upgrade",
         description="Place in-line comments into files to silence mypy errors",
-        epilog="""
-Usage::
-
-    $ pythom -m mypy_upgrade --packages <package> [<package>] --report <report-file>
-""",
     )
     parser.add_argument(
         "-f",
