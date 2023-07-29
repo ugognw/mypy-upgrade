@@ -161,7 +161,9 @@ def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
         not found, its corresponding entry is ``None``.
     """
     comment, code, description = None, None, None
-    suppressed = re.search(r"(#\s*type:\s*ignore(\[([^\]]+)\])*\s*\#*(.*))", line)
+    suppressed = re.search(
+        r"(#\s*type:\s*ignore(\[([^\]]+)\])*\s*\#*(.*))", line
+    )
     if suppressed:
         comment = suppressed.group(1) or None
         code = suppressed.group(3) or None
