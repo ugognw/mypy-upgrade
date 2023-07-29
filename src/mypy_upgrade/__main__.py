@@ -9,40 +9,10 @@ Usage::
 """
 
 import argparse
-import io
 import pathlib
 import re
-import subprocess
-import sys
-import tempfile
 import typing
 from importlib import util
-
-
-def open_report_file(file: str | None) -> typing.IO:
-    """Obtain mypy type checking report file.
-
-    If no file is supplied, this function attempts to read from stdin.
-    If an error occurs trying to read from stdin, this function calls mypy
-    Args:
-        file: a string representing the path to a report file. Defaults to
-        None.
-
-    Returns:
-        A file stream corresponding to the report file.
-    """
-    if file:
-        return open(file, encoding="utf-8")
-
-    if sys.argv[:1] and "checked" in sys.argv[-1]:
-        return io.StringIO(sys.argv[-1])
-
-    temp = tempfile.NamedTemporaryFile(mode="r+", encoding="utf-8")
-    _ = subprocess.run(
-        ["python", "-m", "mypy", "."], stderr=subprocess.STDOUT, stdout=temp  # noqa: S603, S607
-    )
-    _ = temp.seek(0)
-    return temp
 
 
 def parse_report(
@@ -211,6 +181,7 @@ Usage::
     )
     parser.add_argument(
         "--report",
+        required=True,
         type=pathlib.Path,
         help="The path to a text file containing a mypy type checking report.",
     )
@@ -220,7 +191,7 @@ Usage::
 def main():
     """Logic for CLI."""
     args = _parse_arguments()
-    with open_report_file(args.report) as report:
+    with open(args.report) as report:
         errors = parse_report(report)
 
     filtered = select_errors(errors, args.packages, args.modules, args.files)
