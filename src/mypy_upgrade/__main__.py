@@ -74,9 +74,13 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
             origin = spec.origin
             if spec.submodule_search_locations:  # Package
                 if origin is None:  # Namespace
-                    module_path = pathlib.Path(spec.submodule_search_locations[0])
+                    module_path = pathlib.Path(
+                        spec.submodule_search_locations[0]
+                    )
                 else:  # Regular
-                    module_path = pathlib.Path(origin.removesuffix("__init__.py"))
+                    module_path = pathlib.Path(
+                        origin.removesuffix("__init__.py")
+                    )
             elif origin is None:  # Something weird has happened
                 module_path = None
             else:
@@ -118,7 +122,7 @@ def select_errors(
                 in_package = True
                 break
 
-        if (in_package or included_file):
+        if in_package or included_file:
             filtered.append((module, line_no, error_code, description))
 
     return filtered
