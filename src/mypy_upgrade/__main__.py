@@ -1,16 +1,30 @@
 #!/usr/bin/env python3
-
 """This defines a tool to silence mypy errors using in-line comments.
 
 
 Usage::
 
-    $ pythom -m mypy_upgrade --packages <package> [<package>] --report <report-file>
+    # Pyre-like invocation
+    $ mypy -p ase | python -m mypy_upgrade --packages ase
+
+    # Use saved report file
+    $ mypy -p ase > mypy_report.txt
+    $ pythom -m mypy_upgrade --packages ase --report mypy_report.txt
+
+    # Only silence errors in subpackage
+    $ pythom -m mypy_upgrade --packages ase.build --report mypy_report.txt
+
+    # Only silence errors in module
+    $ pythom -m mypy_upgrade --packages ase.atoms --report mypy_report.txt
+
+    # Only silence errors in file
+    $ pythom -m mypy_upgrade --packages ase/atoms.py --report mypy_report.txt
 """
 
 import argparse
 import pathlib
 import re
+import sys
 import typing
 from importlib import util
 
@@ -58,7 +72,7 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
     """Determine file system paths of given modules/packages.
 
     Args:
-        modules: a list of strings representing modules.
+        modules: a list of strings representing (importable) modules.
 
     Returns:
         A list (of the same length as the input list) of pathlib.Path objects
@@ -153,7 +167,9 @@ def silence_errors(
 def _parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="mypy-upgrade",
-        description="Place in-line comments into files to silence mypy errors",
+        description="""
+        Place in-line comments into files to silence mypy errors.
+        """,
     )
     parser.add_argument(
         "-f",
@@ -182,9 +198,11 @@ def _parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "-r",
         "--report",
-        required=True,
         type=pathlib.Path,
-        help="The path to a text file containing a mypy type checking report.",
+        help="""
+        The path to a text file containing a mypy type checking report. If not
+        specified, input is read from stdin.
+        """,
     )
     return parser.parse_args()
 
@@ -192,8 +210,12 @@ def _parse_arguments() -> argparse.Namespace:
 def main():
     """Logic for CLI."""
     args = _parse_arguments()
-    with open(args.report) as report:
-        errors = parse_report(report)
+
+    if args.report is not None:
+        with open(args.report) as report:
+            errors = parse_report(report)
+    else:
+        errors = parse_report(sys.stdin)
 
     filtered = select_errors(errors, args.packages, args.modules, args.files)
     modules = []
