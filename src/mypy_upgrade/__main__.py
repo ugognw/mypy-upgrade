@@ -16,41 +16,7 @@ import subprocess
 import sys
 import tempfile
 import typing
-from abc import ABC
 from importlib import util
-
-
-class Consume(argparse.Action, ABC):
-    def __init__(self, option_strings, dest, **kwargs) -> None:
-        super().__init__(option_strings, dest, **kwargs)
-
-    def __call__(
-        self, parser, namespace, values, option_string=None  # noqa: ARG002
-    ):
-        try:
-            sys.argv.remove(option_string)
-            sys.argv.remove(values)
-        except ValueError:
-            try:
-                sys.argv.remove(values)
-            except ValueError:
-                pass
-
-
-class Split(Consume):
-    def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, values.split(","))
-        super().__call__(parser, namespace, values, option_string)
-
-
-class StorePath(Consume):
-    def __call__(self, parser, namespace, values, option_string=None):
-        file = pathlib.Path(values)
-        if not file.exists():
-            msg = f"{file} does not exist."
-            raise FileNotFoundError(msg)
-        setattr(namespace, self.dest, file)
-        super().__call__(parser, namespace, values, option_string)
 
 
 def open_report_file(file: str | None) -> typing.IO:
@@ -225,27 +191,27 @@ Usage::
     parser.add_argument(
         "--files",
         default=[],
-        action=Split,
-        help="A comma-separated list of files for which errors will be "
+        nargs="*",
+        help="A space-separated list of files for which errors will be "
         "suppressed.",
     )
     parser.add_argument(
         "--modules",
         default=[],
-        action=Split,
-        help="A comma-separated list of modules for which errors will be "
+        nargs="*",
+        help="A space-separated list of modules for which errors will be "
         "suppressed. The modules must be importable.",
     )
     parser.add_argument(
         "--packages",
         default=[],
-        action=Split,
-        help="A comma-separated list of packages for which errors will be "
+        nargs="*",
+        help="A space-separated list of packages for which errors will be "
         "suppressed. The packages must be importable.",
     )
     parser.add_argument(
         "--report",
-        action=StorePath,
+        type=pathlib.Path,
         help="The path to a text file containing a mypy type checking report.",
     )
     return parser.parse_args()
