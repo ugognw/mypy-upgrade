@@ -57,11 +57,6 @@ def parse_report(
            >> errors = process_report('ase')
            >> module, line_no, error_code, description = errors[0]
     """
-    # captures:
-    # 1) file path to module
-    # 2) line number
-    # 3) error description
-    # 4) error code
     info = re.compile(r"^([^:]+):(\d+): error: (.+)\s+\[(.+)\]$")
     errors = []
 
@@ -130,23 +125,21 @@ def select_errors(
         files.
     """
     package_paths = [p for p in get_module_paths(packages) if p is not None]
-    module_paths = get_module_paths(modules)
-    paths = [pathlib.Path(f) for f in files] + module_paths
-    filtered = []
+    module_paths = [m for m in get_module_paths(modules) if m is not None]
+    paths = package_paths + module_paths + files
+    selected = []
     for module, line_no, error_code, description in errors:
         module_path = pathlib.Path(module).resolve()
-        included_file = module_path in paths
-        in_package = False
-
-        for package in package_paths:
-            if pathlib.Path(module_path).is_relative_to(package):
-                in_package = True
+        should_include = False
+        for path in paths:
+            if pathlib.Path(module_path).is_relative_to(path):
+                should_include = True
                 break
 
-        if in_package or included_file:
-            filtered.append((module, line_no, error_code, description))
+        if should_include:
+            selected.append((module, line_no, error_code, description))
 
-    return filtered
+    return selected
 
 
 def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
@@ -156,8 +149,8 @@ def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
         line: a string representing a line to search.
 
     Returns:
-        A tuple containing the whole comment, the error code and the
-        description. If either the error code or the description is
+        A tuple containing the whole error suppressing comment, the error code
+        and the description. If either the error code or the description is
         not found, its corresponding entry is ``None``.
     """
     comment, code, description = None, None, None
@@ -175,13 +168,14 @@ def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
 def silence_errors(
     module: str, line_no: int, error_code: str, description: str
 ):
-    """Silences all errors in a given file.
+    """Silences the given error with an error code-specific comment.
 
     Args:
         module: a string representing the path to the module with the errors
             to fix.
-        errors: a dictionary representing the errors in a module in the same
-            format as the values of the return vale of `process_piped_report`.
+        line_no: an int representing the line number of the error (1-indexed).
+        error_code: a string representing the mypy error code.
+        description: a string representing a description of the error.
     """
     with open(module, encoding="utf-8") as f:
         lines = f.readlines()
