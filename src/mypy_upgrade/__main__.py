@@ -5,7 +5,7 @@
 
 Usage::
 
-    $ mypy path/to/project | pythom -m mypy-upgrade <package>
+    $ pythom -m mypy_upgrade --packages <package> [<package>] --report <report-file>
 """
 
 import argparse
@@ -153,12 +153,11 @@ def _parse_arguments() -> argparse.Namespace:
         epilog="""
 Usage::
 
-    $ mypy /path/to/project | python -m mypy-upgrade --packages <package>[,<package>]
-    $ python -m mypy-upgrade --report mypy_report.txt --packages <package>[,<package>]
-    $ python -m mypy-upgrade --packages <package>[,<package>]
+    $ pythom -m mypy_upgrade --packages <package> [<package>] --report <report-file>
 """,
     )
     parser.add_argument(
+        "-f",
         "--files",
         default=[],
         nargs="*",
@@ -166,6 +165,7 @@ Usage::
         "suppressed.",
     )
     parser.add_argument(
+        "-m",
         "--modules",
         default=[],
         nargs="*",
@@ -173,6 +173,7 @@ Usage::
         "suppressed. The modules must be importable.",
     )
     parser.add_argument(
+        "-p",
         "--packages",
         default=[],
         nargs="*",
@@ -180,6 +181,7 @@ Usage::
         "suppressed. The packages must be importable.",
     )
     parser.add_argument(
+        "-r",
         "--report",
         required=True,
         type=pathlib.Path,
