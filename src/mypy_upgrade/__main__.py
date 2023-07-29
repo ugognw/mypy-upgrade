@@ -178,7 +178,7 @@ def select_errors(
         in_package = False
 
         for package in package_paths:
-            if pathlib.Path(module).is_relative_to(package):
+            if pathlib.Path(module_path).is_relative_to(package):
                 in_package = True
                 break
 
@@ -257,9 +257,9 @@ def main():
     with open_report_file(args.report) as report:
         errors = parse_report(report)
 
-    #filtered = filter_errors(errors, args.packages, args.modules, args.files)
+    filtered = select_errors(errors, args.packages, args.modules, args.files)
     modules = []
-    for module, line_no, error_code, description in errors:
+    for module, line_no, error_code, description in filtered:
         silence_errors(module, line_no, error_code, description)
         if module not in modules:
             modules.append(module)
