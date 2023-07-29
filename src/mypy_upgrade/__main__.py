@@ -99,7 +99,7 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
                     )
             elif origin is None:  # Something weird has happened
                 module_path = None
-            else:
+            else:  # Module
                 module_path = pathlib.Path(origin)
 
             paths.append(module_path)
@@ -116,13 +116,14 @@ def select_errors(
     """Select errors based on specified packages, modules, files.
 
     Args:
+        errors: a list of tuples of the form of the output of ``parse_report``.
         packages: a list of strings specifying packages to be included.
         modules: a list of strings specifying modules to be included.
         files: a list of strings specifying files to be included.
 
     Returns:
-        A list of errors including only those in either packages, modules, or
-        files.
+        A list of errors including only those in either ``packages``,
+        ``modules``, or ``files``.
     """
     package_paths = [p for p in get_module_paths(packages) if p is not None]
     module_paths = [m for m in get_module_paths(modules) if m is not None]
@@ -181,10 +182,10 @@ def silence_errors(
         lines = f.readlines()
 
     line = lines[line_no - 1].removesuffix("\n")
-    comment, old_code, old_description = extract_old_error(line)
+    old_comment, old_code, old_description = extract_old_error(line)
 
-    if comment is not None:
-        line = line.replace(comment, "")
+    if old_comment is not None:
+        line = line.replace(old_comment, "")
 
     if old_code:
         error_code = ",".join((old_code.strip(), error_code))
