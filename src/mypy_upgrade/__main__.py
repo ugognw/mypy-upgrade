@@ -19,6 +19,7 @@ import tempfile
 import typing
 from abc import ABC
 from collections.abc import Iterable
+from importlib import util
 
 
 class Consume(argparse.Action, ABC):
@@ -28,10 +29,14 @@ class Consume(argparse.Action, ABC):
     def __call__(
         self, parser, namespace, values, option_string=None  # noqa: ARG002
     ):
-        if option_string is not None:
+        try:
             sys.argv.remove(option_string)
-
-        sys.argv.remove(values)
+            sys.argv.remove(values)
+        except ValueError:
+            try:
+                sys.argv.remove(values)
+            except ValueError:
+                pass
 
 
 class Split(Consume):
@@ -115,46 +120,46 @@ def parse_report(
     return errors
 
 
-def files_to_modules(files: Iterable[str]) -> list[str]:
-    """Determine fully qualified module names of files.
+def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
+    """Determine file system paths of given modules/packages.
 
     Args:
-        files: a list of files whose fully qualified names are to be
-        determined.
-
-    Raises:
-        ModuleNotFoundError: Unable to determine the fully qualified module
-        name of a file.
+        modules: a list of strings representing modules.
 
     Returns:
-        A list of fully qualified module names of files.
+        A list (of the same length as the input list) of pathlib.Path objects
+        corresponding to the given modules. If a path is not found for a
+        module, the corresponding entry in the output is ``None``.
     """
-    modules: list[str] = []
-    for package in files:
-        module = package.removesuffix(".py")
-        module = module.replace("/", ".")
-        while True:
-            try:
-                _ = importlib.import_module(module)
-                break
-            except ModuleNotFoundError:
-                module = ".".join(module.split(".")[1:])
+    paths: list[pathlib.Path | None] = []
+    for module in modules:
+        spec = util.find_spec(module)
+        if spec is None:
+            paths.append(None)
+        else:
+            origin = spec.origin
+            if spec.submodule_search_locations:  # Package
+                if origin is None:  # Namespace
+                    module_path = pathlib.Path(spec.submodule_search_locations[0])
+                else:  # Regular
+                    module_path = pathlib.Path(origin.removesuffix("__init__.py"))
+            elif origin is None:  # Something weird has happened
+                module_path = None
+            else:
+                module_path = pathlib.Path(origin)
 
-        if not module:
-            raise ModuleNotFoundError
+            paths.append(module_path)
 
-        modules.append(module)
-
-    return modules
+    return paths
 
 
-def filter_errors(
+def select_errors(
     errors: list[tuple[str, int, str, str]],
     packages: list[str],
     modules: list[str],
     files: list[str],
 ) -> list[tuple[str, int, str, str]]:
-    """Filter errors based on specified packages, modules, files
+    """Select errors based on specified packages, modules, files.
 
     Args:
         packages: a list of strings specifying packages to be included.
@@ -165,28 +170,24 @@ def filter_errors(
         A list of errors including only those in either packages, modules, or
         files.
     """
-    qualified_packages = re.compile(
-        "|".join(files_to_modules(packages)).replace(".", r"\.")
-    )
-    qualified_modules = files_to_modules(modules)
-    error_modules = files_to_modules([module for module, *_ in errors])
+    package_paths = [p for p in get_module_paths(packages) if p is not None]
+    module_paths = get_module_paths(modules)
+    paths = [pathlib.Path(f) for f in files] + module_paths
     filtered = []
-    for i, (module, line_no, error_code, description) in enumerate(errors):
-        relative_to_file = False
-        for file in files:
-            if pathlib.Path(module).is_relative_to(file):
-                relative_to_file = True
+    for module, line_no, error_code, description in errors:
+        module_path = pathlib.Path(module).resolve()
+        included_file = module_path in paths
+        in_package = False
+
+        for package in package_paths:
+            if pathlib.Path(module).is_relative_to(package):
+                in_package = True
                 break
 
-        if (
-            module in files
-            or relative_to_file
-            or error_modules[i] in qualified_modules
-            or qualified_packages.match(error_modules[i])
-        ):
+        if (in_package or included_file):
             filtered.append((module, line_no, error_code, description))
 
-    return errors
+    return filtered
 
 
 def silence_errors(
@@ -258,9 +259,9 @@ def main():
     with open_report_file(args.report) as report:
         errors = parse_report(report)
 
-    filtered = filter_errors(errors)
+    #filtered = filter_errors(errors, args.packages, args.modules, args.files)
     modules = []
-    for module, line_no, error_code, description in filtered:
+    for module, line_no, error_code, description in errors:
         silence_errors(module, line_no, error_code, description)
         if module not in modules:
             modules.append(module)
