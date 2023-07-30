@@ -237,6 +237,14 @@ $ pythom -m mypy_upgrade --report mypy_report.txt doc
         """,
     )
     parser.add_argument(
+        "-v",
+        "--verbose",
+        action="append_const",
+        const=True,
+        default=[],
+        help="Control the verbosity.",
+    )
+    parser.add_argument(
         "files",
         default=[],
         nargs="*",
@@ -271,6 +279,7 @@ def main():
         if module not in modules:
             modules.append(module)
 
-    print(  # noqa: T201
-        f"{len(selected)} errors silenced across {len(modules)} modules."
-    )
+    if len(args.verbose) > 0:
+        print(  # noqa: T201
+            f"{len(selected)} errors silenced across {len(modules)} modules."
+        )
