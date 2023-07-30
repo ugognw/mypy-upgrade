@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """This defines a tool to silence mypy errors using in-line comments.
 
 
@@ -166,7 +165,7 @@ def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
     return comment, code, description
 
 
-def silence_errors(
+def silence_error(
     module: str, line_no: int, error_code: str, description: str
 ):
     """Silences the given error with an error code-specific comment.
@@ -251,12 +250,12 @@ def main():
     selected = select_errors(errors, args.package, args.module, args.files)
     modules = []
     for module, line_no, error_code, description in selected:
-        silence_errors(module, line_no, error_code, description)
+        silence_error(module, line_no, error_code, description)
         if module not in modules:
             modules.append(module)
 
     print(  # noqa: T201
-        f"{len(errors)} errors silenced across {len(modules)} modules."
+        f"{len(selected)} errors silenced across {len(modules)} modules."
     )
 
 
