@@ -33,7 +33,7 @@ def parse_report(
            >> errors = process_report('ase')
            >> module, line_no, error_code, description = errors[0]
     """
-    info = re.compile(r"^([^:]+):(\d+): error: (.+)\s+(?:\[(.+)\])*$")
+    info = re.compile(r"^([^:]+):(\d+): error: (.+)\s+(?:\[(.+)\])?\n$")
     errors = []
 
     for line in report:
@@ -130,20 +130,18 @@ def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
         and the description. If either the error code or the description is
         not found, its corresponding entry is ``None``.
     """
-    comment, code, description = None, None, None
-    suppressed = re.search(
-        r"(#\s*type:\s*ignore(\[([^\]]+)\])*\s*\#*(.*))", line
-    )
+    comment = code = description = None
+    suppressed = re.search(r"(#\s*type:\s*ignore(?:\[\s*([\s\w,\-]+)\s*\])?\s*\#*\s*(.*))", line)
     if suppressed:
         comment = suppressed.group(1) or None
-        code = suppressed.group(3) or None
-        description = suppressed.group(4) or None
+        code = suppressed.group(2) or None
+        description = suppressed.group(3) or None
 
     return comment, code, description
 
 
 def silence_error(line: str, error_code: str, description: str):
-    """Silences the given error with an error code-specific comment.
+    """Silences the given error on a line with an error code-specific comment.
 
     Args:
         line: a string containing the line.
@@ -161,8 +159,11 @@ def silence_error(line: str, error_code: str, description: str):
         error_code = ",".join((old_code.strip(), error_code))
     else:
         error_code = old_code if old_code else error_code
-    if old_description:
+
+    if old_description and description:
         description = ", ".join((old_description.strip(), description))
+    else:
+        description = old_description if old_description else description
 
     code_annotation = f"[{error_code}]" if error_code else ""
     comment = f"# type: ignore{code_annotation}  # {description}"
