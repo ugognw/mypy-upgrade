@@ -131,7 +131,9 @@ def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
         not found, its corresponding entry is ``None``.
     """
     comment = code = description = None
-    suppressed = re.search(r"(#\s*type:\s*ignore(?:\[\s*([\s\w,\-]+)\s*\])?\s*\#*\s*(.*))", line)
+    suppressed = re.search(
+        r"(#\s*type:\s*ignore(?:\[\s*([\s\w,\-]+)\s*\])?\s*\#*\s*(.*))", line
+    )
     if suppressed:
         comment = suppressed.group(1) or None
         code = suppressed.group(2) or None
@@ -140,7 +142,7 @@ def extract_old_error(line: str) -> tuple[str | None, str | None, str | None]:
     return comment, code, description
 
 
-def silence_error(line: str, error_code: str, description: str):
+def silence_error(line: str, error_code: str, description: str) -> str:
     """Silences the given error on a line with an error code-specific comment.
 
     Args:
