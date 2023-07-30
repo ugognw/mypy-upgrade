@@ -1,6 +1,6 @@
 import pathlib
 
-from mypy_upgrade.__main__ import get_module_paths
+from mypy_upgrade.cli import get_module_paths
 
 
 def test_should_return_path_of_testfile():

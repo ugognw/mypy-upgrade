@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from mypy_upgrade.__main__ import main
+from mypy_upgrade.cli import main
 
 
 def test(shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch):
@@ -19,3 +19,15 @@ def test(shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch):
             sys, "argv", [sys.argv[0], "--packages", "ase", "--report", report]
         )
         main()
+
+
+def test_should_add_comment_to_bare_line():
+    pass
+
+
+def test_should_combine_comments1():
+    pass
+
+
+def test_should_combine_comments2():
+    pass

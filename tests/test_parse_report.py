@@ -3,7 +3,7 @@ import typing
 
 import pytest
 
-from mypy_upgrade.__main__ import parse_report
+from mypy_upgrade.cli import parse_report
 
 
 @pytest.fixture(
