@@ -4,7 +4,7 @@
 Usage::
 
     # Pyre-like invocation
-    $ mypy -p ase | python -m mypy_upgrade --packages ase
+    $ mypy -p ase | python -m mypy_upgrade --package ase
 
     # Use saved report file
     $ mypy -p ase > mypy_report.txt
@@ -210,14 +210,16 @@ def _parse_arguments() -> argparse.Namespace:
         "--module",
         default=[],
         action="append",
-        help="Silence errors from the provided (importable) module.",
+        help="Silence errors from the provided (importable) module. "
+        "This flag may be repeated multiple times.",
     )
     parser.add_argument(
         "-p",
         "--package",
         default=[],
         action="append",
-        help="Silence errors from the provided (importable) package.",
+        help="Silence errors from the provided (importable) package. "
+        "This flag may be repeated multiple times.",
     )
     parser.add_argument(
         "-r",
