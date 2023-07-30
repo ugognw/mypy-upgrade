@@ -56,6 +56,9 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
         A list (of the same length as the input list) of pathlib.Path objects
         corresponding to the given modules. If a path is not found for a
         module, the corresponding entry in the output is ``None``.
+
+    Raises:
+        FileNotFoundError: Unable to find path to module.
     """
     paths: list[pathlib.Path | None] = []
     for module in modules:
@@ -73,8 +76,9 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
                     module_path = pathlib.Path(
                         origin.removesuffix("__init__.py")
                     )
-            elif origin is None:  # Something weird has happened
-                module_path = None
+            elif origin is None:
+                msg = "Something weird has happened"
+                raise FileNotFoundError(msg)
             else:  # Module
                 module_path = pathlib.Path(origin)
 
@@ -167,8 +171,8 @@ def silence_error(line: str, error_code: str, description: str) -> str:
     else:
         description = old_description if old_description else description
 
-    code_annotation = f"[{error_code}]" if error_code else ""
-    comment = f"# type: ignore{code_annotation}  # {description}"
+    error_code_annotation = f"[{error_code}]" if error_code else ""
+    comment = f"# type: ignore{error_code_annotation}  # {description}"
     return f"{line}  {comment}\n"
 
 
@@ -176,32 +180,36 @@ def _parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="mypy-upgrade",
         description="""
-        Place in-line comments into files to silence mypy errors.
+Place in-line comments into files to silence mypy errors.
         """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-    # Pyre-like invocation
-    $ mypy -p ase | python -m mypy_upgrade --package ase
+Examples
+--------
 
-    # Use saved report file
-    $ mypy -p ase > mypy_report.txt
-    $ pythom -m mypy_upgrade --package ase --report mypy_report.txt
+Pyre-like invocation
+$ mypy -p ase | python -m mypy_upgrade --package ase
 
-    # Only silence errors in subpackage
-    $ mypy -p ase > mypy_report.txt
-    $ pythom -m mypy_upgrade --package ase.build --report mypy_report.txt
+Use saved report file
+$ mypy -p ase > mypy_report.txt
+$ pythom -m mypy_upgrade --package ase --report mypy_report.txt
 
-    # Only silence errors in modules
-    $ mypy -p ase > mypy_report.txt
-    $ pythom -m mypy_upgrade --module ase.atoms --report mypy_report.txt
+Only silence errors in subpackage
+$ mypy -p ase > mypy_report.txt
+$ pythom -m mypy_upgrade --package ase.build --report mypy_report.txt
 
-    # Only silence errors in file
-    $ mypy -p ase > mypy_report.txt
-    $ pythom -m mypy_upgrade --report mypy_report.txt ase/atoms.py
+Only silence errors in modules
+$ mypy -p ase > mypy_report.txt
+$ pythom -m mypy_upgrade --module ase.atoms --report mypy_report.txt
 
-    # Only silence errors in directory
-    $ mypy -p ase > mypy_report.txt
-    $ pythom -m mypy_upgrade --report mypy_report.txt doc
-        """,
+Only silence errors in file
+$ mypy -p ase > mypy_report.txt
+$ pythom -m mypy_upgrade --report mypy_report.txt ase/atoms.py
+
+Only silence errors in directory
+$ mypy -p ase > mypy_report.txt
+$ pythom -m mypy_upgrade --report mypy_report.txt doc
+""",
     )
     parser.add_argument(
         "-m",
