@@ -182,15 +182,15 @@ Examples
 --------
 
 Pyre-like invocation
-$ mypy -p ase | python -m mypy_upgrade --package ase
+$ mypy -p ase | python -m mypy_upgrade -p ase
 
 Use saved report file
 $ mypy -p ase > mypy_report.txt
-$ pythom -m mypy_upgrade --package ase --report mypy_report.txt
+$ pythom -m mypy_upgrade -p ase --report mypy_report.txt
 
 Only silence errors in subpackage
 $ mypy -p ase > mypy_report.txt
-$ pythom -m mypy_upgrade --package ase.build --report mypy_report.txt
+$ pythom -m mypy_upgrade -p ase.build --report mypy_report.txt
 
 Only silence errors in modules
 $ mypy -p ase > mypy_report.txt
@@ -261,7 +261,7 @@ def main():
     args = _parse_arguments()
 
     if args.report is not None:
-        with open(args.report) as report:
+        with pathlib.Path(args.report).open(encoding="utf-8") as report:
             errors = parse_report(report)
     else:
         errors = parse_report(sys.stdin)
@@ -269,7 +269,7 @@ def main():
     selected = select_errors(errors, args.package, args.module, args.files)
     modules = []
     for module, line_no, error_code, description in selected:
-        with open(module, encoding="utf-8") as f:
+        with pathlib.Path(module).open(encoding="utf-8") as f:
             lines = f.readlines()
 
         lines[line_no - 1] = silence_error(
@@ -278,7 +278,7 @@ def main():
             description if args.with_descriptions else "",
         )
 
-        with open(module, "w", encoding="utf-8") as f:
+        with pathlib.Path(module).open(mode="w", encoding="utf-8") as f:
             _ = f.write("".join(lines))
 
         if module not in modules:
