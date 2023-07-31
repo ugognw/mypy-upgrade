@@ -4,10 +4,10 @@
 import argparse
 import importlib
 import pathlib
-import pkgutil
 import re
 import sys
 import typing
+from importlib import util
 
 
 def parse_report(
@@ -47,7 +47,6 @@ def parse_report(
     return errors
 
 
-# ! find_loader deprecated, replace with importlib.util.find_spec()
 def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
     """Determine file system paths of given modules/packages.
 
@@ -64,10 +63,11 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
     """
     paths: list[pathlib.Path | None] = []
     for module in modules:
-        loader = pkgutil.find_loader(module)
-        if loader is None:
+        spec = util.find_spec(module)
+        if spec is None:
             paths.append(None)
         else:
+            loader = spec.loader
             if isinstance(loader, importlib.abc.ExecutionLoader):
                 module_path = pathlib.Path(loader.get_filename(module))
                 if loader.is_package(module):
