@@ -69,13 +69,9 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
             origin = spec.origin
             if spec.submodule_search_locations:  # Package
                 if origin is None:  # Namespace
-                    module_path = pathlib.Path(
-                        spec.submodule_search_locations[0]
-                    )
+                    module_path = pathlib.Path(spec.submodule_search_locations[0])
                 else:  # Regular
-                    module_path = pathlib.Path(
-                        origin.removesuffix("__init__.py")
-                    )
+                    module_path = pathlib.Path(origin.removesuffix("__init__.py"))
             elif origin is None:
                 msg = "Something weird has happened"
                 raise FileNotFoundError(msg)
@@ -156,6 +152,7 @@ def silence_error(line: str, error_code: str, description: str) -> str:
     Returns:
         The line with a type error suppression comment.
     """
+    line = line.removesuffix("\n")
     old_comment, old_code, old_description = extract_old_error(line)
 
     if old_comment is not None:
@@ -269,9 +266,11 @@ def main():
         with open(module, encoding="utf-8") as f:
             lines = f.readlines()
 
-        line = lines[line_no - 1].removesuffix("\n")
-        line = silence_error(line, error_code, description)
-        lines[line_no - 1] = line
+        lines[line_no - 1] = silence_error(
+            lines[line_no - 1],
+            error_code,
+            description if args.with_descriptions else "",
+        )
 
         with open(module, "w", encoding="utf-8") as f:
             _ = f.write("".join(lines))
