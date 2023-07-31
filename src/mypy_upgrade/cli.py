@@ -161,12 +161,12 @@ def silence_error(line: str, error_code: str, description: str) -> str:
         error_code = old_code if old_code else error_code
 
     if old_description and description:
-        description = ", ".join((old_description.strip(), description))
+        description = f"# {', '.join((old_description.strip(), description))}"
     else:
-        description = old_description if old_description else description
+        description = f"# {old_description}" if old_description else description
 
     error_code_annotation = f"[{error_code}]" if error_code else ""
-    comment = f"# type: ignore{error_code_annotation}  # {description}"
+    comment = f"# type: ignore{error_code_annotation}  {description}"
     return f"{line}  {comment}\n"
 
 
@@ -228,6 +228,15 @@ $ pythom -m mypy_upgrade --report mypy_report.txt doc
         help="""
         The path to a text file containing a mypy type checking report. If not
         specified, input is read from stdin.
+        """,
+    )
+    parser.add_argument(
+        "-d",
+        "--with-descriptions",
+        action="store_true",
+        help="""
+        Use this flag to include the mypy error descriptions in the error
+        suppression comment.
         """,
     )
     parser.add_argument(
