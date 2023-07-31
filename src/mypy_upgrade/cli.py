@@ -2,11 +2,12 @@
 """
 
 import argparse
+import importlib
 import pathlib
+import pkgutil
 import re
 import sys
 import typing
-from importlib import util
 
 
 def parse_report(
@@ -46,6 +47,7 @@ def parse_report(
     return errors
 
 
+# ! find_loader deprecated, replace with importlib.util.find_spec()
 def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
     """Determine file system paths of given modules/packages.
 
@@ -58,26 +60,21 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
         module, the corresponding entry in the output is ``None``.
 
     Raises:
-        FileNotFoundError: Unable to find path to module.
+        NotImplementedError: Uncountered an unsupported module type.
     """
     paths: list[pathlib.Path | None] = []
     for module in modules:
-        spec = util.find_spec(module)
-        if spec is None:
+        loader = pkgutil.find_loader(module)
+        if loader is None:
             paths.append(None)
         else:
-            origin = spec.origin
-            if spec.submodule_search_locations:  # Package
-                if origin is None:  # Namespace
-                    module_path = pathlib.Path(spec.submodule_search_locations[0])
-                else:  # Regular
-                    module_path = pathlib.Path(origin.removesuffix("__init__.py"))
-            elif origin is None:
-                msg = "Something weird has happened"
-                raise FileNotFoundError(msg)
-            else:  # Module
-                module_path = pathlib.Path(origin)
-
+            if isinstance(loader, importlib.abc.ExecutionLoader):
+                module_path = pathlib.Path(loader.get_filename(module))
+                if loader.is_package(module):
+                    module_path = module_path.parent
+            else:
+                msg = "Uncountered an unsupported module type."
+                raise NotImplementedError(msg)
             paths.append(module_path)
 
     return paths
