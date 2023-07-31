@@ -12,9 +12,7 @@ def test(shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch):
 
     with monkeypatch.context() as mp:
         os.chdir("/Users/ugo/Projects/nwt/ase")
-        mp.syspath_prepend(
-            "/Users/ugo/Projects/nwt/ase"
-        )
+        mp.syspath_prepend("/Users/ugo/Projects/nwt/ase")
         mp.setattr(
             sys, "argv", [sys.argv[0], "--package", "ase", "--report", report]
         )

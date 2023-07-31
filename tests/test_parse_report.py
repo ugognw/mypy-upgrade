@@ -1,5 +1,6 @@
 import pathlib
 import typing
+from collections.abc import Iterator
 
 import pytest
 
@@ -11,20 +12,20 @@ from mypy_upgrade.cli import parse_report
 )
 def fixture_report(
     shared_datadir: pathlib.Path, request: pytest.FixtureRequest
-) -> typing.IO:
+) -> Iterator[typing.TextIO]:
     marker = request.node.get_closest_marker("results_file")
     if marker is not None:
         file = shared_datadir / marker.args[0]
     else:
         file = shared_datadir / request.param
 
-    with open(file) as report:
+    with pathlib.Path(file).open(encoding="utf-8") as report:
         yield report
 
 
 class TestParseReport:
     @staticmethod
-    def test_should_return_as_many_entries_as_errors(report: typing.IO):
+    def test_should_return_as_many_entries_as_errors(report: typing.TextIO):
         lines = list(report)
         num_lines = 0
         for line in lines:
@@ -37,7 +38,7 @@ class TestParseReport:
         assert num_lines == len(errors)
 
     @staticmethod
-    def test_should_create_four_entry_tuples(report: typing.IO):
+    def test_should_create_four_entry_tuples(report: typing.TextIO):
         errors = parse_report(report)
         check = []
         for error in errors:
@@ -47,7 +48,7 @@ class TestParseReport:
 
     @staticmethod
     @pytest.mark.results_file("relative_mypy_results.txt")
-    def test_should_create_existing_paths(report: typing.IO):
+    def test_should_create_existing_paths(report: typing.TextIO):
         errors = parse_report(report)
         check = []
         for module, *_ in errors:
