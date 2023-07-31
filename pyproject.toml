@@ -88,29 +88,37 @@ line-length = 120
 skip-string-normalization = true
 
 [tool.ruff]
-target-version = "py37"
-line-length = 120
+target-version = "py311"
+line-length = 79
 select = [
   "A",
   "ARG",
   "B",
   "C",
+  "C4",
   "DTZ",
   "E",
   "EM",
+  "EXE",
   "F",
   "FBT",
   "I",
   "ICN",
+  "INT",
   "ISC",
   "N",
+  "PIE",
   "PLC",
   "PLE",
   "PLR",
   "PLW",
+  "PT",
+  "PTH",
   "Q",
+  "RSE",
   "RUF",
   "S",
+  "SIM",
   "T",
   "TID",
   "UP",
@@ -127,16 +135,16 @@ ignore = [
   # Ignore complexity
   "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
 ]
-unfixable = [
-  # Don't touch unused imports
-  "F401",
-]
-
-[tool.ruff.isort]
-known-first-party = ["mypy_upgrade"]
 
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"
+
+[tool.ruff.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
+[tool.ruff.isort]
+known-first-party = ["mypy_upgrade"]
 
 [tool.ruff.per-file-ignores]
 # Tests can use magic values, assertions, and relative imports
