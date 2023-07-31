@@ -26,8 +26,8 @@ Given a type checking report from [mypy](http://mypy.readthedocs.io/),
 comments. For example, with the following output from mypy:
 
     ase/utils/plotting.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
- 
-`mypy-upgrade` will place a `# type: ignore[assigment]` comment at the 
+
+`mypy-upgrade` will place a `# type: ignore[assigment]` comment at the
 end of line 13 in `ase/utils/plotting.py`. If error codes are not present in
 the `mypy` report (e.g., the `hide-error-codes` flag is set when `mypy` was
 invoked), then a non-specific `# type: ignore` comment will be added instead.
