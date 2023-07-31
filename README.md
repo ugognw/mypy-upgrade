@@ -2,13 +2,11 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
-Hatch
-Ruff
-Black
-Mypy
-Coverage
-Codacy
-CodeClimate
+[![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
+[![linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![code style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg)](https://github.com/python/mypy)
+[![License - MIT](https://img.shields.io/badge/license-MIT-9400d3.svg)](https://spdx.org/licenses/)
 
 -----
 
@@ -27,7 +25,7 @@ comments. For example, with the following output from mypy:
 
     ase/utils/plotting.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
 
-`mypy-upgrade` will place a `# type: ignore[assigment]` comment at the
+`mypy-upgrade` will place a `# type: ignore[assignment]` comment at the
 end of line 13 in `ase/utils/plotting.py`. If error codes are not present in
 the `mypy` report (e.g., the `hide-error-codes` flag is set when `mypy` was
 invoked), then a non-specific `# type: ignore` comment will be added instead.

@@ -188,23 +188,23 @@ $ mypy -p ase | python -m mypy_upgrade -p ase
 
 Use saved report file
 $ mypy -p ase > mypy_report.txt
-$ pythom -m mypy_upgrade -p ase --report mypy_report.txt
+$ python -m mypy_upgrade -p ase --report mypy_report.txt
 
 Only silence errors in subpackage
 $ mypy -p ase > mypy_report.txt
-$ pythom -m mypy_upgrade -p ase.build --report mypy_report.txt
+$ python -m mypy_upgrade -p ase.build --report mypy_report.txt
 
 Only silence errors in modules
 $ mypy -p ase > mypy_report.txt
-$ pythom -m mypy_upgrade --module ase.atoms --report mypy_report.txt
+$ python -m mypy_upgrade --module ase.atoms --report mypy_report.txt
 
 Only silence errors in file
 $ mypy -p ase > mypy_report.txt
-$ pythom -m mypy_upgrade --report mypy_report.txt ase/atoms.py
+$ python -m mypy_upgrade --report mypy_report.txt ase/atoms.py
 
 Only silence errors in directory
 $ mypy -p ase > mypy_report.txt
-$ pythom -m mypy_upgrade --report mypy_report.txt doc
+$ python -m mypy_upgrade --report mypy_report.txt doc
 """,
     )
     parser.add_argument(
