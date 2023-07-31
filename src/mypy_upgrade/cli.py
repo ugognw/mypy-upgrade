@@ -154,8 +154,7 @@ def silence_error(line: str, error_code: str, description: str) -> str:
     Returns:
         The line with a type error suppression comment.
     """
-    # ! Use str.removesuffix when dropping Python 3.7-3.8 support
-    line = line.rstrip("\n")
+    line = line.rstrip()
     old_comment, old_code, old_description = extract_old_error(line)
 
     if old_comment is not None:
@@ -172,7 +171,7 @@ def silence_error(line: str, error_code: str, description: str) -> str:
         )
     else:
         description = (
-            f" # {old_description}" if old_description else description
+            f" # {old_description}" if old_description else f" # {description}"
         )
 
     error_code_annotation = f"[{error_code}]" if error_code else ""
