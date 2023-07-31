@@ -12,8 +12,8 @@
 
 **Table of Contents**
 
-- [Basic Usage](#usage)
-- [Command-Line Options](#options)
+- [Basic Usage](#basic-usage)
+- [Command-Line Options](#command-line-options)
 - [Quick Start](#quick-start)
 
 `mypy-upgrade` is a command-line utility that provides automatic error
@@ -33,7 +33,7 @@ invoked), then a non-specific `# type: ignore` comment will be added instead.
 > :warning: **Warning:** `mypy-check` **must** be run in the same directory
 > that `mypy` was run.*
 
-## Basic Usage {#usage}
+## Basic Usage
 
 There are two idioms for invocation. To silence all errors in a package, one
 can:
@@ -53,7 +53,7 @@ can:
 > :memo: **Note:** To ensure desired behaviour, packages and modules must be
 passed using their fully qualified names (e.g., `my_package.my_module`).
 
-## Command-Line Options {#options}
+## Command-Line Options
 
 You may want to include the error descriptions provided by `mypy` in the
 suppression comments so that you can fix them later.
@@ -70,7 +70,7 @@ For a full list of all options and their descriptions, run
 
     mypy-upgrade --help
 
-## Quick Start {#quick-start}
+## Quick Start
 
 `mypy-upgrade` can be installed via `pip`.
 
