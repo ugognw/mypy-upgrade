@@ -204,7 +204,7 @@ fixture-parentheses = false
 mark-parentheses = false
 
 [tool.ruff.flake8-quotes]
-inline-quotes = "single"
+inline-quotes = "double"
 
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"
