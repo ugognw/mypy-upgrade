@@ -16,7 +16,7 @@ def test(shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch):
             "/Users/ugo/Projects/nwt/ase"
         )
         mp.setattr(
-            sys, "argv", [sys.argv[0], "--packages", "ase", "--report", report]
+            sys, "argv", [sys.argv[0], "--package", "ase", "--report", report]
         )
         main()
 
