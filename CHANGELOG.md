@@ -9,7 +9,7 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
-## [Unreleased](https://github.com/ugognw/mypy-upgrade/tree/development)
+## [0.0.1-alpha.2](https://github.com/ugognw/mypy-upgrade/tree/release-0.0.1-alpha.2)
 
 ### Fixed
 
