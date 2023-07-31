@@ -163,7 +163,9 @@ def silence_error(line: str, error_code: str, description: str) -> str:
     if old_description and description:
         description = f"# {', '.join((old_description.strip(), description))}"
     else:
-        description = f"# {old_description}" if old_description else description
+        description = (
+            f"# {old_description}" if old_description else description
+        )
 
     error_code_annotation = f"[{error_code}]" if error_code else ""
     comment = f"# type: ignore{error_code_annotation}  {description}"
