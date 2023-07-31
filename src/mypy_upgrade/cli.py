@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import importlib
+import importlib.abc
 import pathlib
 import re
 import sys
@@ -166,14 +167,16 @@ def silence_error(line: str, error_code: str, description: str) -> str:
         error_code = old_code if old_code else error_code
 
     if old_description and description:
-        description = f"# {', '.join((old_description.strip(), description))}"
+        description = (
+            f" # {', '.join((old_description.strip(), description.strip()))}"
+        )
     else:
         description = (
-            f"# {old_description}" if old_description else description
+            f" # {old_description}" if old_description else description
         )
 
     error_code_annotation = f"[{error_code}]" if error_code else ""
-    comment = f"# type: ignore{error_code_annotation}  {description}"
+    comment = f"# type: ignore{error_code_annotation}{description}"
     return f"{line}  {comment}\n"
 
 
