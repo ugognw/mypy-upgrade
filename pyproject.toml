@@ -5,16 +5,17 @@ build-backend = "hatchling.build"
 [project]
 name = "mypy-upgrade"
 dynamic = ["version"]
-description = ''
+description = "automatic error suppression for mypy"
 readme = "README.md"
 requires-python = ">=3.7"
 license = "MIT"
-keywords = []
+keywords = ["type checking"]
 authors = [
   { name = "Ugochukwu Nwosu", email = "ugognw@gmail.com" },
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
@@ -23,6 +24,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development",
 ]
 dependencies = []
 
