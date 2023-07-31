@@ -33,9 +33,9 @@ dependencies = []
 mypy-upgrade = "mypy_upgrade.cli:main"
 
 [project.urls]
-Documentation = "https://github.com/unknown/mypy-upgrade#readme"
-Issues = "https://github.com/unknown/mypy-upgrade/issues"
-Source = "https://github.com/unknown/mypy-upgrade"
+Documentation = "https://github.com/ugognw/mypy-upgrade#readme"
+Issues = "https://github.com/ugognw/mypy-upgrade/issues"
+Source = "https://github.com/ugognw/mypy-upgrade"
 
 [tool.black]
 target-version = ["py311"]
