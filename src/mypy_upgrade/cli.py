@@ -1,5 +1,7 @@
 """This defines a tool to silence mypy errors using in-line comments.
 """
+# remove when dropping Python 3.7-3.9 support
+from __future__ import annotations
 
 import argparse
 import importlib
@@ -100,13 +102,15 @@ def select_errors(
     """
     package_paths = [p for p in get_module_paths(packages) if p is not None]
     module_paths = [m for m in get_module_paths(modules) if m is not None]
-    paths = package_paths + module_paths + files
+    file_paths = [pathlib.Path(f).resolve() for f in files]
+    paths = package_paths + module_paths + file_paths
     selected = []
     for module, line_no, error_code, description in errors:
         module_path = pathlib.Path(module).resolve()
         should_include = False
         for path in paths:
-            if pathlib.Path(module_path).is_relative_to(path):
+            # ! Use Path.is_relative_to when dropping Python 3.7-3.8 support
+            if path in module_path.parents or path == module_path:
                 should_include = True
                 break
 
@@ -149,7 +153,8 @@ def silence_error(line: str, error_code: str, description: str) -> str:
     Returns:
         The line with a type error suppression comment.
     """
-    line = line.removesuffix("\n")
+    # ! Use str.removesuffix when dropping Python 3.7-3.8 support
+    line = line.rstrip("\n")
     old_comment, old_code, old_description = extract_old_error(line)
 
     if old_comment is not None:
