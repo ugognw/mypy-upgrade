@@ -191,27 +191,19 @@ Examples
 --------
 
 Pyre-like invocation
-$ mypy -p ase | python -m mypy_upgrade -p ase
+$ mypy -p ase | mypy-upgrade
 
 Use saved report file
 $ mypy -p ase > mypy_report.txt
-$ python -m mypy_upgrade -p ase --report mypy_report.txt
+$ mypy-upgrade --report mypy_report.txt
 
-Only silence errors in subpackage
+Only silence errors in package/module
 $ mypy -p ase > mypy_report.txt
-$ python -m mypy_upgrade -p ase.build --report mypy_report.txt
+$ mypy-upgrade -p ase.build -m ase.atoms --report mypy_report.txt
 
-Only silence errors in modules
+Only silence errors in file/directory
 $ mypy -p ase > mypy_report.txt
-$ python -m mypy_upgrade --module ase.atoms --report mypy_report.txt
-
-Only silence errors in file
-$ mypy -p ase > mypy_report.txt
-$ python -m mypy_upgrade --report mypy_report.txt ase/atoms.py
-
-Only silence errors in directory
-$ mypy -p ase > mypy_report.txt
-$ python -m mypy_upgrade --report mypy_report.txt doc
+$ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
 """,
     )
     parser.add_argument(
@@ -275,7 +267,11 @@ def main():
     else:
         errors = parse_report(sys.stdin)
 
-    selected = select_errors(errors, args.package, args.module, args.files)
+    if args.package | args.module | args.files:
+        selected = select_errors(errors, args.package, args.module, args.files)
+    else:
+        selected = errors
+
     modules = []
     for module, line_no, error_code, description in selected:
         with pathlib.Path(module).open(encoding="utf-8") as f:
