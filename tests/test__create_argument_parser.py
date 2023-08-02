@@ -9,7 +9,7 @@ from mypy_upgrade.cli import _create_argument_parser
 @pytest.fixture(
     name="modules",
     params=([], ["module"], ["package.module"], ["module", "package.module"]),
-    scope="class",
+    scope="module",
 )
 def fixture_modules(request: pytest.FixtureRequest) -> list[str]:
     _modules = request.param
@@ -29,7 +29,7 @@ def fixture_modules(request: pytest.FixtureRequest) -> list[str]:
         ["package.subpackage"],
         ["package", "package.subpackage"],
     ),
-    scope="class",
+    scope="module",
 )
 def fixture_packages(request: pytest.FixtureRequest) -> list[str]:
     _packages = request.param
@@ -41,7 +41,7 @@ def fixture_packages(request: pytest.FixtureRequest) -> list[str]:
     return packages
 
 
-@pytest.fixture(name="report", params=([], "report.txt"), scope="class")
+@pytest.fixture(name="report", params=([], "report.txt"), scope="module")
 def fixture_report(request: pytest.FixtureRequest) -> list[str]:
     if report := request.param:
         return ["-r", report]
@@ -49,7 +49,7 @@ def fixture_report(request: pytest.FixtureRequest) -> list[str]:
 
 
 @pytest.fixture(
-    name="suffix", params=("--with-descriptions", None), scope="class"
+    name="suffix", params=("--with-descriptions", None), scope="module"
 )
 def fixture_suffix(request: pytest.FixtureRequest) -> str:
     return request.param
@@ -63,18 +63,18 @@ def fixture_suffix(request: pytest.FixtureRequest) -> str:
         ["directory/file.py"],
         ["file.py", "directory/file.py"],
     ),
-    scope="class",
+    scope="module",
 )
 def fixture_files(request: pytest.FixtureRequest) -> list[str]:
     return request.param or []
 
 
-@pytest.fixture(name="parser", scope="class")
+@pytest.fixture(name="parser", scope="module")
 def fixture_parser() -> argparse.ArgumentParser:
     return _create_argument_parser()
 
 
-@pytest.fixture(name="args", scope="class")
+@pytest.fixture(name="args", scope="module")
 def fixture_args(
     modules: list[str],
     packages: list[str],
