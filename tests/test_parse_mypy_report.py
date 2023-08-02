@@ -20,7 +20,9 @@ class TestParseReport:
         assert num_errors == len(parsed_errors)
 
     @staticmethod
-    def test_should_only_return_mypyerrors(parsed_errors: list[MypyError]) -> None:
+    def test_should_only_return_mypyerrors(
+        parsed_errors: list[MypyError],
+    ) -> None:
         assert all(isinstance(e, MypyError) for e in parsed_errors)
 
     @staticmethod

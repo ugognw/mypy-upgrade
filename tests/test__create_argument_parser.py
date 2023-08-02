@@ -115,7 +115,9 @@ class TestParseArgs:
             assert args.packages == []
 
     @staticmethod
-    def test_should_store_files(args: argparse.Namespace, files: list[str]) -> None:
+    def test_should_store_files(
+        args: argparse.Namespace, files: list[str]
+    ) -> None:
         if files:
             _files = [f for f in files if f.endswith(".py")] if files else None
             assert args.files == _files
@@ -123,14 +125,18 @@ class TestParseArgs:
             assert args.files == files
 
     @staticmethod
-    def test_should_store_report(args: argparse.Namespace, report: list[str]) -> None:
+    def test_should_store_report(
+        args: argparse.Namespace, report: list[str]
+    ) -> None:
         if report:
             assert pathlib.Path(report[1]) == args.report
         else:
             assert args.report is None
 
     @staticmethod
-    def test_should_store_suffix(args: argparse.Namespace, suffix: str | None) -> None:
+    def test_should_store_suffix(
+        args: argparse.Namespace, suffix: str | None
+    ) -> None:
         if suffix == "--with-descriptions":
             assert args.suffix == "description"
         else:
