@@ -77,7 +77,7 @@ RESIDUAL_COMMENT_RE = re.compile(r"(#.+\S)?")
 )
 def test_should_remove_dangling_commas1(
     type_ignore_stub: str, error_code: str
-):
+) -> None:
     type_ignore_comment = type_ignore_stub.replace("<error-code>", error_code)
     formatted_type_ignore = format_type_ignore_comment(type_ignore_comment)
     assert TYPE_IGNORE_FORMAT_RE.match(formatted_type_ignore)
@@ -91,7 +91,7 @@ def test_should_remove_dangling_commas1(
 )
 def test_should_remove_dangling_commas2(
     type_ignore_stub: str, error_codes: tuple[str, str]
-):
+) -> None:
     error_code1, error_code2 = error_codes
     type_ignore_comment = type_ignore_stub.replace(
         "<error-code-1>", error_code1
@@ -106,14 +106,14 @@ def test_should_remove_dangling_commas2(
 @pytest.mark.parametrize("type_ignore_comment", NO_ERROR_CODE_TYPE_IGNORES)
 def test_should_remove_type_ignore_without_error_codes(
     type_ignore_comment: str,
-):
+) -> None:
     assert format_type_ignore_comment(type_ignore_comment) == ""
 
 
 @pytest.mark.parametrize("type_ignore_stub", NO_ERROR_CODE_TYPE_IGNORES)
 def test_should_remove_trailing_whitespace(
     type_ignore_stub: str,
-):
+) -> None:
     assert format_type_ignore_comment(type_ignore_stub + " ") == ""
 
 
@@ -123,7 +123,7 @@ def test_should_remove_trailing_whitespace(
 )
 def test_should_preserve_existing_comment(
     type_ignore_stub: str, comment_suffix: str
-):
+) -> None:
     formatted_type_ignore_comment = format_type_ignore_comment(
         type_ignore_stub + comment_suffix
     )
@@ -136,7 +136,7 @@ def test_should_preserve_existing_comment(
 )
 def test_should_preserve_existing_comment_without_surrounding_whitespace(
     type_ignore_stub: str, comment_suffix: str
-):
+) -> None:
     formatted_type_ignore_comment = format_type_ignore_comment(
         type_ignore_stub + comment_suffix
     )
@@ -149,7 +149,7 @@ def test_should_preserve_existing_comment_without_surrounding_whitespace(
 )
 def test_should_trim_repeating_comment_characters(
     type_ignore_stub: str, comment_suffix: str
-):
+) -> None:
     formatted_type_ignore_comment = format_type_ignore_comment(
         type_ignore_stub + comment_suffix
     )

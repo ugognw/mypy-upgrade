@@ -40,7 +40,7 @@ COMMENT_SUFFIXES = [
 )
 def test_should_remove_specified_error_codes1(
     stub: str, error_code: str, to_remove: str, comment_suffix: str
-):
+) -> None:
     comment = stub.replace("<placeholder>", f"[{error_code}]") + comment_suffix
     result = remove_unused_type_ignore(comment, to_remove)
     assert to_remove not in result
@@ -60,7 +60,7 @@ def test_should_remove_specified_error_codes2(
     error_codes: tuple[str, str],
     to_remove: str,
     comment_suffix: str,
-):
+) -> None:
     comment = (
         stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
         + comment_suffix
@@ -83,7 +83,7 @@ def test_should_remove_specified_error_codes3(
     error_codes: tuple[str, str],
     to_remove: tuple[str, str],
     comment_suffix: str,
-):
+) -> None:
     comment = (
         stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
         + comment_suffix
@@ -106,7 +106,7 @@ def test_should_remove_specified_error_codes4(
     error_codes: tuple[str, str],
     to_remove: tuple[str, str],
     comment_suffix: str,
-):
+) -> None:
     comment = (
         stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
         + comment_suffix
@@ -122,7 +122,7 @@ def test_should_remove_specified_error_codes4(
 def test_should_remove_whole_type_ignore_comment_if_no_code_specified(
     stub: str,
     comment_suffix: str,
-):
+) -> None:
     comment = stub.replace("<placeholder>", "") + comment_suffix
     result = remove_unused_type_ignore(comment, ())
     assert stub not in result
