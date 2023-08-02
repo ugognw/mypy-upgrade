@@ -93,7 +93,7 @@ class TestParseArgs:
     @staticmethod
     def test_should_store_modules(
         args: argparse.Namespace, modules: list[str]
-    ):
+    ) -> None:
         if modules:
             _modules = (
                 [m for m in modules if "-" not in m] if modules else None
@@ -105,7 +105,7 @@ class TestParseArgs:
     @staticmethod
     def test_should_store_packages(
         args: argparse.Namespace, packages: list[str]
-    ):
+    ) -> None:
         if packages:
             _packages = (
                 [p for p in packages if "-" not in p] if packages else None
@@ -115,7 +115,7 @@ class TestParseArgs:
             assert args.packages == []
 
     @staticmethod
-    def test_should_store_files(args: argparse.Namespace, files: list[str]):
+    def test_should_store_files(args: argparse.Namespace, files: list[str]) -> None:
         if files:
             _files = [f for f in files if f.endswith(".py")] if files else None
             assert args.files == _files
@@ -123,14 +123,14 @@ class TestParseArgs:
             assert args.files == files
 
     @staticmethod
-    def test_should_store_report(args: argparse.Namespace, report: list[str]):
+    def test_should_store_report(args: argparse.Namespace, report: list[str]) -> None:
         if report:
             assert pathlib.Path(report[1]) == args.report
         else:
             assert args.report is None
 
     @staticmethod
-    def test_should_store_suffix(args: argparse.Namespace, suffix: str | None):
+    def test_should_store_suffix(args: argparse.Namespace, suffix: str | None) -> None:
         if suffix == "--with-descriptions":
             assert args.suffix == "description"
         else:

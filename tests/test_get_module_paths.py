@@ -27,18 +27,18 @@ MODULE_PATHS = [
 @pytest.mark.parametrize(
     ("module", "module_path"), zip(MODULES, MODULE_PATHS, strict=True)
 )
-def test_should_return_path_of_modules(module: str, module_path: str):
+def test_should_return_path_of_modules(module: str, module_path: str) -> None:
     spec = util.find_spec(module)
     assert spec is not None
     assert spec.origin is not None
     assert spec.origin.endswith(module_path)
 
 
-def test_should_return_path_of_testfile():
+def test_should_return_path_of_testfile() -> None:
     path = get_module_paths(["mypy_upgrade.cli"])[0]
     assert path == pathlib.Path("src/mypy_upgrade/cli.py").resolve()
 
 
-def test_should_return_path_of_testdir():
+def test_should_return_path_of_testdir() -> None:
     path = get_module_paths(["mypy_upgrade"])[0]
     assert path == pathlib.Path(__file__, "../../src/mypy_upgrade").resolve()

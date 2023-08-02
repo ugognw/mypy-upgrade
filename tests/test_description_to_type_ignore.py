@@ -25,7 +25,7 @@ ERROR_CODES = [
 
 
 @pytest.mark.parametrize("stub", DESCRIPTION_STUBS)
-def test_should_return_empty_tuple_with_no_error_code(stub: str):
+def test_should_return_empty_tuple_with_no_error_code(stub: str) -> None:
     description = stub.replace("<placeholder>", "")
     assert description_to_type_ignore(description) == ()
 
@@ -35,7 +35,7 @@ def test_should_return_empty_tuple_with_no_error_code(stub: str):
 )
 def test_should_return_error_code_string_with_one_error_code(
     stub: str, error_code: str
-):
+) -> None:
     description = stub.replace("<placeholder>", f"[{error_code}]")
     assert description_to_type_ignore(description) == (error_code,)
 
@@ -46,7 +46,7 @@ def test_should_return_error_code_string_with_one_error_code(
 )
 def test_should_return_error_code_string_with_two_error_code(
     stub: str, error_codes: tuple[str, str]
-):
+) -> None:
     description = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
     assert description_to_type_ignore(description) == error_codes
 
@@ -57,6 +57,6 @@ def test_should_return_error_code_string_with_two_error_code(
 )
 def test_should_return_error_code_string_with_three_error_codes(
     stub: str, error_codes: tuple[str, str, str]
-):
+) -> None:
     description = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
     assert description_to_type_ignore(description) == error_codes

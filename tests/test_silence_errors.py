@@ -8,7 +8,7 @@ from mypy_upgrade.cli import main
 
 
 @pytest.mark.skip(reason="need to refactor functional test")
-def test(shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch):
+def test(shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None:
     report = str(shared_datadir / "mypy_fix-1267.txt")
 
     with monkeypatch.context() as mp:
@@ -20,13 +20,13 @@ def test(shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch):
         main()
 
 
-def test_should_add_comment_to_bare_line():
+def test_should_add_comment_to_bare_line() -> None:
     pass
 
 
-def test_should_combine_comments1():
+def test_should_combine_comments1() -> None:
     pass
 
 
-def test_should_combine_comments2():
+def test_should_combine_comments2() -> None:
     pass

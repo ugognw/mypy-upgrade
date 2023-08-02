@@ -31,6 +31,6 @@ CODE_AND_COMMENTS = [
 )
 def test_should_split_lines_into_code_and_comment_correctly(
     code_line: str, code_and_comment: tuple[str, str]
-):
+) -> None:
     split = split_code_and_comment(code_line)
     assert split == code_and_comment
