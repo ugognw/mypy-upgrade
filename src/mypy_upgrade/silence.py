@@ -34,7 +34,7 @@ def silence_errors(
             unused_ignore = error
             break
 
-    python_code, comment = split_code_and_comment(line.rstrip("\r\n"))
+    python_code, comment = split_code_and_comment(line.rstrip())
 
     if unused_ignore:
         codes_to_remove = description_to_type_ignore(unused_ignore.description)
@@ -54,6 +54,7 @@ def silence_errors(
         descriptions = ", ".join(
             error.description for error in errors if error != unused_ignore
         )
-        updated_line += f"; {descriptions}"
+        if descriptions:
+            updated_line += f"; {descriptions}"
 
     return updated_line + "\n"
