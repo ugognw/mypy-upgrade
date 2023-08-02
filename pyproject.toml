@@ -27,7 +27,9 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development",
 ]
-dependencies = []
+dependencies = [
+  "typing-extensions"
+]
 
 [project.scripts]
 mypy-upgrade = "mypy_upgrade.cli:main"
