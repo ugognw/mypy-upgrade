@@ -21,6 +21,8 @@ This project implements a version of
 
     * `mypy_upgrade.filter.get_module_paths`
 
+    * `mypy_upgrade.parsing.description_to_type_ignore`
+
     * `mypy_upgrade.parsing.parse_mypy_error_report`
 
     * `mypy_upgrade.utils.split_code_and_comment`
