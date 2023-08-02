@@ -49,16 +49,16 @@ def parse_mypy_report(
     return sorted(errors, key=MypyError.filename_and_line_number)
 
 
-def description_to_type_ignore(description: str) -> str:
+def description_to_type_ignore(description: str) -> tuple[str, ...]:
     type_ignore_re = re.compile(
-        r"type\s*:\s*ignore(\[(?P<error_code>[a-z, \-]]+)\])?"
+        r"type\s*:\s*ignore\s*(\[(?P<error_code>[a-z, \-]+)\])?"
     )
     # Extract unused type ignore error codes from error description
-    unused_type_ignore_codes = type_ignore_re.search(description)
-    if unused_type_ignore_codes and unused_type_ignore_codes.group(
-        "error_code"
+    match = type_ignore_re.search(description)
+    if match and (
+        error_codes := match.group("error_code")
     ):
         # Separate and trim
-        return ""
+        return tuple(code.strip() for code in error_codes.split(","))
 
-    return ""
+    return ()
