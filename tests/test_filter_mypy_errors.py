@@ -46,6 +46,7 @@ def fixture_files_to_include(request: pytest.FixtureRequest) -> list[str]:
     return request.param
 
 
+@pytest.mark.slow
 def test_should_only_include_selected_packages(
     parsed_errors: list[MypyError], packages_to_include: list[str]
 ):
@@ -63,6 +64,7 @@ def test_should_only_include_selected_packages(
         assert filtered_errors == parsed_errors
 
 
+@pytest.mark.slow
 def test_should_only_include_selected_modules(
     parsed_errors: list[MypyError], modules_to_include: list[str]
 ):
@@ -80,6 +82,7 @@ def test_should_only_include_selected_modules(
         assert filtered_errors == parsed_errors
 
 
+@pytest.mark.slow
 def test_should_only_include_selected_files(
     parsed_errors: list[MypyError], files_to_include: list[str]
 ):
