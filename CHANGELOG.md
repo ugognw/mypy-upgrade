@@ -13,6 +13,12 @@ This project implements a version of
 
 ## Added
 
+* `typing-extensions` dependency added for Python <3.8
+
+* Support for placing suppression errors on end of multiline statements
+
+* Functional tests on ASE codebase
+
 * Unit tests for:
 
     * `mypy_upgrade.cli._create_argument_parser`

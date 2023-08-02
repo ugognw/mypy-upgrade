@@ -27,7 +27,9 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development",
 ]
-dependencies = []
+dependencies = [
+  "typing-extensions; python_version<'3.8'"
+]
 
 [project.scripts]
 mypy-upgrade = "mypy_upgrade.cli:main"
@@ -38,7 +40,7 @@ Issues = "https://github.com/ugognw/mypy-upgrade/issues"
 Source = "https://github.com/ugognw/mypy-upgrade"
 
 [tool.black]
-target-version = ["py311"]
+target-version = ["py37"]
 line-length = 79
 skip-string-normalization = true
 
@@ -153,7 +155,7 @@ markers = [
 ]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py37"
 line-length = 79
 select = [
   "A",

@@ -1,3 +1,6 @@
+# remove when dropping Python 3.7-3.9 support
+from __future__ import annotations
+
 import re
 from typing import NamedTuple, TextIO
 
@@ -9,7 +12,7 @@ class MypyError(NamedTuple):
     error_code: str
 
     @staticmethod
-    def filename_and_line_number(error: "MypyError") -> tuple[str, int]:
+    def filename_and_line_number(error: MypyError) -> tuple[str, int]:
         return error.filename, error.line_no
 
 
@@ -55,8 +58,10 @@ def description_to_type_ignore(description: str) -> tuple[str, ...]:
     )
     # Extract unused type ignore error codes from error description
     match = type_ignore_re.search(description)
-    if match and (error_codes := match.group("error_code")):
-        # Separate and trim
-        return tuple(code.strip() for code in error_codes.split(","))
+    if match:
+        error_codes = match.group("error_code")
+        if error_codes:
+            # Separate and trim
+            return tuple(code.strip() for code in error_codes.split(","))
 
     return ()

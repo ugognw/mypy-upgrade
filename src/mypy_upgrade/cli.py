@@ -7,7 +7,11 @@ import argparse
 import itertools
 import pathlib
 import sys
-import typing
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 from mypy_upgrade.filter import filter_mypy_errors
 from mypy_upgrade.parsing import (
@@ -104,7 +108,7 @@ def mypy_upgrade(
     packages: list[str],
     modules: list[str],
     files: list[str],
-    suffix: typing.Literal["description"] | None,
+    suffix: Literal["description"] | None,
 ) -> tuple[list[MypyError], list[str]]:
     """Main logic for application.
 
