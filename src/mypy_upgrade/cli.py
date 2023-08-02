@@ -7,7 +7,8 @@ import argparse
 import itertools
 import pathlib
 import sys
-import typing
+
+from typing_extensions import Literal  # import from typing for Python 3.8+
 
 from mypy_upgrade.filter import filter_mypy_errors
 from mypy_upgrade.parsing import (
@@ -104,7 +105,7 @@ def mypy_upgrade(
     packages: list[str],
     modules: list[str],
     files: list[str],
-    suffix: typing.Literal["description"] | None,
+    suffix: Literal["description"] | None,
 ) -> tuple[list[MypyError], list[str]]:
     """Main logic for application.
 

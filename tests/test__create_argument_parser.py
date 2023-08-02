@@ -43,9 +43,7 @@ def fixture_packages(request: pytest.FixtureRequest) -> list[str]:
 
 @pytest.fixture(name="report", params=([], "report.txt"), scope="module")
 def fixture_report(request: pytest.FixtureRequest) -> list[str]:
-    if report := request.param:
-        return ["-r", report]
-    return []
+    return ["-r", request.param] if request.param else []
 
 
 @pytest.fixture(

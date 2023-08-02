@@ -20,7 +20,8 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
     )
 
     # Handle existing "type: ignore[error_code]" comments
-    if match := old_type_ignore_re.search(comment):
+    match = old_type_ignore_re.search(comment)
+    if match:
         old_error_codes = set(
             match.group("error_code").replace(" ", "").split(",")
         )
@@ -46,20 +47,23 @@ def format_type_ignore_comment(comment: str) -> str:
     match = type_ignore_re.search(comment)
 
     # Format existing error codes
-    if match and (error_codes := match.group("error_codes")):
-        pruned_error_codes = []
-        for code in error_codes.split(","):
-            if pruned_code := code.strip():
-                pruned_error_codes.append(pruned_code)
+    if match:
+        error_codes = match.group("error_codes")
+        if error_codes:
+            pruned_error_codes = []
+            for code in error_codes.split(","):
+                pruned_code = code.strip()
+                if pruned_code:
+                    pruned_error_codes.append(pruned_code)
 
-        formatted_comment = comment.replace(
-            error_codes, ", ".join(pruned_error_codes)
-        )
-        if pruned_error_codes:
-            return formatted_comment
+            formatted_comment = comment.replace(
+                error_codes, ", ".join(pruned_error_codes)
+            )
+            if pruned_error_codes:
+                return formatted_comment
 
-        # Format again if there are no error codes
-        return format_type_ignore_comment(formatted_comment)
+            # Format again if there are no error codes
+            return format_type_ignore_comment(formatted_comment)
 
     # Delete "type: ignore", "type: ignore[]"
     formatted_comment = re.sub(r"type\s*:\s*ignore\s*(\[\])?", "", comment)

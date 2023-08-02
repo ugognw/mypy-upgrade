@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Literal
+
+from typing_extensions import Literal  # import from typing for Python 3.8+
 
 from mypy_upgrade.editing import (
     add_type_ignore_comment,
