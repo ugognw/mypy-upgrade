@@ -31,7 +31,7 @@ def parse_mypy_report(
             >> module, line_no, description , error_code= errors[0]
     """
     info = re.compile(
-        r"^(?P<filename>[^:]+):(?P<line_no>\d+): error: (?P<description>.+)\s+(?:\[(?P<error_code>.+)\])?"  # noqa: E501
+        r"^(?P<filename>[^:]+):(?P<line_no>\d+): error: (?P<description>.+)\s+(\[(?P<error_code>.+)\])?"  # noqa: E501
     )
     errors = []
 
@@ -43,7 +43,7 @@ def parse_mypy_report(
             )
             line_no = int(error.group("line_no"))
             errors.append(
-                MypyError(filename, line_no, description, error_code)
+                MypyError(filename, line_no, description.strip(), error_code)
             )
 
     return sorted(errors, key=filename_and_line_number)
