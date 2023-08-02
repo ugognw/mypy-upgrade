@@ -85,6 +85,7 @@ python = [
 
 [tool.hatch.envs.default]
 dependencies = [
+  "ase @ git+https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2",
   "pytest",
   "pytest-cov",
   "pytest-datadir",
@@ -130,8 +131,10 @@ path = "src/mypy_upgrade/__about__.py"
 
 [tool.pytest.ini_options]
 addopts = [
+    "-n",
+    "auto",
     "--import-mode=importlib",
-    "-ra",
+    "-r A",
     "--strict-markers",
     "--doctest-modules",
     "--doctest-glob=*.md",
