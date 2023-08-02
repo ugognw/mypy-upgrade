@@ -15,11 +15,13 @@ This project implements a version of
 
 * Unit tests for:
 
-    * mypy_upgrade.cli._create_argument_parser
+    * `mypy_upgrade.cli._create_argument_parser`
 
-    * mypy_upgrade.parsing.parse_mypy_error_report
+    * `mypy_upgrade.filter.filter_mypy_errors`
 
-    * mypy_upgrade.filter.filter_mypy_errors
+    * `mypy_upgrade.filter.get_module_paths`
+
+    * `mypy_upgrade.parsing.parse_mypy_error_report`
 
 ### Changed
 
