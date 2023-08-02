@@ -11,6 +11,14 @@ This project implements a version of
 
 ## [Unreleased](https://github.com/ugognw/mypy-upgrade/tree/development)
 
+## Added
+
+* Unit tests for:
+
+    * argument parser
+
+    * mypy error report parser
+
 ### Changed
 
 * Default to silence all errors in type checking report
