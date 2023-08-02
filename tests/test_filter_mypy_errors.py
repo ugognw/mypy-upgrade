@@ -94,6 +94,7 @@ def test_should_only_include_selected_files(
         assert filtered_errors == parsed_errors
 
 
+@pytest.mark.slow
 def test_should_only_include_selected_combinations(
     parsed_errors: list[MypyError],
     packages_to_include: list[str],
