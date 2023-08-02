@@ -56,7 +56,7 @@ def format_type_ignore_comment(comment: str) -> str:
         # Format again if there are no error codes
         return format_type_ignore_comment(formatted_comment)
 
-    # Delete "type: ignore[]" or "type: ignore"
+    # Delete "type: ignore", "type: ignore[]"
     formatted_comment = re.sub(r"type\s*:\s*ignore\s*(\[\])?", "", comment)
 
     # Return empty string if nothing is left in the comment
