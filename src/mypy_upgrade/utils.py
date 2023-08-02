@@ -1,6 +1,12 @@
 import io
 import tokenize
 
+from mypy_upgrade.parsing import MypyError
+
+
+def filename_and_line_number(error: MypyError) -> tuple[str, int]:
+    return error.filename, error.line_no
+
 
 def split_code_and_comment(line: str) -> tuple[str, str]:
     """Split a line of code into the code part and comment part."""
