@@ -12,10 +12,10 @@ import typing
 from mypy_upgrade.filter import filter_mypy_errors
 from mypy_upgrade.parsing import (
     MypyError,
-    filename_and_line_number,
     parse_mypy_report,
 )
 from mypy_upgrade.silence import silence_errors
+from mypy_upgrade.utils import filename_and_line_number
 
 
 def _create_argument_parser() -> argparse.ArgumentParser:
@@ -101,7 +101,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
 
 
 def mypy_upgrade(
-    report: typing.textIO,
+    report: pathlib.Path | None,
     packages: list[str],
     modules: list[str],
     files: list[str],
@@ -151,7 +151,7 @@ def mypy_upgrade(
     return filtered_errors, silenced_modules
 
 
-def main():
+def main() -> None:
     """Logic for CLI."""
     parser = _create_argument_parser()
     args = parser.parse_args()
