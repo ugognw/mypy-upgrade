@@ -149,8 +149,7 @@ python_files = [
 ]
 testpaths = "tests"
 markers = [
-  "value",
-  "results_file"
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 
 [tool.ruff]
