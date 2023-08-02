@@ -15,6 +15,10 @@ This project implements a version of
 
 * Default to silence all errors in type checking report
 
+* Use tokenize to find existing comments
+
+* Group errors by file and line number
+
 ## [0.0.1-alpha.2](https://github.com/ugognw/mypy-upgrade/tree/release-0.0.1-alpha.2)
 
 ### Fixed
