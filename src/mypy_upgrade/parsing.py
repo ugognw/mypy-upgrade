@@ -55,9 +55,7 @@ def description_to_type_ignore(description: str) -> tuple[str, ...]:
     )
     # Extract unused type ignore error codes from error description
     match = type_ignore_re.search(description)
-    if match and (
-        error_codes := match.group("error_code")
-    ):
+    if match and (error_codes := match.group("error_code")):
         # Separate and trim
         return tuple(code.strip() for code in error_codes.split(","))
 
