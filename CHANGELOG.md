@@ -23,6 +23,8 @@ This project implements a version of
 
     * `mypy_upgrade.parsing.parse_mypy_error_report`
 
+    * `mypy_upgrade.utils.split_code_and_comment`
+
 ### Changed
 
 * Major refactor into modules
