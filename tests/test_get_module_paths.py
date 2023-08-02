@@ -1,6 +1,37 @@
 import pathlib
+from importlib import util
 
-from mypy_upgrade.cli import get_module_paths
+import pytest
+
+from mypy_upgrade.filter import get_module_paths
+
+MODULES = [
+    "ase.atoms",
+    "ase.calculators.vasp.vasp",
+    "ast",
+    "collections.abc",
+    "pytest",
+    "typing",
+]
+
+MODULE_PATHS = [
+    "ase/atoms.py",
+    "ase/calculators/vasp/vasp.py",
+    "ast.py",
+    "collections/abc.py",
+    "pytest/__init__.py",
+    "typing.py",
+]
+
+
+@pytest.mark.parametrize(
+    ("module", "module_path"), zip(MODULES, MODULE_PATHS, strict=True)
+)
+def test_should_return_path_of_modules(module: str, module_path: str):
+    spec = util.find_spec(module)
+    assert spec is not None
+    assert spec.origin is not None
+    assert spec.origin.endswith(module_path)
 
 
 def test_should_return_path_of_testfile():
