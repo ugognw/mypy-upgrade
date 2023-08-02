@@ -1,14 +1,16 @@
 import re
 from typing import NamedTuple, TextIO
 
-from mypy_upgrade.utils import filename_and_line_number
-
 
 class MypyError(NamedTuple):
     filename: str
     line_no: int
     description: str
     error_code: str
+
+    @staticmethod
+    def filename_and_line_number(error: "MypyError") -> tuple[str, int]:
+        return error.filename, error.line_no
 
 
 def parse_mypy_report(
@@ -44,7 +46,7 @@ def parse_mypy_report(
                 MypyError(filename, line_no, description.strip(), error_code)
             )
 
-    return sorted(errors, key=filename_and_line_number)
+    return sorted(errors, key=MypyError.filename_and_line_number)
 
 
 def description_to_type_ignore(description: str) -> str:

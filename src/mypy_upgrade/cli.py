@@ -15,7 +15,6 @@ from mypy_upgrade.parsing import (
     parse_mypy_report,
 )
 from mypy_upgrade.silence import silence_errors
-from mypy_upgrade.utils import filename_and_line_number
 
 
 def _create_argument_parser() -> argparse.ArgumentParser:
@@ -134,7 +133,7 @@ def mypy_upgrade(
 
     silenced_modules = []
     for (module, line_number), grouped_errors in itertools.groupby(
-        filtered_errors, key=filename_and_line_number
+        filtered_errors, key=MypyError.filename_and_line_number
     ):
         with pathlib.Path(module).open(encoding="utf-8") as f:
             lines = f.readlines()
