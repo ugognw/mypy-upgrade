@@ -1,3 +1,6 @@
+# remove when dropping Python 3.7-3.9 support
+from __future__ import annotations
+
 import re
 from typing import NamedTuple, TextIO
 
@@ -9,7 +12,7 @@ class MypyError(NamedTuple):
     error_code: str
 
     @staticmethod
-    def filename_and_line_number(error: "MypyError") -> tuple[str, int]:
+    def filename_and_line_number(error: MypyError) -> tuple[str, int]:
         return error.filename, error.line_no
 
 
