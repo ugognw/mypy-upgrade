@@ -17,6 +17,8 @@ This project implements a version of
 
     * `mypy_upgrade.cli._create_argument_parser`
 
+    * `mypy_upgrade.editing.add_type_ignore_comment`
+
     * `mypy_upgrade.editing.format_type_ignore_comment`
 
     * `mypy_upgrade.editing.remove_unused_type_ignore`

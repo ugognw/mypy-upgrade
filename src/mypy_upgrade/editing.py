@@ -13,13 +13,15 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
         A copy of the comment with a "type: ignore[error-code]" comment
     """
     old_type_ignore_re = re.compile(
-        r"type\s*:\s*ignore\[(?P<error_code>[a-z, \-]+)\])"
+        r"type\s*:\s*ignore\[(?P<error_code>[a-z, \-]+)\]"
     )
 
     # Handle existing "type: ignore[error_code]" comments
     if match := old_type_ignore_re.search(comment):
-        old_error_codes = match.group("error_code").replace(" ", "").split(",")
-        error_codes.extend(old_error_codes)
+        old_error_codes = set(
+            match.group("error_code").replace(" ", "").split(",")
+        )
+        error_codes.extend(e for e in old_error_codes if e not in error_codes)
         comment = old_type_ignore_re.sub("", comment)
 
         # Check for other comments; otherwise, remove comment
