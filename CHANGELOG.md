@@ -15,11 +15,15 @@ This project implements a version of
 
 * Unit tests for:
 
-    * argument parser
+    * mypy_upgrade.cli._create_argument_parser
 
-    * mypy error report parser
+    * mypy_upgrade.parsing.parse_mypy_error_report
+
+    * mypy_upgrade.filter.filter_mypy_errors
 
 ### Changed
+
+* Major refactor into modules
 
 * Default to silence all errors in type checking report
 
