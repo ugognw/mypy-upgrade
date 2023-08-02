@@ -74,7 +74,8 @@ def remove_unused_type_ignore(
     Args:
         comment: a string whose "type: ignore" codes are to be removed.
         codes_to_remove: an iterable of strings which represent mypy error
-            codes.
+            codes. If this iterable is length zero, the entire "type: ignore"
+            comment is removed.
 
     Returns:
         A copy of the original string with the specified error codes removed.
@@ -86,11 +87,4 @@ def remove_unused_type_ignore(
     else:
         pruned_comment = re.sub(r"type\s*:\s*ignore", "", comment)
 
-    # Check if resulting "type: ignore" has any remaining error codes
-    type_ignore_re = re.compile(
-        r"type\s*:\s*ignore\[(?P<error_code>[a-z, \-]*[a-z]+[a-z, \-]*]+)\]"
-    )
-    if type_ignore_re.search(pruned_comment):
-        return pruned_comment
-
-    return remove_unused_type_ignore(format_type_ignore_comment(comment), [])
+    return pruned_comment

@@ -17,6 +17,8 @@ This project implements a version of
 
     * `mypy_upgrade.cli._create_argument_parser`
 
+    * `mypy_upgrade.editing.remove_unused_type_ignore`
+
     * `mypy_upgrade.filter.filter_mypy_errors`
 
     * `mypy_upgrade.filter.get_module_paths`
