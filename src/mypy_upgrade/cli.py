@@ -18,7 +18,7 @@ from mypy_upgrade.parsing import (
 from mypy_upgrade.silence import silence_errors
 
 
-def _parse_arguments() -> argparse.Namespace:
+def _create_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="mypy-upgrade",
         description="""
@@ -77,6 +77,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         "--with-descriptions",
         action="store_const",
         const="description",
+        dest="suffix",
         help="""
         Use this flag to include the mypy error descriptions in the error
         suppression comment.
@@ -96,7 +97,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         nargs="*",
         help="Silence errors from the provided files/directories.",
     )
-    return parser.parse_args()
+    return parser
 
 
 def mypy_upgrade(
@@ -152,13 +153,14 @@ def mypy_upgrade(
 
 def main():
     """Logic for CLI."""
-    args = _parse_arguments()
+    parser = _create_argument_parser()
+    args = parser.parse_args()
     errors, modules = mypy_upgrade(
         args.report,
         args.packages,
         args.modules,
         args.files,
-        args.with_descriptions,
+        args.suffix,
     )
 
     if len(args.verbose) > 0:
