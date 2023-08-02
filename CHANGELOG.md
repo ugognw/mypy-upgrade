@@ -13,6 +13,8 @@ This project implements a version of
 
 ## Added
 
+* Support for placing suppression errors on end of multiline statements
+
 * Unit tests for:
 
     * `mypy_upgrade.cli._create_argument_parser`
@@ -30,6 +32,8 @@ This project implements a version of
     * `mypy_upgrade.parsing.description_to_type_ignore`
 
     * `mypy_upgrade.parsing.parse_mypy_error_report`
+
+    * `mypy_upgrade.silence.silence_errors`
 
     * `mypy_upgrade.utils.split_code_and_comment`
 
