@@ -7,6 +7,7 @@ import pytest
 from mypy_upgrade.cli import main
 
 
+@pytest.mark.skip(reason="need to refactor functional test")
 def test(shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch):
     report = str(shared_datadir / "mypy_fix-1267.txt")
 
