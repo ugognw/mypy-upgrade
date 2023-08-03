@@ -18,7 +18,7 @@ from mypy_upgrade.parsing import MypyError, parse_mypy_report
 def fixture_report(
     shared_datadir: pathlib.Path, request: pytest.FixtureRequest
 ) -> typing.TextIO:
-    file = shared_datadir / request.param
+    file = shared_datadir / "mypy_reports" / request.param
     with pathlib.Path(file).open(encoding="utf-8") as report:
         yield report
 
