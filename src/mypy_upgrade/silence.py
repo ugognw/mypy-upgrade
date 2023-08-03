@@ -29,10 +29,14 @@ def silence_errors(
         The line with a type error suppression comment.
     """
     unused_ignore = None
+    error_codes = []
+    descriptions = []
     for error in errors:
         if error.error_code == "unused-ignore":
-            unused_ignore = error
-            break
+            unused_ignore = error  # there should only be one
+        else:
+            error_codes.append(error.error_code)
+            descriptions.append(error.description)
 
     python_code, comment = split_code_and_comment(line.rstrip())
 
@@ -43,18 +47,17 @@ def silence_errors(
     else:
         cleaned_comment = comment
 
-    type_ignore_comment = add_type_ignore_comment(
-        cleaned_comment,
-        [error.error_code for error in errors if error != unused_ignore],
-    )
-
-    updated_line = f"{python_code}  {type_ignore_comment}"
-
-    if suffix == "description":
-        descriptions = ", ".join(
-            error.description for error in errors if error != unused_ignore
+    if error_codes:
+        final_comment = add_type_ignore_comment(
+            cleaned_comment,
+            error_codes,
         )
-        if descriptions:
-            updated_line += f"; {descriptions}"
+    else:
+        final_comment = cleaned_comment
+
+    updated_line = f"{python_code}  {final_comment}".rstrip()
+
+    if suffix == "description" and descriptions:
+        updated_line += f"; {', '.join(descriptions)}"
 
     return updated_line + "\n"
