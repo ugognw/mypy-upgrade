@@ -20,7 +20,7 @@ def split_code_and_comment(line: str) -> tuple[str, str]:
             if t.type == tokenize.COMMENT
         ]
         if not comment_tokens:
-            return line.strip(), ""
+            return line.rstrip(), ""
 
         comment_token = comment_tokens[0]
         python_code = line[0 : comment_token.start[1]]
