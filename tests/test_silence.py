@@ -54,9 +54,9 @@ def fixture_line(code: str, comment: str) -> str:
     return code + comment
 
 
-@pytest.fixture(name="errors", scope="class")
-def fixture_errors(type_ignore_comment: str) -> Iterable[MypyError]:
-    errors = [
+@pytest.fixture(name="errors_to_add", scope="class")
+def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
+    errors_to_add = [
         MypyError(
             "ase/visualize/paraview_script.py",
             1,
@@ -79,7 +79,7 @@ def fixture_errors(type_ignore_comment: str) -> Iterable[MypyError]:
     ]
     if "type: ignore" in type_ignore_comment:
         placeholder = "[override]" if "override" in type_ignore_comment else ""
-        errors.append(
+        errors_to_add.append(
             MypyError(
                 "",
                 1,
@@ -88,7 +88,7 @@ def fixture_errors(type_ignore_comment: str) -> Iterable[MypyError]:
             )
         )
 
-    return (error for error in errors)
+    return (error for error in errors_to_add)
 
 
 @pytest.fixture(name="suffix", params=("description", ""), scope="class")
@@ -98,25 +98,25 @@ def fixture_suffix(request: pytest.FixtureRequest) -> str:
 
 @pytest.fixture(name="silenced_line", scope="class")
 def fixture_silenced_line(
-    line: str, errors: Iterable[MypyError], suffix: str
+    line: str, errors_to_add: Iterable[MypyError], suffix: str
 ) -> str:
-    return silence_errors(line, errors, suffix if suffix else None)
+    return silence_errors(line, errors_to_add, suffix if suffix else None)
 
 
 class TestSilenceErrors:
     @staticmethod
     def test_should_place_all_non_unused_ignore_errors_in_comment(
-        silenced_line: str, errors: Iterable[MypyError]
+        silenced_line: str, errors_to_add: Iterable[MypyError]
     ) -> None:
         assert all(
             error.error_code in silenced_line
-            for error in errors
+            for error in errors_to_add
             if error.error_code != "unused-ignore"
         )
 
     @staticmethod
     def test_should_place_type_ignore_at_beginning_of_comment(
-        silenced_line: str
+        silenced_line: str,
     ) -> None:
         comment_start = silenced_line.find("#")
         if comment_start > -1:
