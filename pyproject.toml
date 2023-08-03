@@ -152,6 +152,9 @@ python_files = [
 testpaths = "tests"
 markers = [
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+  "functional1: denotes the first run of the functional test",
+  "functional2: denotes the second run of the functional test",
+  "functional3: denotes the third run of the functional test"
 ]
 
 [tool.ruff]
