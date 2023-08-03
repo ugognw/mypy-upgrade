@@ -28,7 +28,7 @@ classifiers = [
   "Topic :: Software Development",
 ]
 dependencies = [
-  "typing-extensions"
+  "typing-extensions; python_version<'3.8'"
 ]
 
 [project.scripts]
