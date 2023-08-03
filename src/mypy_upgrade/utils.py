@@ -29,4 +29,4 @@ def split_code_and_comment(line: str) -> tuple[str, str]:
         else:
             python_code, python_comment = (line, "")
 
-    return python_code, python_comment
+    return python_code.rstrip(), python_comment
