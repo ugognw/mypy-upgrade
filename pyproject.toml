@@ -40,7 +40,7 @@ Issues = "https://github.com/ugognw/mypy-upgrade/issues"
 Source = "https://github.com/ugognw/mypy-upgrade"
 
 [tool.black]
-target-version = ["py37"]
+target-version = ["py37", "py38", "py39", "py310", "py311", "py312"]
 line-length = 79
 skip-string-normalization = true
 
