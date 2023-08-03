@@ -19,6 +19,7 @@ from mypy_upgrade.parsing import (
     parse_mypy_report,
 )
 from mypy_upgrade.silence import silence_errors
+from mypy_upgrade.utils import correct_line_numbers
 
 
 def _create_argument_parser() -> argparse.ArgumentParser:
@@ -135,23 +136,28 @@ def mypy_upgrade(
 
     filtered_errors = filter_mypy_errors(errors, packages, modules, files)
 
-    silenced_modules = []
-    for (module, line_number), grouped_errors in itertools.groupby(
-        filtered_errors, key=MypyError.filename_and_line_number
+    edited_files = []
+    for filename, filename_grouped_errors in itertools.groupby(
+        filtered_errors, key=lambda error: error.filename
     ):
-        with pathlib.Path(module).open(encoding="utf-8") as f:
-            lines = f.readlines()
+        with pathlib.Path(filename).open(encoding="utf-8") as f:
+            line_number_corrected_errors, lines = correct_line_numbers(
+                f, filename_grouped_errors
+            )
 
-        lines[line_number - 1] = silence_errors(
-            lines[line_number - 1], grouped_errors, suffix
-        )
+        for line_number, line_grouped_errors in itertools.groupby(
+            line_number_corrected_errors, key=lambda error: error.line_no
+        ):
+            lines[line_number - 1] = silence_errors(
+                lines[line_number - 1], line_grouped_errors, suffix
+            )
 
-        with pathlib.Path(module).open(mode="w", encoding="utf-8") as f:
+        with pathlib.Path(filename).open(mode="w", encoding="utf-8") as f:
             _ = f.write("".join(lines))
 
-        silenced_modules.append(module)
+        edited_files.append(filename)
 
-    return filtered_errors, silenced_modules
+    return filtered_errors, edited_files
 
 
 def main() -> None:

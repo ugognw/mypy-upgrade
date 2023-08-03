@@ -41,6 +41,8 @@ This project implements a version of
 
     * `mypy_upgrade.utils.split_code_and_comment`
 
+    * `mypy_upgrade.utils.correct_line_numbers`
+
 ### Changed
 
 * Major refactor into modules
