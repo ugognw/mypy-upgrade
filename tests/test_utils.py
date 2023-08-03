@@ -66,17 +66,19 @@ LINES = [
 SAMPLE_CODE = "\n".join(LINES)
 
 
-@pytest.fixture(name="single_line_no", params=range(1, 11))
+@pytest.fixture(name="single_line_no", params=range(1, 11), scope="class")
 def fixture_single_line_no(request: pytest.FixtureRequest) -> int:
     return request.param
 
 
-@pytest.fixture(name="multi_line_no", params=range(11, len(LINES) + 1))
+@pytest.fixture(
+    name="multi_line_no", params=range(11, len(LINES) + 1), scope="class"
+)
 def fixture_multi_line_no(request: pytest.FixtureRequest) -> int:
     return request.param
 
 
-@pytest.fixture(name="errors")
+@pytest.fixture(name="errors", scope="class")
 def fixture_errors(single_line_no: int, multi_line_no: int) -> list[MypyError]:
     return [
         MypyError("", single_line_no, "", ""),
@@ -84,7 +86,7 @@ def fixture_errors(single_line_no: int, multi_line_no: int) -> list[MypyError]:
     ]
 
 
-@pytest.fixture(name="line_corrected_errors_and_lines")
+@pytest.fixture(name="line_corrected_errors_and_lines", scope="class")
 def fixture_line_corrected_errors_and_lines(
     errors: list[MypyError],
 ) -> tuple[list[MypyError], list[str]]:
