@@ -94,6 +94,8 @@ def remove_unused_type_ignore(
         for code_to_remove in codes_to_remove:
             pruned_comment = pruned_comment.replace(code_to_remove, "")
     else:
-        pruned_comment = re.sub(r"type\s*:\s*ignore", "", comment)
+        pruned_comment = re.sub(
+            r"type\s*:\s*ignore(\[[a-z, \-]+\])?", "", comment
+        )
 
     return pruned_comment
