@@ -238,7 +238,9 @@ class TestMypyUpgrade35af5282d:
         shared_datadir: pathlib.Path,
     ) -> None:
         report = shared_datadir.joinpath(
-            "mypy_reports", "35af5282d", "second_report_6f100101a.txt",
+            "mypy_reports",
+            "35af5282d",
+            "second_report_6f100101a.txt",
         )
         errors, modules = mypy_upgrade(
             report,
