@@ -58,6 +58,6 @@ def silence_errors(
     updated_line = f"{python_code}  {final_comment}".rstrip()
 
     if suffix == "description" and descriptions:
-        updated_line += f"; {', '.join(descriptions)}"
+        updated_line += f" # {', '.join(descriptions)}"
 
     return updated_line + "\n"
