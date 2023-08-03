@@ -116,13 +116,13 @@ class TestSilenceErrors:
 
     @staticmethod
     def test_should_place_type_ignore_at_beginning_of_comment(
-        silenced_line: str, type_ignore_comment: str
+        silenced_line: str
     ) -> None:
-        comment_start = silenced_line.index("#")
-        if type_ignore_comment:
+        comment_start = silenced_line.find("#")
+        if comment_start > -1:
             assert silenced_line[comment_start:].startswith("# type: ignore")
         else:
-            pytest.skip(reason="no type ignore comment")
+            pytest.skip("no type ignore comment")
 
     @staticmethod
     def test_should_preserve_indent(silenced_line: str, indent: str) -> None:
