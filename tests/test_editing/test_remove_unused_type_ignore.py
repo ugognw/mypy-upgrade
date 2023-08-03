@@ -116,13 +116,15 @@ def test_should_remove_specified_error_codes4(
 
 
 @pytest.mark.parametrize(
-    ("stub", "comment_suffix"),
-    product(DESCRIPTION_STUBS, COMMENT_SUFFIXES),
+    ("stub", "comment_suffix", "error_code"),
+    product(DESCRIPTION_STUBS, COMMENT_SUFFIXES, ERROR_CODES),
 )
 def test_should_remove_whole_type_ignore_comment_if_no_code_specified(
     stub: str,
     comment_suffix: str,
+    error_code: str,
 ) -> None:
-    comment = stub.replace("<placeholder>", "") + comment_suffix
+    type_ignore = stub.replace("<placeholder>", error_code)
+    comment = type_ignore + comment_suffix
     result = remove_unused_type_ignore(comment, ())
-    assert stub not in result
+    assert type_ignore not in result
