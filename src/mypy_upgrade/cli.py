@@ -8,7 +8,10 @@ import itertools
 import pathlib
 import sys
 
-from typing_extensions import Literal  # import from typing for Python 3.8+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 from mypy_upgrade.filter import filter_mypy_errors
 from mypy_upgrade.parsing import (
