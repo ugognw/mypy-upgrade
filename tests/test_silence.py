@@ -54,7 +54,7 @@ def fixture_line(code: str, comment: str) -> str:
     return code + comment
 
 
-@pytest.fixture(name="errors_to_add", scope="class")
+@pytest.fixture(name="errors_to_add")
 def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
     errors_to_add = [
         MypyError(
@@ -96,7 +96,7 @@ def fixture_suffix(request: pytest.FixtureRequest) -> str:
     return request.param
 
 
-@pytest.fixture(name="silenced_line", scope="class")
+@pytest.fixture(name="silenced_line")
 def fixture_silenced_line(
     line: str, errors_to_add: Iterable[MypyError], suffix: str
 ) -> str:
