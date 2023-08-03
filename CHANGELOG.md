@@ -15,6 +15,8 @@ This project implements a version of
 
 * Support for placing suppression errors on end of multiline statements
 
+* Functional tests on ASE codebase
+
 * Unit tests for:
 
     * `mypy_upgrade.cli._create_argument_parser`
@@ -36,6 +38,8 @@ This project implements a version of
     * `mypy_upgrade.silence.silence_errors`
 
     * `mypy_upgrade.utils.split_code_and_comment`
+
+    * `mypy_upgrade.utils.correct_line_numbers`
 
 ### Changed
 
