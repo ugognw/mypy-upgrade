@@ -30,6 +30,7 @@ Given a type checking report from `mypy`,
 comments. For example, with the following output from mypy:
 
     package/subpackage/module.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
+    package/subpackage/module.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
 
 `mypy-upgrade` will place a `# type: ignore[assignment]` comment at the
 end of line 13 in `package/subpackage/module.py`. If error codes are not
@@ -70,8 +71,24 @@ can:
 
         mypy-upgrade --report mypy_report.txt
 
-> :memo: **Note:** To ensure desired behaviour, packages and modules must be
+> :memo: **Note:** To ensure desired behaviour, packages and modules should be
 passed using their fully qualified names (e.g., `my_package.my_module`).
+
+> :memo: **Note:** If `mypy` is not run in the same directory as `mypy-check`, the `mypy` flag 
+`--show-absolute-path` should be set when producing the type check report.
+
+> :memo: **Note:** It may require up to two passes of `mypy-upgrade` for a codebase to pass with
+`mypy --strict`.
+
+## Recommended Mypy Flags
+
+* `--strict`
+
+* `--show-column-numbers`
+
+* `--show-error-codes`
+
+* `--show-absolute-path`
 
 ## Command-Line Options
 
@@ -80,6 +97,10 @@ suppression comments so that you can fix them later. You can do so using
 the `-d` (or `--with-descriptions`) option
 
     mypy-upgrade --report mypy_report.txt -d -p MY_PACKAGE
+
+Alternatively, you can specify a custom comment to append after the `type: ignore` comments:
+
+    mypy-upgrade --report mypy_report.txt -d "FIX ME" -p MY_PACKAGE
 
 To selectively silence errors in packages and modules, use the `-p`
 (`--package`) and `-m` (`--module`) options, respectively:
@@ -106,13 +127,21 @@ repo directly:
     # or if you don't have 'git' installed
     python3 -m pip install -U https://github.com/ugognw/mypy-upgrade/tree/development
 
-## Known Bugs
+## Known Limitations
 
-This utility is unable to silence mypy errors which occur on lines ending in
-line continuation characters since any non-whitespace following such a
-character is a syntax error. Pre-formatting your code with a PEP8 adherent
-formatter (e.g., [`black`](http://black.readthedocs.io)) to replace such lines with parentheses
-is recommended.
+The following limitations derive mainly from Python syntax issues and are unable to be handled
+by `mypy-upgrade`. If you can't resolve the error directly, please consider refactoring to permit
+error suppression.
+
+* Type errors on lines ending in line continuation characters or within multiline f-strings
+
+    * Comments are not permitted within multiline strings or following line continuation characters
+    and Mypy only recognizes inline `type: ignore` comments (see
+    [#3448](https://github.com/python/mypy/issues/3448))
+
+    * Pre-formatting your code with a PEP8 adherent formatter
+    (e.g., [`black`](http://black.readthedocs.io)) to replace such lines with parentheses is
+    recommended.
 
 ## Similar Projects
 
