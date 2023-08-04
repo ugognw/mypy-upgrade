@@ -24,12 +24,14 @@ ERROR_CODES = [
 
 @pytest.fixture(name="type_ignore_stub", params=TYPE_IGNORE_STUBS)
 def fixture_type_ignore_stub(request: pytest.FixtureRequest) -> str:
-    return request.param
+    type_ignore_stub: str = request.param
+    return type_ignore_stub
 
 
 @pytest.fixture(name="comment_suffix", params=COMMENT_SUFFIXES)
 def fixture_comment_suffix(request: pytest.FixtureRequest) -> str:
-    return request.param
+    comment_suffix: str = request.param
+    return comment_suffix
 
 
 @pytest.fixture(name="initial_error_codes")

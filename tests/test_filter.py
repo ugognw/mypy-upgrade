@@ -70,7 +70,8 @@ class TestGetModulePaths:
     ),
 )
 def fixture_packages_to_include(request: pytest.FixtureRequest) -> list[str]:
-    return request.param
+    packages_to_include: list[str] = request.param
+    return packages_to_include
 
 
 @pytest.fixture(
@@ -84,7 +85,8 @@ def fixture_packages_to_include(request: pytest.FixtureRequest) -> list[str]:
     ),
 )
 def fixture_modules_to_include(request: pytest.FixtureRequest) -> list[str]:
-    return request.param
+    modules_to_include: list[str] = request.param
+    return modules_to_include
 
 
 @pytest.fixture(
@@ -98,7 +100,8 @@ def fixture_modules_to_include(request: pytest.FixtureRequest) -> list[str]:
     ),
 )
 def fixture_files_to_include(request: pytest.FixtureRequest) -> list[str]:
-    return request.param
+    files_to_include: list[str] = request.param
+    return files_to_include
 
 
 class TestFilterMypyErrors:

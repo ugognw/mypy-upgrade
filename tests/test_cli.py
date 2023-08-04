@@ -54,7 +54,8 @@ def fixture_report(request: pytest.FixtureRequest) -> list[str]:
     name="suffix", params=("--with-descriptions", None), scope="module"
 )
 def fixture_suffix(request: pytest.FixtureRequest) -> str:
-    return request.param
+    suffix: str = request.param
+    return suffix
 
 
 @pytest.fixture(
