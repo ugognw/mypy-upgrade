@@ -8,6 +8,8 @@ import pytest
 
 from mypy_upgrade.parsing import MypyError
 from mypy_upgrade.utils import (
+    find_safe_end_line,
+    find_safe_end_line_with_multiline_comment,
     find_unsilenceable_lines,
     split_code_and_comment,
 )
@@ -181,3 +183,61 @@ class TestFindSafeEndLineWithMultilineComment:
             error, same_line_string_tokens
         )
         assert end_line == 5
+
+
+class TestFindSafeEndLine:
+    @staticmethod
+    def test_should_return_none_if_error_in_explicitly_continued_line() -> (
+        None
+    ):
+        error = MypyError("", 0, 1, "", "")
+        code = "\n".join(["x = 1+\\", "1"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.start[0] == t.end[0] == 1
+        ]
+        end_line = find_safe_end_line(error, same_line_string_tokens)
+        assert end_line is None
+
+    @staticmethod
+    def test_should_return_none_if_error_in_multiline_string() -> None:
+        error = MypyError("", 0, 2, "", "")
+        code = "\n".join(["x = f'''", "1{format}", "'''"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.start[0] <= 2 <= t.end[0]
+        ]
+        end_line = find_safe_end_line(error, same_line_string_tokens)
+        assert end_line is None
+
+    @staticmethod
+    def test_should_return_same_line_for_single_line_statement() -> None:
+        error = MypyError("", 0, 1, "", "")
+        code = "x = 5"
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.exact_type == tokenize.STRING
+        ]
+        end_line = find_safe_end_line(error, same_line_string_tokens)
+        assert end_line == 1
+
+    @staticmethod
+    def test_should_return_end_line_for_error_before_multiline_string() -> (
+        None
+    ):
+        error = MypyError("", 0, 1, "", "")
+        code = "\n".join(["x = '''", "", "'''"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.exact_type == tokenize.STRING
+        ]
+        end_line = find_safe_end_line(error, same_line_string_tokens)
+        assert end_line == 3
