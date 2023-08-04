@@ -9,56 +9,122 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
-## [Unreleased](https://github.com/ugognw/mypy-upgrade/tree/development)
+## [0.0.1-alpha.3] - 2023-08-04
 
 ## Added
 
-* `typing-extensions` dependency added for Python <3.8
+* `__future__` imports for Python <3.10 support
 
-* Support for placing suppression errors on end of multiline statements
+* `typing-extensions` dependency for Python <3.8
 
-* Functional tests on ASE codebase
+* `mypy_upgrade.cli.mypy_upgrade` function which encapsulates application logic
 
-* Unit tests for:
+* README
 
-    * `mypy_upgrade.cli._create_argument_parser`
+    * overview of features
 
-    * `mypy_upgrade.editing.add_type_ignore_comment`
+    * preview of command-line options
 
-    * `mypy_upgrade.editing.format_type_ignore_comment`
+    * known bugs
 
-    * `mypy_upgrade.editing.remove_unused_type_ignore`
+    * similar projects
 
-    * `mypy_upgrade.filter.filter_mypy_errors`
+* New modules:
 
-    * `mypy_upgrade.filter.get_module_paths`
+    * `mypy_upgrade.editing`: comment editing functions
 
-    * `mypy_upgrade.parsing.description_to_type_ignore`
+    * `mypy_upgrade.filter`: error filtering functions
 
-    * `mypy_upgrade.parsing.parse_mypy_error_report`
+    * `mypy_upgrade.parsing`: defines the `MypyError` named tuple and report parsing logic
 
-    * `mypy_upgrade.silence.silence_errors`
+    * `mypy_upgrade.silence`: suppress errors by add/removing comments
 
-    * `mypy_upgrade.utils.split_code_and_comment`
+    * `mypy_upgrade.utils`: utilities for processing code text
 
-    * `mypy_upgrade.utils.correct_line_numbers`
+* Testing
+
+    * Group common data to fixtures in `conftest.py`
+
+    * Functional tests on ASE codebase (with corresponding test data and test environment dependency)
+
+    * Unit tests for:
+
+        * `mypy_upgrade.cli._create_argument_parser`
+
+        * `mypy_upgrade.editing.add_type_ignore_comment`
+
+        * `mypy_upgrade.editing.format_type_ignore_comment`
+
+        * `mypy_upgrade.editing.remove_unused_type_ignore`
+
+        * `mypy_upgrade.filter.filter_mypy_errors`
+
+        * `mypy_upgrade.filter.get_module_paths`
+
+        * `mypy_upgrade.parsing.description_to_type_ignore`
+
+        * `mypy_upgrade.parsing.parse_mypy_error_report`
+
+        * `mypy_upgrade.silence.silence_errors`
+
+        * `mypy_upgrade.utils.split_code_and_comment`
+
+        * `mypy_upgrade.utils.correct_line_numbers`
+
+    * Add pytest markers for slow tests and functional tests
 
 ### Changed
 
-* Major refactor into modules
+* `mypy_upgrade.cli`
+
+    * `.parse_report` moved to `mypy_upgrade.parsing` module
+
+    * `.get_module_paths` function moved to `mypy_upgrade.filter` module
+
+    * `.select_errors` renamed to `filter_mypy_errors` and moved to `mypy_upgrade.filter` module
+
+    * `.silence_error`
+
+        * renamed to `silence_errors` moved to `mypy_upgrade.silence` module
+
+        * now accepts `str`, `Iterable[MypyError]`, `Literal["description"] | None` as parameters
+
+        * removes unused type error suppression comments
+
+        * respects previously existing comments
+
+    * `.main` application logic moved to `.mypy_upgrade`
+
+* Error information is stored as named tuple (`MypyError`)
+
+* syntax of README examples
 
 * Default to silence all errors in type checking report
 
 * Use tokenize to find existing comments
 
-* Group errors by file and line number
+* Group errors to be silenced by file and line number
 
-## [0.0.1-alpha.2](https://github.com/ugognw/mypy-upgrade/tree/release-0.0.1-alpha.2)
+### Removed
+
+* Pypy and Python 3.12+ classifiers
+
+* `.cli.extract_old_error`
+
+### Fixed
+
+* Support for placing suppression errors on the end of multiline statements
+
+## [0.0.1-alpha.2] - 2023-07-31
 
 ### Fixed
 
 * `importlib.abc error` [(see Issue #2)](https://github.com/ugognw/mypy-upgrade/issues/2)
 
-## [0.0.1-alpha.1](https://github.com/ugognw/mypy-upgrade/tree/release-0.0.1-alpha.1)
+## [0.0.1-alpha.1] - 2023-07-31
 
 * First release
+
+[0.0.1-alpha.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.2...release-0.0.1-alpha.3
+[0.0.1-alpha.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.1...release-0.0.1-alpha.2
+[0.0.1-alpha.1]: https://github.com/ugognw/mypy-upgrade/tree/release-0.0.1-alpha.1
