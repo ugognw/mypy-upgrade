@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from mypy_upgrade.editing import add_type_ignore_comment

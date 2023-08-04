@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import io
+import sys
 
 import pytest
 
@@ -29,10 +32,14 @@ CODE_AND_COMMENTS = [
 
 
 class TestSplitCodeAndComment:
+    if sys.version_info < (3, 10):
+        CODE_LINES_AND_CODE_AND_COMMENTS = zip(CODE_LINES, CODE_AND_COMMENTS)
+    else:
+        CODE_LINES_AND_CODE_AND_COMMENTS = zip(CODE_LINES, CODE_AND_COMMENTS, strict=True)
     @staticmethod
     @pytest.mark.parametrize(
         ("code_line", "code_and_comment"),
-        zip(CODE_LINES, CODE_AND_COMMENTS, strict=True),
+        CODE_LINES_AND_CODE_AND_COMMENTS,
     )
     def test_should_split_lines_into_code_and_comment_correctly(
         code_line: str, code_and_comment: tuple[str, str]

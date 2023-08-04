@@ -1,9 +1,13 @@
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
+import sys
 from collections.abc import Iterable
 
-from typing_extensions import Literal  # import from typing for Python 3.8+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 from mypy_upgrade.editing import (
     add_type_ignore_comment,
