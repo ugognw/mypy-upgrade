@@ -241,3 +241,23 @@ class TestFindSafeEndLine:
         ]
         end_line = find_safe_end_line(error, same_line_string_tokens)
         assert end_line == 3
+
+
+class TestCorrectLineNumbers:
+    @staticmethod
+    def test_should_correct_line_number_to_end_line_for_error_on_first_line_of_multiline_string():...
+
+    @staticmethod
+    def test_should_correct_line_number_to_end_line_for_error_last_line_of_multiline_string():...
+
+    @staticmethod
+    def test_should_correct_line_number_to_next_end_line_for_error_last_line_of_chained_multiline_string():...
+
+    @staticmethod
+    def test_should_separate_error_inside_multiline_string():...
+
+    @staticmethod
+    def test_should_separate_error_on_explicitly_continued_line():...
+
+    @staticmethod
+    def test_should_not_change_line_number_for_single_line_errors():...
