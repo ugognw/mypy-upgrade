@@ -6,6 +6,7 @@ import tokenize
 
 import pytest
 
+from mypy_upgrade.parsing import MypyError
 from mypy_upgrade.utils import (
     find_unsilenceable_lines,
     split_code_and_comment,
@@ -112,3 +113,71 @@ class TestFindUnsilenceableLines:
         tokens = find_unsilenceable_lines(stream)
         assert any(t.start[0] == 1 for t in tokens)
         assert any(t.end[0] == 3 for t in tokens)
+
+
+class TestFindSafeEndLineWithMultilineComment:
+    @staticmethod
+    def test_should_return_none_if_error_in_multiline_comment() -> None:
+        error = MypyError("", 0, 2, "", "")
+        code = "\n".join(["x = '''", "string", "'''"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.exact_type == tokenize.STRING
+        ]
+        end_line = find_safe_end_line_with_multiline_comment(
+            error, same_line_string_tokens
+        )
+        assert end_line is None
+
+    @staticmethod
+    def test_should_return_end_line_if_error_before_isolated_multiline_comment() -> (
+        None
+    ):
+        error = MypyError("", 0, 1, "", "")
+        code = "\n".join(["x = '''", "string", "'''"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.exact_type == tokenize.STRING
+        ]
+        end_line = find_safe_end_line_with_multiline_comment(
+            error, same_line_string_tokens
+        )
+        assert end_line == 3
+
+    @staticmethod
+    def test_should_return_end_line_if_error_at_end_of_isolated_multiline_comment() -> (
+        None
+    ):
+        error = MypyError("", 0, 3, "", "")
+        code = "\n".join(["x = '''", "string", "'''"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.exact_type == tokenize.STRING
+        ]
+        end_line = find_safe_end_line_with_multiline_comment(
+            error, same_line_string_tokens
+        )
+        assert end_line == 3
+
+    @staticmethod
+    def test_should_second_end_line_if_error_before_chained_multiline_comment() -> (
+        None
+    ):
+        error = MypyError("", 0, 1, "", "")
+        code = "\n".join(["x = '''", "string", "'''.join('''", "", "''')"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.exact_type == tokenize.STRING
+        ]
+        end_line = find_safe_end_line_with_multiline_comment(
+            error, same_line_string_tokens
+        )
+        assert end_line == 5
