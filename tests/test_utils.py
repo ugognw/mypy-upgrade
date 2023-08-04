@@ -35,7 +35,10 @@ class TestSplitCodeAndComment:
     if sys.version_info < (3, 10):
         CODE_LINES_AND_CODE_AND_COMMENTS = zip(CODE_LINES, CODE_AND_COMMENTS)
     else:
-        CODE_LINES_AND_CODE_AND_COMMENTS = zip(CODE_LINES, CODE_AND_COMMENTS, strict=True)
+        CODE_LINES_AND_CODE_AND_COMMENTS = zip(
+            CODE_LINES, CODE_AND_COMMENTS, strict=True
+        )
+
     @staticmethod
     @pytest.mark.parametrize(
         ("code_line", "code_and_comment"),

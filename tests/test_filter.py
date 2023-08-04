@@ -33,6 +33,7 @@ class TestGetModulePaths:
         MODULES_AND_MODULE_PATHS = zip(MODULES, MODULE_PATHS)
     else:
         MODULES_AND_MODULE_PATHS = zip(MODULES, MODULE_PATHS, strict=True)
+
     @staticmethod
     @pytest.mark.parametrize(
         ("module", "module_path"), MODULES_AND_MODULE_PATHS
