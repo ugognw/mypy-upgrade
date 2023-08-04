@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import pathlib
+import sys
 from importlib import util
 
 import pytest
@@ -26,9 +29,14 @@ MODULE_PATHS = [
 
 
 class TestGetModulePaths:
+    if sys.version_info < (3, 10):
+        MODULES_AND_MODULE_PATHS = zip(MODULES, MODULE_PATHS)
+    else:
+        MODULES_AND_MODULE_PATHS = zip(MODULES, MODULE_PATHS, strict=True)
+
     @staticmethod
     @pytest.mark.parametrize(
-        ("module", "module_path"), zip(MODULES, MODULE_PATHS, strict=True)
+        ("module", "module_path"), MODULES_AND_MODULE_PATHS
     )
     def test_should_return_path_of_modules(
         module: str, module_path: str
@@ -62,7 +70,8 @@ class TestGetModulePaths:
     ),
 )
 def fixture_packages_to_include(request: pytest.FixtureRequest) -> list[str]:
-    return request.param
+    packages_to_include: list[str] = request.param
+    return packages_to_include
 
 
 @pytest.fixture(
@@ -76,7 +85,8 @@ def fixture_packages_to_include(request: pytest.FixtureRequest) -> list[str]:
     ),
 )
 def fixture_modules_to_include(request: pytest.FixtureRequest) -> list[str]:
-    return request.param
+    modules_to_include: list[str] = request.param
+    return modules_to_include
 
 
 @pytest.fixture(
@@ -90,7 +100,8 @@ def fixture_modules_to_include(request: pytest.FixtureRequest) -> list[str]:
     ),
 )
 def fixture_files_to_include(request: pytest.FixtureRequest) -> list[str]:
-    return request.param
+    files_to_include: list[str] = request.param
+    return files_to_include
 
 
 class TestFilterMypyErrors:

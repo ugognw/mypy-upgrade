@@ -22,9 +22,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development",
 ]
 dependencies = [
@@ -40,7 +38,7 @@ Issues = "https://github.com/ugognw/mypy-upgrade/issues"
 Source = "https://github.com/ugognw/mypy-upgrade"
 
 [tool.black]
-target-version = ["py37", "py38", "py39", "py310", "py311", "py312"]
+target-version = ["py37", "py38", "py39", "py310", "py311"]
 line-length = 79
 skip-string-normalization = true
 
@@ -77,12 +75,6 @@ python = [
   "3.9",
   "3.10",
   "3.11",
-  "3.12",
-  "3.13",
-  "pypy3.7",
-  "pypy3.8",
-  "pypy3.9",
-  "pypy3.10"
 ]
 
 [tool.hatch.envs.default]

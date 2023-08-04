@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import io
+import sys
 
 import pytest
 
@@ -29,10 +32,17 @@ CODE_AND_COMMENTS = [
 
 
 class TestSplitCodeAndComment:
+    if sys.version_info < (3, 10):
+        CODE_LINES_AND_CODE_AND_COMMENTS = zip(CODE_LINES, CODE_AND_COMMENTS)
+    else:
+        CODE_LINES_AND_CODE_AND_COMMENTS = zip(
+            CODE_LINES, CODE_AND_COMMENTS, strict=True
+        )
+
     @staticmethod
     @pytest.mark.parametrize(
         ("code_line", "code_and_comment"),
-        zip(CODE_LINES, CODE_AND_COMMENTS, strict=True),
+        CODE_LINES_AND_CODE_AND_COMMENTS,
     )
     def test_should_split_lines_into_code_and_comment_correctly(
         code_line: str, code_and_comment: tuple[str, str]
@@ -68,14 +78,16 @@ SAMPLE_CODE = "\n".join(LINES)
 
 @pytest.fixture(name="single_line_no", params=range(1, 11), scope="class")
 def fixture_single_line_no(request: pytest.FixtureRequest) -> int:
-    return request.param
+    single_line_no: int = request.param
+    return single_line_no
 
 
 @pytest.fixture(
     name="multi_line_no", params=range(11, len(LINES) + 1), scope="class"
 )
 def fixture_multi_line_no(request: pytest.FixtureRequest) -> int:
-    return request.param
+    multi_line_no: int = request.param
+    return multi_line_no
 
 
 @pytest.fixture(name="errors", scope="class")
@@ -99,21 +111,21 @@ class TestCorrectLineNumbers:
     def test_should_return_same_line_of_single_line_statement(
         errors: list[MypyError],
         line_corrected_errors_and_lines: tuple[list[MypyError], list[str]],
-    ):
+    ) -> None:
         line_corrected_errors, _ = line_corrected_errors_and_lines
         assert line_corrected_errors[0].line_no == errors[0].line_no
 
     @staticmethod
     def test_should_return_end_line_of_multiline_statement(
         line_corrected_errors_and_lines: tuple[list[MypyError], list[str]]
-    ):
+    ) -> None:
         line_corrected_errors, _ = line_corrected_errors_and_lines
         assert line_corrected_errors[1].line_no == len(LINES)
 
     @staticmethod
     def test_should_return_lines_of_stream(
         line_corrected_errors_and_lines: tuple[list[MypyError], list[str]]
-    ):
+    ) -> None:
         _, lines = line_corrected_errors_and_lines
         assert all(
             line in lines for line in SAMPLE_CODE.splitlines(keepends=True)

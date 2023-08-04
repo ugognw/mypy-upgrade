@@ -1,4 +1,4 @@
-# mypy-upgrade
+# `mypy-upgrade`
 
 [![PyPI - Version](https://img.shields.io/pypi/v/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
@@ -12,38 +12,46 @@
 
 **Table of Contents**
 
+- [What is `mypy-upgrade`?](#what-is-mypy-upgrade)
+- [Features](#features)
 - [Basic Usage](#basic-usage)
 - [Command-Line Options](#command-line-options)
 - [Quick Start](#quick-start)
+- [Known Bugs](#known-bugs)
+- [Similar Projects](#similar-projects)
+
+## What is `mypy-upgrade`?
 
 `mypy-upgrade` is a command-line utility that provides automatic error
-suppression for `mypy` (analogous to `pyre-upgrade` and `pylint-silent`).
+suppression for [`mypy`](http://mypy.readthedocs.io/) (analogous to [`pyre-upgrade`](https://pyre-check.org/docs/types-in-python/#upgrade) and [`pylint-silent`](https://github.com/udifuchs/pylint-silent/)).
 
-Given a type checking report from [mypy](http://mypy.readthedocs.io/),
+Given a type checking report from `mypy`,
 `mypy-upgrade` will silence the listed errors using error suppression
 comments. For example, with the following output from mypy:
 
-    ase/utils/plotting.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
+    package/subpackage/module.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
 
 `mypy-upgrade` will place a `# type: ignore[assignment]` comment at the
-end of line 13 in `ase/utils/plotting.py`. If error codes are not present in
-the `mypy` report (e.g., the `hide-error-codes` flag is set when `mypy` was
-invoked), then a non-specific `# type: ignore` comment will be added instead.
+end of line 13 in `package/subpackage/module.py`. If error codes are not
+present in the `mypy` report (e.g., the `hide-error-codes` flag is set when
+`mypy` was invoked), then a non-specific `# type: ignore` comment will be
+added instead.
 
 > :warning: **Warning:** `mypy-check` **must** be run in the same directory
-> that `mypy` was run.*
+> that `mypy` was run.
 
 ## Features
 
 * Removal of unused `type: ignore` comments
 
-* Optional inclusion of mypy error description messages
+* Optional inclusion of `mypy` error description messages
 
 * Support for suppressing multiple mypy errors per-line
 
 * Preservation of existing in-line comments
 
-* Replacement of blanket `type: ignore` comments with error code-specific comments
+* Replacement of blanket `type: ignore` comments with error code-specific
+comments
 
 ## Basic Usage
 
@@ -101,19 +109,27 @@ repo directly:
 ## Known Bugs
 
 This utility is unable to silence mypy errors which occur on lines ending in
-line continuation characters since any non-whitespace following such a character
-is a syntax error. Pre-formatting your code with a PEP8 adherent formatter (e.g., 
-[`black`](http://black.readthedocs.io)) to replace such lines with parentheses
+line continuation characters since any non-whitespace following such a
+character is a syntax error. Pre-formatting your code with a PEP8 adherent
+formatter (e.g., [`black`](http://black.readthedocs.io)) to replace such lines with parentheses
 is recommended.
 
 ## Similar Projects
 
 If this doesn't fit your use-case, maybe one of these other projects will!
 
-* [`geo7/mypy_clean_slate`](https://github.com/geo7/mypy_clean_slate/tree/main): `mypy` reports are generated internally in `--strict` mode; includes support for suppressing multiple errors on a single line
+* [`geo7/mypy_clean_slate`](https://github.com/geo7/mypy_clean_slate/tree/main): `mypy` reports are generated internally in `--strict` mode; includes
+support for suppressing multiple errors on a single line; an inspiration for
+much of `mypy-upgrade`'s implementation
 
-* [`whtsky/mypy-silent`](https://github.com/whtsky/mypy-silent/tree/master): relies solely on `typer` + the standard library; includes support for removing unused `type: ignore` comments but no support for suppressing multiple errors on a single line
+* [`whtsky/mypy-silent`](https://github.com/whtsky/mypy-silent/tree/master):
+relies solely on [`typer`](https://typer.tiangolo.com) + the standard
+library; includes support for removing unused `type: ignore` comments but no
+support for suppressing multiple errors on a single line; another inspiration
+for much of `mypy-upgrade`'s implementation
 
-* [`patrick91/mypy-silent`](https://github.com/patrick91/mypy-silent/tree/feature/multiple-errors): a fork of `whtsky/mypy-silent` with support for suppressing multiple errors on a single line (on the `feature/multiple-errors` branch)
+* [`patrick91/mypy-silent`](https://github.com/patrick91/mypy-silent/tree/feature/multiple-errors): a fork of `whtsky/mypy-silent` with support for
+suppressing multiple errors on a single line (on the `feature/multiple-errors` branch)
 
-* [`uptickmetachu/mypy-silent`](https://github.com/uptickmetachu/mypy-silent/tree/main): a fork of `whtsky/mypy-silent` with support for suppressing multiple errors on a single line
+* [`uptickmetachu/mypy-silent`](https://github.com/uptickmetachu/mypy-silent/tree/main): a fork of `whtsky/mypy-silent` with support for suppressing
+multiple errors on a single line

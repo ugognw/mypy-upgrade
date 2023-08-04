@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pathlib
 import typing
+from collections.abc import Generator
 
 import pytest
 
@@ -18,7 +21,7 @@ from mypy_upgrade.parsing import MypyError, parse_mypy_report
 )
 def fixture_report(
     shared_datadir: pathlib.Path, request: pytest.FixtureRequest
-) -> typing.TextIO:
+) -> Generator[typing.TextIO, None, None]:
     file = shared_datadir / "mypy_reports" / request.param
     with pathlib.Path(file).open(encoding="utf-8") as report:
         yield report

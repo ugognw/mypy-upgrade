@@ -1,4 +1,12 @@
+from __future__ import annotations
+
+import sys
 from collections.abc import Iterable
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 import pytest
 
@@ -19,12 +27,14 @@ COMMENT_SUFFIXES = ["\n", "# noqa\n"]
 
 @pytest.fixture(name="indent", params=INDENTS, scope="class")
 def fixture_indent(request: pytest.FixtureRequest) -> str:
-    return request.param
+    indent: str = request.param
+    return indent
 
 
 @pytest.fixture(name="code_snippet", params=CODE_SNIPPETS, scope="class")
 def fixture_code_snippet(request: pytest.FixtureRequest) -> str:
-    return request.param
+    code_snippet: str = request.param
+    return code_snippet
 
 
 @pytest.fixture(name="code", scope="class")
@@ -36,12 +46,14 @@ def fixture_code(code_snippet: str, indent: str) -> str:
     name="type_ignore_comment", params=TYPE_IGNORE_COMMENTS, scope="class"
 )
 def fixture_type_ignore_comment(request: pytest.FixtureRequest) -> str:
-    return request.param
+    code_snippet: str = request.param
+    return code_snippet
 
 
 @pytest.fixture(name="comment_suffix", params=COMMENT_SUFFIXES, scope="class")
 def fixture_comment_suffix(request: pytest.FixtureRequest) -> str:
-    return request.param
+    comment_suffix: str = request.param
+    return comment_suffix
 
 
 @pytest.fixture(name="comment", scope="class")
@@ -93,12 +105,15 @@ def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
 
 @pytest.fixture(name="suffix", params=("description", ""), scope="class")
 def fixture_suffix(request: pytest.FixtureRequest) -> str:
-    return request.param
+    suffix: str = request.param
+    return suffix
 
 
 @pytest.fixture(name="silenced_line")
 def fixture_silenced_line(
-    line: str, errors_to_add: Iterable[MypyError], suffix: str
+    line: str,
+    errors_to_add: Iterable[MypyError],
+    suffix: Literal["description", ""],
 ) -> str:
     return silence_errors(line, errors_to_add, suffix if suffix else None)
 
