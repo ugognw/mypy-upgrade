@@ -23,7 +23,6 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development",
 ]
 dependencies = [
@@ -76,10 +75,6 @@ python = [
   "3.9",
   "3.10",
   "3.11",
-  "pypy3.7",
-  "pypy3.8",
-  "pypy3.9",
-  "pypy3.10"
 ]
 
 [tool.hatch.envs.default]
