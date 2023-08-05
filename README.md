@@ -91,7 +91,7 @@ passed using their fully qualified names (e.g., `my_package.my_module`).
 
 ## Command-Line Options
 
-You may want to include the error descriptions provided by `mypy` in the
+You may want to include the error messages provided by `mypy` in the
 suppression comments so that you can fix them later. You can do so using
 the `-d` (or `--with-descriptions`) option
 
