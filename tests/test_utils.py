@@ -8,6 +8,7 @@ import pytest
 
 from mypy_upgrade.parsing import MypyError
 from mypy_upgrade.utils import (
+    correct_line_numbers,
     find_safe_end_line,
     find_safe_end_line_with_multiline_comment,
     find_unsilenceable_lines,
@@ -245,19 +246,73 @@ class TestFindSafeEndLine:
 
 class TestCorrectLineNumbers:
     @staticmethod
-    def test_should_correct_line_number_to_end_line_for_error_on_first_line_of_multiline_string():...
+    def test_should_correct_line_number_to_end_line_for_error_on_first_line_and_before_multiline_string():
+        code = "\n".join(["x = '''", "string", "'''"])
+        stream = io.StringIO(code)
+        error = MypyError("", 0, 1, "", "")
+        corrected_errors, not_added = correct_line_numbers(stream, [error])
+        assert corrected_errors
+        assert corrected_errors[0].line_no == 3
+        assert len(not_added) == 0
 
     @staticmethod
-    def test_should_correct_line_number_to_end_line_for_error_last_line_of_multiline_string():...
+    def test_should_separate_error_for_error_on_first_line_inside_multiline_string():
+        code = "\n".join(["x = '''", "string", "'''"])
+        stream = io.StringIO(code)
+        error = MypyError("", 5, 1, "", "")
+        corrected_errors, not_added = correct_line_numbers(stream, [error])
+        assert len(corrected_errors) == 0
+        assert not_added[0].line_no == 1
+        assert len(not_added) == 1
 
     @staticmethod
-    def test_should_correct_line_number_to_next_end_line_for_error_last_line_of_chained_multiline_string():...
+    def test_should_return_same_line_for_error_on_last_line_of_multiline_string():
+        code = "\n".join(["x = '''", "string", "'''"])
+        stream = io.StringIO(code)
+        error = MypyError("", 0, 3, "", "")
+        corrected_errors, not_added = correct_line_numbers(stream, [error])
+        assert corrected_errors
+        assert corrected_errors[0].line_no == 3
+        assert len(not_added) == 0
 
     @staticmethod
-    def test_should_separate_error_inside_multiline_string():...
+    def test_should_correct_line_number_to_next_end_line_for_error_last_line_of_chained_multiline_string():
+        code = "\n".join(
+            ["x = '''", "string", "'''.join('''", "chain", "''')"]
+        )
+        stream = io.StringIO(code)
+        error = MypyError("", 0, 3, "", "")
+        corrected_errors, not_added = correct_line_numbers(stream, [error])
+        assert corrected_errors
+        assert corrected_errors[0].line_no == 5
+        assert len(not_added) == 0
 
     @staticmethod
-    def test_should_separate_error_on_explicitly_continued_line():...
+    def test_should_separate_error_inside_multiline_string():
+        code = "\n".join(["x = '''", "string", "'''"])
+        stream = io.StringIO(code)
+        error = MypyError("", 0, 2, "", "")
+        corrected_errors, not_added = correct_line_numbers(stream, [error])
+        assert len(corrected_errors) == 0
+        assert not_added[0].line_no == 2
+        assert len(not_added) == 1
 
     @staticmethod
-    def test_should_not_change_line_number_for_single_line_errors():...
+    def test_should_separate_error_on_explicitly_continued_line():
+        code = "\n".join(["x = 1 +\\", "1"])
+        stream = io.StringIO(code)
+        error = MypyError("", 0, 1, "", "")
+        corrected_errors, not_added = correct_line_numbers(stream, [error])
+        assert len(corrected_errors) == 0
+        assert not_added[0].line_no == 1
+        assert len(not_added) == 1
+
+    @staticmethod
+    def test_should_not_change_line_number_for_single_line_errors():
+        code = "x = 1"
+        stream = io.StringIO(code)
+        error = MypyError("", 0, 1, "", "")
+        corrected_errors, not_added = correct_line_numbers(stream, [error])
+        assert corrected_errors
+        assert corrected_errors[0].line_no == 1
+        assert len(not_added) == 0
