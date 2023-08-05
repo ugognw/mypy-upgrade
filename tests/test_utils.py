@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import math
 import sys
 import tokenize
 
@@ -8,10 +9,10 @@ import pytest
 
 from mypy_upgrade.parsing import MypyError
 from mypy_upgrade.utils import (
+    UnsilenceableRegion,
     correct_line_numbers,
     find_safe_end_line,
-    find_safe_end_line_with_multiline_comment,
-    find_unsilenceable_lines,
+    find_unsilenceable_regions,
     split_code_and_comment,
 )
 
@@ -62,9 +63,9 @@ class TestSplitCodeAndComment:
         assert split == stripped_code_and_comment
 
 
-class TestFindUnsilenceableLines:
+class TestFindUnsilenceableRegions:
     @staticmethod
-    def test_should_return_tokens_on_explicitly_continued_lines():
+    def test_should_return_explicitly_continued_lines() -> None:
         code = "\n".join(
             [
                 "x = 1+\\",
@@ -74,23 +75,19 @@ class TestFindUnsilenceableLines:
             ]
         )
         stream = io.StringIO(code)
-        tokens = find_unsilenceable_lines(stream)
-        assert any(token.end[0] == 1 for token in tokens)
+        regions = find_unsilenceable_regions(stream)
+        expected = UnsilenceableRegion((1, 0), (1, math.inf))
+        assert expected in regions
 
     @staticmethod
-    def test_should_only_return_string_token_for_explicitly_continued_string():
-        code = "\n".join(
-            [
-                "x = '\\",
-                "1'",
-            ]
-        )
+    def test_should_not_return_explicitly_continued_lines_in_comment():
+        code = "x = 1 #\\"
         stream = io.StringIO(code)
-        tokens = find_unsilenceable_lines(stream)
-        assert all(token.exact_type == tokenize.STRING for token in tokens)
+        regions = find_unsilenceable_regions(stream)
+        assert len(regions) == 0
 
     @staticmethod
-    def test_should_return_tokens_in_multiline_strings1():
+    def test_should_return_multiline_string():
         code = "\n".join(
             [
                 "x = '''Hi,",
@@ -99,107 +96,9 @@ class TestFindUnsilenceableLines:
             ]
         )
         stream = io.StringIO(code)
-        tokens = find_unsilenceable_lines(stream)
-        assert any(t.start[0] == 1 for t in tokens)
-        assert any(t.end[0] == 3 for t in tokens)
-
-    @staticmethod
-    def test_should_return_tokens_in_multiline_strings2():
-        code = "\n".join(
-            [
-                "comment = '\\",
-                "this is a\\",
-                "multiline string'",
-            ]
-        )
-        stream = io.StringIO(code)
-        tokens = find_unsilenceable_lines(stream)
-        assert any(t.start[0] == 1 for t in tokens)
-        assert any(t.end[0] == 3 for t in tokens)
-
-
-class TestFindSafeEndLineWithMultilineComment:
-    @staticmethod
-    def test_should_return_none_if_error_in_multiline_string() -> None:
-        error = MypyError("", 0, 2, "", "")
-        code = "\n".join(["x = '''", "string", "'''"])
-        reader = io.StringIO(code).readline
-        same_line_string_tokens = [
-            t
-            for t in tokenize.generate_tokens(reader)
-            if t.exact_type == tokenize.STRING
-        ]
-        end_line = find_safe_end_line_with_multiline_comment(
-            error, same_line_string_tokens
-        )
-        assert end_line is None
-
-    @staticmethod
-    def test_should_return_end_line_if_error_before_isolated_multiline_string() -> (
-        None
-    ):
-        error = MypyError("", 0, 1, "", "")
-        code = "\n".join(["x = '''", "string", "'''"])
-        reader = io.StringIO(code).readline
-        same_line_string_tokens = [
-            t
-            for t in tokenize.generate_tokens(reader)
-            if t.exact_type == tokenize.STRING
-        ]
-        end_line = find_safe_end_line_with_multiline_comment(
-            error, same_line_string_tokens
-        )
-        assert end_line == 3
-
-    @staticmethod
-    def test_should_return_end_line_if_error_at_end_of_isolated_multiline_string() -> (
-        None
-    ):
-        error = MypyError("", 0, 3, "", "")
-        code = "\n".join(["x = '''", "string", "'''"])
-        reader = io.StringIO(code).readline
-        same_line_string_tokens = [
-            t
-            for t in tokenize.generate_tokens(reader)
-            if t.exact_type == tokenize.STRING
-        ]
-        end_line = find_safe_end_line_with_multiline_comment(
-            error, same_line_string_tokens
-        )
-        assert end_line == 3
-
-    @staticmethod
-    def test_should_second_end_line_if_error_before_chained_multiline_string() -> (
-        None
-    ):
-        error = MypyError("", 0, 1, "", "")
-        code = "\n".join(["x = '''", "string", "'''.join('''", "", "''')"])
-        reader = io.StringIO(code).readline
-        same_line_string_tokens = [
-            t
-            for t in tokenize.generate_tokens(reader)
-            if t.exact_type == tokenize.STRING
-        ]
-        end_line = find_safe_end_line_with_multiline_comment(
-            error, same_line_string_tokens
-        )
-        assert end_line == 5
-
-    @staticmethod
-    def test_should_return_none_if_error_has_no_column_and_on_line_with_multiline_string():
-        error = MypyError("", None, 1, "", "")
-        code = "\n".join(["x = '''", "multiline string", "'''"])
-        reader = io.StringIO(code).readline
-        same_line_string_tokens = [
-            t
-            for t in tokenize.generate_tokens(reader)
-            if t.exact_type == tokenize.STRING
-        ]
-        end_line = find_safe_end_line_with_multiline_comment(
-            error, same_line_string_tokens
-        )
-        assert end_line is None
-
+        regions = find_unsilenceable_regions(stream)
+        expected = UnsilenceableRegion((1, 4), (3, 9))
+        assert expected in regions
 
 
 class TestFindSafeEndLine:
@@ -247,7 +146,9 @@ class TestFindSafeEndLine:
         assert end_line is None
 
     @staticmethod
-    def test_should_return_none_if_error_on_multiline_string_line_and_col_offset_is_none() -> None:
+    def test_should_return_none_if_error_on_multiline_string_line_and_col_offset_is_none() -> (
+        None
+    ):
         error = MypyError("", None, 2, "", "")
         code = "\n".join(["x = f'''", "1{format}", "'''"])
         reader = io.StringIO(code).readline
