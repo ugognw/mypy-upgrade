@@ -7,8 +7,9 @@ from typing import NamedTuple, TextIO
 
 class MypyError(NamedTuple):
     filename: str
+    col_offset: int | None
     line_no: int
-    description: str
+    message: str
     error_code: str
 
     @staticmethod
@@ -31,22 +32,33 @@ def parse_mypy_report(
 
             >> report = pathlib.Path('mypy_report.txt').open(encoding='utf-8')
             >> errors = parse_report(report)
-            >> module, line_no, description , error_code= errors[0]
+            >> module, col_offset, line_no, message , error_code= errors[0]
     """
     info = re.compile(
-        r"^(?P<filename>[^:]+):(?P<line_no>\d+): error: (?P<description>.+)\s+(\[(?P<error_code>.+)\])?"  # noqa: E501
+        r"^(?P<filename>[^:]+):(?P<line_no>\d+)(:(?P<col_offset>\d+))?"
+        r"(:\d+:\d+)?: error: (?P<message>.+)\s+(\[(?P<error_code>.+)\])?"
     )
     errors = []
 
     for line in report:
         error = info.match(line.strip())
         if error:
-            filename, description, error_code = error.group(
-                "filename", "description", "error_code"
-            )
+            error_code = error.group("error_code") or ""
+            filename, message = error.group("filename", "message")
             line_no = int(error.group("line_no"))
+            if error.group("col_offset"):
+                col_offset = int(error.group("col_offset"))
+            else:
+                col_offset = None
+
             errors.append(
-                MypyError(filename, line_no, description.strip(), error_code)
+                MypyError(
+                    filename,
+                    col_offset,
+                    line_no,
+                    message.strip(),
+                    error_code,
+                )
             )
 
     return sorted(errors, key=MypyError.filename_and_line_number)
