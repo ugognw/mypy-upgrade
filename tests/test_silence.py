@@ -71,18 +71,21 @@ def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
     errors_to_add = [
         MypyError(
             "ase/visualize/paraview_script.py",
+            0,
             1,
             "Function is missing a return type annotation",
             "no-untyped-def",
         ),
         MypyError(
             "ase/lattice/bravais.py",
+            0,
             72,
             '"Bravais" has no attribute "get_lattice_constant"',
             "attr-defined",
         ),
         MypyError(
             "ase/io/octopus/input.py",
+            0,
             318,
             'Incompatible types in assignment (expression has type "None", '
             'variable has type "list[int]")',
@@ -94,6 +97,7 @@ def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
         errors_to_add.append(
             MypyError(
                 "",
+                0,
                 1,
                 f'Unused "type: ignore{placeholder}" comment',
                 "unused-ignore",
