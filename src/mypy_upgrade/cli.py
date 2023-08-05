@@ -138,6 +138,7 @@ def mypy_upgrade(
 
     edited_files = []
     excluded = []  # Do something with these
+    silenced_errors = []
     for filename, filename_grouped_errors in itertools.groupby(
         filtered_errors, key=lambda error: error.filename
     ):
@@ -160,9 +161,11 @@ def mypy_upgrade(
         with pathlib.Path(filename).open(mode="w", encoding="utf-8") as f:
             _ = f.write("".join(lines))
 
-        edited_files.append(filename)
+        if safe_to_suppress:
+            edited_files.append(filename)
+            silenced_errors.extend(safe_to_suppress)
 
-    return filtered_errors, edited_files
+    return silenced_errors, edited_files
 
 
 def main() -> None:
