@@ -137,16 +137,21 @@ def mypy_upgrade(
     filtered_errors = filter_mypy_errors(errors, packages, modules, files)
 
     edited_files = []
+    excluded = []  # Do something with these
     for filename, filename_grouped_errors in itertools.groupby(
         filtered_errors, key=lambda error: error.filename
     ):
         with pathlib.Path(filename).open(encoding="utf-8") as f:
-            line_number_corrected_errors, lines = correct_line_numbers(
+            safe_to_suppress, to_exclude = correct_line_numbers(
                 f, filename_grouped_errors
             )
+            f.seek(0)
+            lines = f.readlines()
+
+        excluded.extend(to_exclude)
 
         for line_number, line_grouped_errors in itertools.groupby(
-            line_number_corrected_errors, key=lambda error: error.line_no
+            safe_to_suppress, key=lambda error: error.line_no
         ):
             lines[line_number - 1] = silence_errors(
                 lines[line_number - 1], line_grouped_errors, suffix
