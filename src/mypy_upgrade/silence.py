@@ -40,12 +40,12 @@ def silence_errors(
             unused_ignore = error  # there should only be one
         else:
             error_codes.append(error.error_code)
-            descriptions.append(error.description)
+            descriptions.append(error.message)
 
     python_code, comment = split_code_and_comment(line.rstrip())
 
     if unused_ignore:
-        codes_to_remove = description_to_type_ignore(unused_ignore.description)
+        codes_to_remove = description_to_type_ignore(unused_ignore.message)
         pruned_comment = remove_unused_type_ignore(comment, codes_to_remove)
         cleaned_comment = format_type_ignore_comment(pruned_comment)
     else:

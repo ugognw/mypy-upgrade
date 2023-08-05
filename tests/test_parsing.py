@@ -38,7 +38,7 @@ class TestParseReport:
     def test_should_strip_whitespace_from_description(
         parsed_errors: list[MypyError],
     ) -> None:
-        assert (e.description.strip() == e.description for e in parsed_errors)
+        assert (e.message.strip() == e.message for e in parsed_errors)
 
     @staticmethod
     def test_should_sort_mypyerrors_with_respect_to_filename_first(
@@ -54,13 +54,15 @@ class TestParseReport:
         group_filename = None
         last_line_number = 0
         increasing_within_group = []
-        for filename, line_number, *_ in parsed_errors:
-            if group_filename == filename:
-                increasing_within_group.append(line_number >= last_line_number)
+        for error in parsed_errors:
+            if group_filename == error.filename:
+                increasing_within_group.append(
+                    error.line_no >= last_line_number
+                )
             else:
-                group_filename = filename
+                group_filename = error.filename
 
-            last_line_number = line_number
+            last_line_number = error.line_no
 
         assert all(increasing_within_group)
 
