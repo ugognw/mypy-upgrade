@@ -108,7 +108,7 @@ class TestFindSafeEndLine:
         error = MypyError("", 0, 1, "", "")
         region = UnsilenceableRegion((1, 0), (1, math.inf))
         end_line = find_safe_end_line(error, [region])
-        assert end_line is None
+        assert end_line == -1
 
     @staticmethod
     def test_should_return_none_if_error_in_explicitly_continued_line_and_col_offset_is_none() -> (
@@ -117,14 +117,14 @@ class TestFindSafeEndLine:
         error = MypyError("", None, 1, "", "")
         region = UnsilenceableRegion((1, 0), (1, math.inf))
         end_line = find_safe_end_line(error, [region])
-        assert end_line is None
+        assert end_line == -1
 
     @staticmethod
     def test_should_return_none_if_error_in_multiline_string() -> None:
         error = MypyError("", 0, 2, "", "")
         region = UnsilenceableRegion((1, 0), (3, 0))
         end_line = find_safe_end_line(error, [region])
-        assert end_line is None
+        assert end_line == -1
 
     @staticmethod
     def test_should_return_none_if_error_on_multiline_string_line_and_col_offset_is_none() -> (
@@ -133,7 +133,7 @@ class TestFindSafeEndLine:
         error = MypyError("", None, 2, "", "")
         region = UnsilenceableRegion((1, 0), (3, 0))
         end_line = find_safe_end_line(error, [region])
-        assert end_line is None
+        assert end_line == -1
 
     @staticmethod
     def test_should_return_same_line_for_single_line_statement() -> None:
@@ -206,9 +206,7 @@ class TestCorrectLineNumbers:
 
     @staticmethod
     def test_should_separate_error_before_multiline_string_if_preceding_chained_explicitly_continued_line():
-        code = "\n".join(
-            ["x = '''", "string", "'''.join('\\", "chain", "')"]
-        )
+        code = "\n".join(["x = '''", "string", "'''.join('\\", "chain", "')"])
         stream = io.StringIO(code)
         error = MypyError("", 0, 1, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
