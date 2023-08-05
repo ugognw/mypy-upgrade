@@ -120,7 +120,7 @@ class TestFindUnsilenceableLines:
 
 class TestFindSafeEndLineWithMultilineComment:
     @staticmethod
-    def test_should_return_none_if_error_in_multiline_comment() -> None:
+    def test_should_return_none_if_error_in_multiline_string() -> None:
         error = MypyError("", 0, 2, "", "")
         code = "\n".join(["x = '''", "string", "'''"])
         reader = io.StringIO(code).readline
@@ -135,7 +135,7 @@ class TestFindSafeEndLineWithMultilineComment:
         assert end_line is None
 
     @staticmethod
-    def test_should_return_end_line_if_error_before_isolated_multiline_comment() -> (
+    def test_should_return_end_line_if_error_before_isolated_multiline_string() -> (
         None
     ):
         error = MypyError("", 0, 1, "", "")
@@ -152,7 +152,7 @@ class TestFindSafeEndLineWithMultilineComment:
         assert end_line == 3
 
     @staticmethod
-    def test_should_return_end_line_if_error_at_end_of_isolated_multiline_comment() -> (
+    def test_should_return_end_line_if_error_at_end_of_isolated_multiline_string() -> (
         None
     ):
         error = MypyError("", 0, 3, "", "")
@@ -169,7 +169,7 @@ class TestFindSafeEndLineWithMultilineComment:
         assert end_line == 3
 
     @staticmethod
-    def test_should_second_end_line_if_error_before_chained_multiline_comment() -> (
+    def test_should_second_end_line_if_error_before_chained_multiline_string() -> (
         None
     ):
         error = MypyError("", 0, 1, "", "")
@@ -184,6 +184,22 @@ class TestFindSafeEndLineWithMultilineComment:
             error, same_line_string_tokens
         )
         assert end_line == 5
+
+    @staticmethod
+    def test_should_return_none_if_error_has_no_column_and_on_line_with_multiline_string():
+        error = MypyError("", None, 1, "", "")
+        code = "\n".join(["x = '''", "multiline string", "'''"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.exact_type == tokenize.STRING
+        ]
+        end_line = find_safe_end_line_with_multiline_comment(
+            error, same_line_string_tokens
+        )
+        assert end_line is None
+
 
 
 class TestFindSafeEndLine:
@@ -203,8 +219,36 @@ class TestFindSafeEndLine:
         assert end_line is None
 
     @staticmethod
+    def test_should_return_none_if_error_in_explicitly_continued_line_and_col_offset_is_none() -> (
+        None
+    ):
+        error = MypyError("", None, 1, "", "")
+        code = "\n".join(["x = 1+\\", "1"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.start[0] == t.end[0] == 1
+        ]
+        end_line = find_safe_end_line(error, same_line_string_tokens)
+        assert end_line is None
+
+    @staticmethod
     def test_should_return_none_if_error_in_multiline_string() -> None:
         error = MypyError("", 0, 2, "", "")
+        code = "\n".join(["x = f'''", "1{format}", "'''"])
+        reader = io.StringIO(code).readline
+        same_line_string_tokens = [
+            t
+            for t in tokenize.generate_tokens(reader)
+            if t.start[0] <= 2 <= t.end[0]
+        ]
+        end_line = find_safe_end_line(error, same_line_string_tokens)
+        assert end_line is None
+
+    @staticmethod
+    def test_should_return_none_if_error_on_multiline_string_line_and_col_offset_is_none() -> None:
+        error = MypyError("", None, 2, "", "")
         code = "\n".join(["x = f'''", "1{format}", "'''"])
         reader = io.StringIO(code).readline
         same_line_string_tokens = [
