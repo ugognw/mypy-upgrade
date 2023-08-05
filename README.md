@@ -30,7 +30,6 @@ Given a type checking report from `mypy`,
 comments. For example, with the following output from mypy:
 
     package/subpackage/module.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
-    package/subpackage/module.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
 
 `mypy-upgrade` will place a `# type: ignore[assignment]` comment at the
 end of line 13 in `package/subpackage/module.py`. If error codes are not
@@ -74,7 +73,7 @@ can:
 > :memo: **Note:** To ensure desired behaviour, packages and modules should be
 passed using their fully qualified names (e.g., `my_package.my_module`).
 
-> :memo: **Note:** If `mypy` is not run in the same directory as `mypy-check`, the `mypy` flag 
+> :memo: **Note:** If `mypy` is not run in the same directory as `mypy-check`, the `mypy` flag
 `--show-absolute-path` should be set when producing the type check report.
 
 > :memo: **Note:** It may require up to two passes of `mypy-upgrade` for a codebase to pass with
