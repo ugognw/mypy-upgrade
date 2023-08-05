@@ -205,6 +205,17 @@ class TestCorrectLineNumbers:
         assert len(not_added) == 1
 
     @staticmethod
+    def test_should_separate_error_before_multiline_string_if_preceding_chained_explicitly_continued_line():
+        code = "\n".join(
+            ["x = '''", "string", "'''.join('\\", "chain", "')"]
+        )
+        stream = io.StringIO(code)
+        error = MypyError("", 0, 1, "", "")
+        corrected_errors, not_added = correct_line_numbers(stream, [error])
+        assert len(corrected_errors) == 0
+        assert len(not_added) == 1
+
+    @staticmethod
     def test_should_separate_error_on_explicitly_continued_line():
         code = "\n".join(["x = 1 +\\", "1"])
         stream = io.StringIO(code)
