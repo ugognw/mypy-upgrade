@@ -156,72 +156,10 @@ class TestMypyUpgrade6269340a3:
         shared_datadir: pathlib.Path,
     ) -> None:
         report = shared_datadir.joinpath(
-            "mypy_reports", "6269340a3", "baseline_report_7c2def18.txt"
-        )
-        errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
-        )
-        assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
-        )
-        assert modules
-
-    @staticmethod
-    @pytest.mark.functional2
-    def test_functional2(
-        shared_datadir: pathlib.Path,
-    ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports", "6269340a3", "second_report_96c979674.txt"
-        )
-        errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
-        )
-        assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
-        )
-        assert modules
-
-    @staticmethod
-    @pytest.mark.functional3
-    def test_functional3(
-        shared_datadir: pathlib.Path,
-    ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports", "6269340a3", "third_report_ba79c42c7.txt"
-        )
-        errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
-        )
-        assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
-        )
-        assert modules
-
-
-@pytest.mark.skip(
-    reason="only intended to be run on git ref 35af5282d of branch master"
-)
-class TestMypyUpgrade35af5282d:
-    @staticmethod
-    @pytest.mark.functional1
-    def test_functional1(
-        shared_datadir: pathlib.Path,
-    ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports", "35af5282d", "baseline_report_47a422c16.txt"
+            "mypy_reports",
+            "with_columns",
+            "6269340a3",
+            "baseline_report_7c2def18.txt",
         )
         errors, modules = mypy_upgrade(
             report,
@@ -242,6 +180,81 @@ class TestMypyUpgrade35af5282d:
     ) -> None:
         report = shared_datadir.joinpath(
             "mypy_reports",
+            "with_columns",
+            "6269340a3",
+            "second_report_96c979674.txt",
+        )
+        errors, modules = mypy_upgrade(
+            report,
+            [],
+            [],
+            [],
+            None,
+        )
+        assert (
+            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+        )
+        assert modules
+
+    @staticmethod
+    @pytest.mark.functional3
+    def test_functional3(
+        shared_datadir: pathlib.Path,
+    ) -> None:
+        report = shared_datadir.joinpath(
+            "mypy_reports",
+            "with_columns",
+            "6269340a3",
+            "third_report_ba79c42c7.txt",
+        )
+        errors, modules = mypy_upgrade(
+            report,
+            [],
+            [],
+            [],
+            None,
+        )
+        assert (
+            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+        )
+        assert modules
+
+
+# @pytest.mark.skip(
+#     reason="only intended to be run on git ref 35af5282d of branch master"
+# )
+class TestMypyUpgrade35af5282d:
+    @staticmethod
+    @pytest.mark.functional1
+    def test_functional1(
+        shared_datadir: pathlib.Path,
+    ) -> None:
+        report = shared_datadir.joinpath(
+            "mypy_reports",
+            "35af5282d",
+            "with_columns",
+            "baseline_report_47a422c16.txt",
+        )
+        errors, modules = mypy_upgrade(
+            report,
+            [],
+            [],
+            [],
+            None,
+        )
+        assert (
+            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+        )
+        assert modules
+
+    @staticmethod
+    @pytest.mark.functional2
+    def test_functional2(
+        shared_datadir: pathlib.Path,
+    ) -> None:
+        report = shared_datadir.joinpath(
+            "mypy_reports",
+            "with_columns",
             "35af5282d",
             "second_report_6f100101a.txt",
         )
@@ -263,7 +276,10 @@ class TestMypyUpgrade35af5282d:
         shared_datadir: pathlib.Path,
     ) -> None:
         report = shared_datadir.joinpath(
-            "mypy_reports", "35af5282d", "third_report_ba79c42c7.txt"
+            "mypy_reports",
+            "with_columns",
+            "35af5282d",
+            "third_report_ba79c42c7.txt",
         )
         errors, modules = mypy_upgrade(
             report,
