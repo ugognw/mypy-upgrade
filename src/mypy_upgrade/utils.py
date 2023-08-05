@@ -5,7 +5,6 @@ import io
 import math
 import tokenize
 from collections.abc import Iterable
-from copy import copy
 from typing import NamedTuple, TextIO
 
 from mypy_upgrade.parsing import MypyError
@@ -21,11 +20,11 @@ def split_code_and_comment(line: str) -> tuple[str, str]:
     reader = io.StringIO(line).readline
 
     try:
-        comment_tokens = [
-            t
-            for t in tokenize.generate_tokens(reader)
-            if t.type == tokenize.COMMENT
-        ]
+        comment_tokens = []
+        for t in tokenize.generate_tokens(reader):
+            if t.type == tokenize.COMMENT:
+                comment_tokens.append(t)
+
         if not comment_tokens:
             return line.rstrip(), ""
 
@@ -154,7 +153,7 @@ def correct_line_numbers(
         corrected) and whose second entry is a list of the excluded MypyErrors.
     """
     # ? need to copy
-    unsilenceable_regions = find_unsilenceable_regions(copy(stream))
+    unsilenceable_regions = find_unsilenceable_regions(stream)
     line_corrected_errors = []
     excluded_errors = []
     for error in errors:
