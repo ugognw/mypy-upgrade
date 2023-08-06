@@ -15,9 +15,10 @@
 - [What is `mypy-upgrade`?](#what-is-mypy-upgrade)
 - [Features](#features)
 - [Basic Usage](#basic-usage)
+- [Recommended Mypy Flags](#recommended-mypy-flags)
 - [Command-Line Options](#command-line-options)
 - [Quick Start](#quick-start)
-- [Known Bugs](#known-bugs)
+- [Known Limitations](#known-limitations)
 - [Similar Projects](#similar-projects)
 
 ## What is `mypy-upgrade`?
@@ -83,11 +84,21 @@ passed using their fully qualified names (e.g., `my_package.my_module`).
 
 * `--strict`
 
+    * This will ensure that all mypy errors are silenced
+
 * `--show-column-numbers`
+
+    * This allows for more precise treatment of certain type error edge cases (e.g. type checking
+    errors before the start of multiline strings)
 
 * `--show-error-codes`
 
+    * This ensures that error-code specific comments are added instead of blanket `type: ignore`
+    comments
+
 * `--show-absolute-path`
+
+    * Required if running `mypy-upgrade` in a separate directory than `mypy`
 
 ## Command-Line Options
 
@@ -103,6 +114,8 @@ Alternatively, you can specify a custom comment to append after the `type: ignor
 
 To selectively silence errors in packages and modules, use the `-p`
 (`--package`) and `-m` (`--module`) options, respectively:
+
+    mypy-upgrade --report mypy_report.txt -p package -m package.module
 
 Similarly, to selectively silence errors in files and directories,
 pass them in as positional arguments:
