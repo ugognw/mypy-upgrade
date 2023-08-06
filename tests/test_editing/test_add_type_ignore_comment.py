@@ -58,7 +58,8 @@ def fixture_comment(type_ignore_comment: str, comment_suffix: str) -> str:
 
 @pytest.fixture(name="final_comment")
 def fixture_final_comment(comment: str) -> str:
-    return add_type_ignore_comment(comment, ERROR_CODES)
+    type_ignore_comment: str = add_type_ignore_comment(comment, ERROR_CODES)
+    return type_ignore_comment
 
 
 def test_should_retain_existing_error_codes(

@@ -119,7 +119,10 @@ def fixture_silenced_line(
     errors_to_add: Iterable[MypyError],
     suffix: Literal["description", ""],
 ) -> str:
-    return silence_errors(line, errors_to_add, suffix if suffix else None)
+    silenced_line: str = silence_errors(
+        line, errors_to_add, suffix if suffix else None
+    )
+    return silenced_line
 
 
 class TestSilenceErrors:

@@ -74,7 +74,8 @@ def fixture_files(request: pytest.FixtureRequest) -> list[str]:
 
 @pytest.fixture(name="parser", scope="module")
 def fixture_parser() -> argparse.ArgumentParser:
-    return _create_argument_parser()
+    parser: argparse.ArgumentParser = _create_argument_parser()
+    return parser
 
 
 @pytest.fixture(name="args", scope="module")
