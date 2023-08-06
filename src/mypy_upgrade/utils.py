@@ -27,6 +27,7 @@ class UnsilenceableRegion(NamedTuple):
         Setting any entry of either `start` or `end` to -1 will result in that
         entry being set to `math.inf` for comparison operations.
     """
+
     start: tuple[int, int]  # line, column
     end: tuple[int, int]  # line, column
 
