@@ -12,7 +12,7 @@ from mypy_upgrade.parsing import MypyError
 
 class UnsilenceableRegion(NamedTuple):
     start: tuple[int, int]  # line, column
-    end: tuple[int, int]  # line, column
+    end: tuple[int, float]  # line, column (float to allow math.inf)
 
 
 def split_code_and_comment(line: str) -> tuple[str, str]:
@@ -113,16 +113,20 @@ def find_safe_end_line(
         ):
             return -1
 
-        if region.start <= (error.line_no, error.col_offset) <= region.end:
+        if (
+            error.col_offset is not None
+            and region.start <= (error.line_no, error.col_offset) <= region.end
+        ):
             return -1
 
         # Error precedes same line multiline string
         if (
             error.line_no == region.start[0]
             and region.start[0] != region.end[0]
+            and math.isfinite(region.end[1])
         ):
             new_line = region.end[0]
-            new_col_offset = region.end[1]
+            new_col_offset = int(region.end[1])
 
     if new_line is None:
         return error.line_no
