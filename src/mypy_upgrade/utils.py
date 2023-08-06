@@ -1,6 +1,7 @@
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
+import functools
 import io
 import math
 import tokenize
@@ -10,9 +11,60 @@ from typing import NamedTuple, TextIO
 from mypy_upgrade.parsing import MypyError
 
 
+@functools.total_ordering
 class UnsilenceableRegion(NamedTuple):
+    """A region within a source code that cannot be silenced by an inline
+    comment.
+
+    Attributes:
+        start: a 2-tuple representing the start of the unsilenceable region
+            whose first entry is the start line (1-indexed) and whose second
+            entry is the start column offset.
+        end: a 2-tuple representing the end of the unsilenceable region
+            whose first entry is the end line (1-indexed) and whose second
+            entry is the end column offset.
+
+        Setting any entry of either `start` or `end` to -1 will result in that
+        entry being set to `math.inf` for comparison operations.
+    """
+
     start: tuple[int, int]  # line, column
-    end: tuple[int, float]  # line, column (float to allow math.inf)
+    end: tuple[int, int]  # line, column
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, tuple):
+            return super().__eq__(other)
+
+        positive_self = self._convert_to_positive_tuple()
+
+        if not isinstance(other, UnsilenceableRegion):
+            return positive_self == other
+
+        positive_other = other._convert_to_positive_tuple()
+
+        return positive_self == positive_other
+
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, tuple):
+            return super().__eq__(other)
+
+        positive_self = self._convert_to_positive_tuple()
+
+        if not isinstance(other, UnsilenceableRegion):
+            return positive_self < other
+
+        positive_other = other._convert_to_positive_tuple()
+
+        return positive_self < positive_other
+
+    def _convert_to_positive_tuple(
+        self,
+    ) -> tuple[tuple[float, float], tuple[float, float]]:
+        start_line = math.inf if self.start[0] < 0 else self.start[0]
+        start_column = math.inf if self.start[1] < 0 else self.start[1]
+        end_line = math.inf if self.end[0] < 0 else self.end[0]
+        end_column = math.inf if self.end[1] < 0 else self.end[1]
+        return ((start_line, start_column), (end_line, end_column))
 
 
 def split_code_and_comment(line: str) -> tuple[str, str]:
@@ -75,7 +127,7 @@ def find_unsilenceable_regions(stream: TextIO) -> list[UnsilenceableRegion]:
             comment.line == token.line for comment in comments
         ):
             start = token.end[0], 0
-            end = token.end[0], math.inf
+            end = token.end[0], -1
             region = UnsilenceableRegion(start, end)
             unsilenceable_regions.append(region)
 

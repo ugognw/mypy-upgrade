@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import io
-import math
 import sys
 
 import pytest
@@ -75,7 +74,7 @@ class TestFindUnsilenceableRegions:
         )
         stream = io.StringIO(code)
         regions = find_unsilenceable_regions(stream)
-        expected = UnsilenceableRegion((1, 0), (1, math.inf))
+        expected = UnsilenceableRegion((1, 0), (1, -1))
         assert expected in regions
 
     @staticmethod
@@ -106,7 +105,7 @@ class TestFindSafeEndLine:
         None
     ):
         error = MypyError("", 0, 1, "", "")
-        region = UnsilenceableRegion((1, 0), (1, math.inf))
+        region = UnsilenceableRegion((1, 0), (1, -1))
         end_line = find_safe_end_line(error, [region])
         assert end_line == -1
 
@@ -115,7 +114,7 @@ class TestFindSafeEndLine:
         None
     ):
         error = MypyError("", None, 1, "", "")
-        region = UnsilenceableRegion((1, 0), (1, math.inf))
+        region = UnsilenceableRegion((1, 0), (1, -1))
         end_line = find_safe_end_line(error, [region])
         assert end_line == -1
 
