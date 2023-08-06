@@ -76,7 +76,7 @@ the `-d` (or `--description-style`) option
 
     mypy-upgrade --report mypy_report.txt -d full -p package
 
-You also customize the "fix me" message placed after the error suppression
+You can also customize the "fix me" message placed after the error suppression
 comment using the `--fix-me` option
 
     mypy-upgrade --report mypy_report.txt --fix-me "FIX THIS" -p package

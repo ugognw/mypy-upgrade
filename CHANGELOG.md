@@ -9,6 +9,18 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
+## [Unreleased]
+
+### Added
+
+### Changed
+
+* 
+
+### Removed
+
+* `.utils.UnsilenceableRegion.surrounds` and corresponding unit tests
+
 ## [0.0.1-alpha.4] - 2023-08-06
 
 ### Added

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import io
-import math
 import tokenize
 from collections.abc import Iterable
 from typing import NamedTuple, TextIO
@@ -22,44 +21,12 @@ class UnsilenceableRegion(NamedTuple):
             whose first entry is the end line (1-indexed) and whose second
             entry is the end column offset.
 
-        Setting any entry of either `start` or `end` to -1 will result in that
-        entry being set to `math.inf` for comparison operations.
+        When start[0] = end[0], it is interpreted that the Unsilenceable
+        region is an explicitly continued line.
     """
 
     start: tuple[int, int]  # line, column
     end: tuple[int, int]  # line, column
-
-    def surrounds(self, error: MypyError) -> bool:
-        """Determines whether a given error is surrounded by the unsilenceable
-        region
-
-        Args:
-            error: a MypyError instance.
-
-        Returns:
-            True if the MypyError lies within the region. False, otherwise.
-            Note that if the column offset is not specified in the error, this
-            function will only return `True` if the error lies on one of the
-            interior lines of the region.
-        """
-        positive_self = self._convert_to_positive_tuple()
-        if error.col_offset is None:
-            return positive_self[0][0] < error.line_no < positive_self[1][0]
-
-        return (
-            positive_self[0]
-            <= (error.line_no, error.col_offset)
-            <= positive_self[1]
-        )
-
-    def _convert_to_positive_tuple(
-        self,
-    ) -> tuple[tuple[float, float], tuple[float, float]]:
-        start_line = math.inf if self.start[0] < 0 else self.start[0]
-        start_column = math.inf if self.start[1] < 0 else self.start[1]
-        end_line = math.inf if self.end[0] < 0 else self.end[0]
-        end_column = math.inf if self.end[1] < 0 else self.end[1]
-        return ((start_line, start_column), (end_line, end_column))
 
 
 def split_code_and_comment(line: str) -> tuple[str, str]:
@@ -103,7 +70,7 @@ def find_unsilenceable_regions(stream: TextIO) -> list[UnsilenceableRegion]:
         whose first entries in their `start` and `end` attributes are
         different. Explicitly continued lines are represented by
         UnsilienceableRegion objects whose first entries in their `start` and
-        `end` attributes are different.
+        `end` attributes are the same.
     """
     all_lines = list(tokenize.generate_tokens(stream.readline))
     unsilenceable_regions = []
@@ -122,7 +89,7 @@ def find_unsilenceable_regions(stream: TextIO) -> list[UnsilenceableRegion]:
             comment.line == token.line for comment in comments
         ):
             start = token.end[0], 0
-            end = token.end[0], -1
+            end = token.end[0], len(token.line)
             region = UnsilenceableRegion(start, end)
             unsilenceable_regions.append(region)
 
@@ -160,7 +127,10 @@ def find_safe_end_line(
         ):
             return -1
 
-        if error.col_offset is not None and region.surrounds(error):
+        if (
+            error.col_offset is not None
+            and region.start <= (error.line_no, error.col_offset) <= region.end
+        ):
             return -1
 
         # Error precedes same line multiline string
