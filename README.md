@@ -35,11 +35,8 @@ the following output from mypy:
 `mypy-upgrade` will place a `# type: ignore[assignment] # FIX ME` comment at the
 end of line 13 in `package/subpackage/module.py`. If error codes are not
 present in the `mypy` report (e.g., the `hide-error-codes` flag is set when
-`mypy` was invoked), then a non-specific `# type: ignore` comment will be
+`mypy` was invoked), then a non-specific `# type: ignore # FIX ME` comment will be
 added instead.
-
-> :warning: **Warning:** `mypy-check` **must** be run in the same directory
-> that `mypy` was run.
 
 ## Features
 
@@ -71,20 +68,46 @@ can:
 
         mypy-upgrade --report mypy_report.txt
 
-> :memo: **Note:** To ensure desired behaviour, packages and modules should be
-passed using their fully qualified names (e.g., `my_package.my_module`).
+## Command-Line Options
 
-> :memo: **Note:** If `mypy` is not run in the same directory as `mypy-check`, the `mypy` flag
-`--show-absolute-path` should be set when producing the type check report.
+You may want to include the error messages provided by `mypy` in the
+suppression comments so that you can fix them later. You can do so using
+the `-d` (or `--description-style`) option
 
-> :memo: **Note:** It may require up to two passes of `mypy-upgrade` for a codebase to pass with
-`mypy --strict`.
+    mypy-upgrade --report mypy_report.txt -d full -p package
+
+You also customize the "fix me" message placed after the error suppression
+comment using the `--fix-me` option
+
+    mypy-upgrade --report mypy_report.txt --fix-me "FIX THIS" -p package
+
+To selectively silence errors in packages and modules, use the `-p`
+(`--package`) and `-m` (`--module`) options along with the fully qualified
+module/package name, respectively:
+
+    mypy-upgrade --report mypy_report.txt -p package1 -p package2 -m package1.module1 -m package2.module2
+
+Similarly, to selectively silence errors in files and directories,
+pass them in as positional arguments:
+
+    mypy-upgrade --report mypy_report.txt path/to/my_package/ path/to/a/module.py
+
+For a full list of all options and their descriptions, run
+
+    mypy-upgrade --help
 
 ## Recommended Mypy Flags
 
+To enable all checks utilized by `mypy-upgrade` to silence as many errors as possible, the
+following flags should be set when creating the type checking report to pass to `mypy-upgrade`:
+
+* `--show-absolute-path`
+
+    * Required if running `mypy-upgrade` in a separate directory than `mypy`
+
 * `--strict`
 
-    * This will ensure that all mypy errors are silenced
+    * This will ensure that `mypy-upgrade` will attempt to silence all possible mypy errors
 
 * `--show-column-numbers`
 
@@ -95,37 +118,6 @@ passed using their fully qualified names (e.g., `my_package.my_module`).
 
     * This ensures that error-code specific comments are added instead of blanket `type: ignore`
     comments
-
-* `--show-absolute-path`
-
-    * Required if running `mypy-upgrade` in a separate directory than `mypy`
-
-## Command-Line Options
-
-You may want to include the error messages provided by `mypy` in the
-suppression comments so that you can fix them later. You can do so using
-the `-d` (or `--description-style`) option
-
-    mypy-upgrade --report mypy_report.txt -d full -p MY_PACKAGE
-
-You also customize the "fix me" message placed after the error suppression
-comment using the `--fix-me` option
-
-    mypy-upgrade --report mypy_report.txt --fix-me "FIX THIS" -p MY_PACKAGE
-
-To selectively silence errors in packages and modules, use the `-p`
-(`--package`) and `-m` (`--module`) options, respectively:
-
-    mypy-upgrade --report mypy_report.txt -p package -m package.module
-
-Similarly, to selectively silence errors in files and directories,
-pass them in as positional arguments:
-
-    mypy-upgrade --report mypy_report.txt path/to/my_package/ path/to/a/module.py
-
-For a full list of all options and their descriptions, run
-
-    mypy-upgrade --help
 
 ## Quick Start
 
