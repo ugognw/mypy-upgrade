@@ -21,14 +21,18 @@ from mypy_upgrade.utils import split_code_and_comment
 def silence_errors(
     line: str,
     errors: Iterable[MypyError],
-    suffix: Literal["description"] | None,
+    description_style: Literal["full", "none"],
+    fix_me: str,
 ) -> str:
     """Silences the given error on a line with an error code-specific comment.
 
     Args:
         line: a string containing the line.
-        error_code: a string representing the mypy error code.
-        description: a string representing a description of the error.
+        error: an `Iterable` of `MypyError`s to be silenced.
+        description_style: a string specifying the style of the description of
+            errors.
+        fix_me: a string specifying a "fix me" message to be appended after the
+            silencing comment.
     Returns:
         The line with a type error suppression comment.
     """
@@ -61,7 +65,10 @@ def silence_errors(
 
     updated_line = f"{python_code}  {final_comment}".rstrip()
 
-    if suffix == "description" and descriptions:
+    if fix_me:
+        updated_line += f" # {fix_me.strip()}"
+
+    if description_style == "full" and descriptions:
         updated_line += f" # {', '.join(descriptions)}"
 
     return updated_line + "\n"

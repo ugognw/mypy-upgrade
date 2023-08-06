@@ -107,20 +107,31 @@ def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
     return (error for error in errors_to_add)
 
 
-@pytest.fixture(name="suffix", params=("description", ""), scope="class")
-def fixture_suffix(request: pytest.FixtureRequest) -> str:
-    suffix: str = request.param
-    return suffix
+@pytest.fixture(
+    name="description_style", params=("full", "none"), scope="class"
+)
+def fixture_description_style(request: pytest.FixtureRequest) -> str:
+    description_style: str = request.param
+    return description_style
+
+
+@pytest.fixture(
+    name="fix_me", params=("THIS NEEDS TO BE FIXED", " "), scope="class"
+)
+def fixture_fix_me(request: pytest.FixtureRequest) -> str:
+    fix_me: str = request.param
+    return fix_me
 
 
 @pytest.fixture(name="silenced_line")
 def fixture_silenced_line(
     line: str,
     errors_to_add: Iterable[MypyError],
-    suffix: Literal["description", ""],
+    description_style: Literal["full", "none"],
+    fix_me: str,
 ) -> str:
     silenced_line: str = silence_errors(
-        line, errors_to_add, suffix if suffix else None
+        line, errors_to_add, description_style, fix_me
     )
     return silenced_line
 
@@ -161,3 +172,24 @@ class TestSilenceErrors:
         silenced_line: str, comment_suffix: str
     ) -> None:
         assert comment_suffix.strip() in silenced_line
+
+    @staticmethod
+    def test_should_add_description(
+        silenced_line: str, description_style: str
+    ) -> None:
+        if description_style == "full":
+            assert (
+                "Function is missing a return type annotation" in silenced_line
+            )
+        else:
+            assert (
+                "Function is missing a return type annotation"
+                not in silenced_line
+            )
+
+    @staticmethod
+    def test_should_add_fix_me(silenced_line: str, fix_me: str) -> None:
+        if fix_me.strip():
+            assert fix_me in silenced_line
+        else:
+            assert "FIX ME" not in silenced_line

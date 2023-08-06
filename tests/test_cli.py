@@ -51,11 +51,17 @@ def fixture_report(request: pytest.FixtureRequest) -> list[str]:
 
 
 @pytest.fixture(
-    name="suffix", params=("--with-descriptions", None), scope="module"
+    name="description_style", params=("full", "none"), scope="module"
 )
-def fixture_suffix(request: pytest.FixtureRequest) -> str:
-    suffix: str = request.param
-    return suffix
+def fixture_description_style(request: pytest.FixtureRequest) -> list[str]:
+    description_style: str = request.param
+    return ["--description-style", description_style]
+
+
+@pytest.fixture(name="fix_me", params=("FIX ME", ""), scope="module")
+def fixture_fix_me(request: pytest.FixtureRequest) -> list[str]:
+    fix_me: str = request.param
+    return ["--fix-me", fix_me]
 
 
 @pytest.fixture(
@@ -83,14 +89,14 @@ def fixture_args(
     modules: list[str],
     packages: list[str],
     report: list[str],
-    suffix: str,
+    description_style: list[str],
+    fix_me: list[str],
     files: list[str],
     parser: argparse.ArgumentParser,
 ) -> argparse.Namespace:
-    if suffix is None:
-        return parser.parse_args(modules + packages + report + files)
-
-    return parser.parse_args(modules + packages + report + [suffix] + files)
+    return parser.parse_args(
+        modules + packages + report + description_style + fix_me + files
+    )
 
 
 class TestParseArgs:
@@ -129,6 +135,18 @@ class TestParseArgs:
             assert args.files == files
 
     @staticmethod
+    def test_should_store_description_style(
+        args: argparse.Namespace, description_style: list[str]
+    ) -> None:
+        assert args.description_style == description_style[1]
+
+    @staticmethod
+    def test_should_store_fix_me(
+        args: argparse.Namespace, fix_me: list[str]
+    ) -> None:
+        assert args.fix_me == fix_me[1]
+
+    @staticmethod
     def test_should_store_report(
         args: argparse.Namespace, report: list[str]
     ) -> None:
@@ -136,15 +154,6 @@ class TestParseArgs:
             assert pathlib.Path(report[1]) == args.report
         else:
             assert args.report is None
-
-    @staticmethod
-    def test_should_store_suffix(
-        args: argparse.Namespace, suffix: str | None
-    ) -> None:
-        if suffix == "--with-descriptions":
-            assert args.suffix == "description"
-        else:
-            assert args.suffix == suffix
 
 
 @pytest.mark.skip(
@@ -163,11 +172,12 @@ class TestMypyUpgrade6269340a3:
             "baseline_report_7c2def18.txt",
         )
         errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
+            report=report,
+            packages=[],
+            modules=[],
+            files=[],
+            description_style="none",
+            fix_me="FIX ME",
         )
         assert (
             len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
@@ -186,11 +196,12 @@ class TestMypyUpgrade6269340a3:
             "second_report_96c979674.txt",
         )
         errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
+            report=report,
+            packages=[],
+            modules=[],
+            files=[],
+            description_style="none",
+            fix_me="FIX ME",
         )
         assert (
             len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
@@ -209,11 +220,12 @@ class TestMypyUpgrade6269340a3:
             "third_report_ba79c42c7.txt",
         )
         errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
+            report=report,
+            packages=[],
+            modules=[],
+            files=[],
+            description_style="none",
+            fix_me="FIX ME",
         )
         assert (
             len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
@@ -237,11 +249,12 @@ class TestMypyUpgrade35af5282d:
             "baseline_report_47a422c16.txt",
         )
         errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
+            report=report,
+            packages=[],
+            modules=[],
+            files=[],
+            description_style="none",
+            fix_me="FIX ME",
         )
         assert (
             len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
@@ -260,11 +273,12 @@ class TestMypyUpgrade35af5282d:
             "second_report_6f100101a.txt",
         )
         errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
+            report=report,
+            packages=[],
+            modules=[],
+            files=[],
+            description_style="none",
+            fix_me="FIX ME",
         )
         assert (
             len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
@@ -283,11 +297,12 @@ class TestMypyUpgrade35af5282d:
             "third_report_ba79c42c7.txt",
         )
         errors, modules = mypy_upgrade(
-            report,
-            [],
-            [],
-            [],
-            None,
+            report=report,
+            packages=[],
+            modules=[],
+            files=[],
+            description_style="none",
+            fix_me="FIX ME",
         )
         assert (
             len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
