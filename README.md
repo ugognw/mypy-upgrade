@@ -26,13 +26,13 @@
 `mypy-upgrade` is a command-line utility that provides automatic error
 suppression for [`mypy`](http://mypy.readthedocs.io/) (analogous to [`pyre-upgrade`](https://pyre-check.org/docs/types-in-python/#upgrade) and [`pylint-silent`](https://github.com/udifuchs/pylint-silent/)).
 
-Given a type checking report from `mypy`,
-`mypy-upgrade` will silence the listed errors using error suppression
-comments. For example, with the following output from mypy:
+Given a type checking report from `mypy`, `mypy-upgrade` will silence
+the listed errors using error suppression comments. For example, with
+the following output from mypy:
 
     package/subpackage/module.py:13: error: Incompatible default for argument "filename" (default has type "None", argument has type "str") [assignment]
 
-`mypy-upgrade` will place a `# type: ignore[assignment]` comment at the
+`mypy-upgrade` will place a `# type: ignore[assignment] # FIX ME` comment at the
 end of line 13 in `package/subpackage/module.py`. If error codes are not
 present in the `mypy` report (e.g., the `hide-error-codes` flag is set when
 `mypy` was invoked), then a non-specific `# type: ignore` comment will be
@@ -104,13 +104,14 @@ passed using their fully qualified names (e.g., `my_package.my_module`).
 
 You may want to include the error messages provided by `mypy` in the
 suppression comments so that you can fix them later. You can do so using
-the `-d` (or `--with-descriptions`) option
+the `-d` (or `--description-style`) option
 
-    mypy-upgrade --report mypy_report.txt -d -p MY_PACKAGE
+    mypy-upgrade --report mypy_report.txt -d full -p MY_PACKAGE
 
-Alternatively, you can specify a custom comment to append after the `type: ignore` comments:
+You also customize the "fix me" message placed after the error suppression
+comment using the `--fix-me` option
 
-    mypy-upgrade --report mypy_report.txt -d "FIX ME" -p MY_PACKAGE
+    mypy-upgrade --report mypy_report.txt --fix-me "FIX THIS" -p MY_PACKAGE
 
 To selectively silence errors in packages and modules, use the `-p`
 (`--package`) and `-m` (`--module`) options, respectively:
