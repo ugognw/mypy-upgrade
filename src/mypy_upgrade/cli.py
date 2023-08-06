@@ -54,6 +54,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         "--module",
         default=[],
         dest="modules",
+        metavar="MODULE",
         action="append",
         help="Silence errors from the provided (importable) module. "
         "This flag may be repeated multiple times.",
@@ -63,6 +64,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         "--package",
         default=[],
         dest="packages",
+        metavar="PACKAGE",
         action="append",
         help="Silence errors from the provided (importable) package. "
         "This flag may be repeated multiple times.",
@@ -73,7 +75,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         type=pathlib.Path,
         help="""
         The path to a text file containing a mypy type checking report. If not
-        specified, input is read from stdin.
+        specified, input is read from standard input.
         """,
     )
     parser.add_argument(
