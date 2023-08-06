@@ -31,31 +31,13 @@ class UnsilenceableRegion(NamedTuple):
     start: tuple[int, int]  # line, column
     end: tuple[int, int]  # line, column
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, tuple):
-            return super().__eq__(other)
-
+    def surrounds(self, error: MypyError) -> bool:
         positive_self = self._convert_to_positive_tuple()
-
-        if not isinstance(other, UnsilenceableRegion):
-            return positive_self == other
-
-        positive_other = other._convert_to_positive_tuple()
-
-        return positive_self == positive_other
-
-    def __lt__(self, other: object) -> bool:
-        if not isinstance(other, tuple):
-            return super().__eq__(other)
-
-        positive_self = self._convert_to_positive_tuple()
-
-        if not isinstance(other, UnsilenceableRegion):
-            return positive_self < other
-
-        positive_other = other._convert_to_positive_tuple()
-
-        return positive_self < positive_other
+        return (
+            positive_self[0]
+            <= (error.line_no, error.col_offset)
+            <= positive_self[1]
+        )
 
     def _convert_to_positive_tuple(
         self,
@@ -165,17 +147,13 @@ def find_safe_end_line(
         ):
             return -1
 
-        if (
-            error.col_offset is not None
-            and region.start <= (error.line_no, error.col_offset) <= region.end
-        ):
+        if error.col_offset is not None and region.surrounds(error):
             return -1
 
         # Error precedes same line multiline string
         if (
             error.line_no == region.start[0]
             and region.start[0] != region.end[0]
-            and math.isfinite(region.end[1])
         ):
             new_line = region.end[0]
             new_col_offset = int(region.end[1])

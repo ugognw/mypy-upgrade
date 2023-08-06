@@ -61,6 +61,26 @@ class TestSplitCodeAndComment:
         assert split == stripped_code_and_comment
 
 
+class TestSurrounds:
+    @staticmethod
+    def test_should_return_true_for_error_within_region() -> None:
+        region = UnsilenceableRegion((1, 0), (2, 0))
+        error = MypyError("", 0, 1, "", "")
+        assert region.surrounds(error)
+
+    @staticmethod
+    def test_should_return_true_for_error_within_infinite_region():
+        region = UnsilenceableRegion((1, 0), (2, -1))
+        error = MypyError("", 0, 1, "", "")
+        assert region.surrounds(error)
+
+    @staticmethod
+    def test_should_return_false_for_error_outside_region():
+        region = UnsilenceableRegion((1, 0), (2, 0))
+        error = MypyError("", 3, 0, "", "")
+        assert not region.surrounds(error)
+
+
 class TestFindUnsilenceableRegions:
     @staticmethod
     def test_should_return_explicitly_continued_lines() -> None:
