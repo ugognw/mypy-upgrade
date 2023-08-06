@@ -1,7 +1,6 @@
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
-import functools
 import io
 import math
 import tokenize
@@ -11,7 +10,6 @@ from typing import NamedTuple, TextIO
 from mypy_upgrade.parsing import MypyError
 
 
-@functools.total_ordering
 class UnsilenceableRegion(NamedTuple):
     """A region within a source code that cannot be silenced by an inline
     comment.
