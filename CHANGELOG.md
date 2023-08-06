@@ -15,12 +15,15 @@ This project implements a version of
 
 * Recommended `mypy` flags in README
 
+* `--fix-me` options for CLI and corresponding positional argument in `.main.mypy_upgrade`
+and `.silence.silence_errors`
+
 * `.parsing.parse_report` optionally supports parsing the start column and end
 lines/columns in mypy type checking reports
 
 * Sample mypy type checking reoprts for functional tests with column numbers
 
-* `MypyError` have `col_offset` as an additional field
+* `MypyError`s have `col_offset` as an additional field
 
 * `utils.UnsilenceableRegion`: named tuple to represent line with line continuation
 characters or lines encapsulated by multline strings.
@@ -37,9 +40,17 @@ characters or lines encapsulated by multline strings.
 
     * `.utils.find_unsilenceable_regions`
 
+    * `.utils.UnsilenceableRegion.surrounds`
+
 * `.parsing.parse_mypy_report` optionally parses error line/column number start/end locations
 
 ### Changed
+
+* `--with-descriptions` flag changed to `--description-style` option which accepts `full` or `none`
+as values
+
+* `suffix` parameter renamed to `description_style` in `.main.mypy_upgrade` and
+`.silence.silence_errors`
 
 * `MypyError.description` renamed to `MypyError.message`
 

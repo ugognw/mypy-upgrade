@@ -78,13 +78,20 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
     )
     parser.add_argument(
         "-d",
-        "--with-descriptions",
-        action="store_const",
-        const="description",
-        dest="suffix",
+        "--description-style",
+        default="none",
+        choices=["full", "none"],
         help="""
-        Use this flag to include the mypy error descriptions in the error
-        suppression comment.
+        Specify the style in which mypy error descriptions are expressed in the
+        error suppression comment.
+        """,
+    )
+    parser.add_argument(
+        "--fix-me",
+        default="FIX ME",
+        help="""
+        Specify a custom 'Fix Me' message to be placed after the error
+        suppression comment. Pass " " to omit a 'Fix Me' message altogether.
         """,
     )
     parser.add_argument(
@@ -109,7 +116,8 @@ def mypy_upgrade(
     packages: list[str],
     modules: list[str],
     files: list[str],
-    suffix: Literal["description"] | None,
+    description_style: Literal["full", "none"],
+    fix_me: str,
 ) -> tuple[list[MypyError], list[str]]:
     """Main logic for application.
 
@@ -121,10 +129,14 @@ def mypy_upgrade(
             silence errors.
         files: a list of string representing the files in which to
             silence errors.
-        suffix: an optional string specifying the type of suffix.
+        description_style: a string specifying the style of error descriptions
+            appended to the end of error suppression comments.
+        fix_me: a string specifying the 'Fix Me' message in type error
+            suppresion comments. Pass " " to omit a 'Fix Me' message
+            altogether.
 
     Returns:
-        A two-tuple whose first element is a list of MypyErrors that were
+        A 2-tuple whose first element is a list of MypyErrors that were
         silenced and whose second element is the list of modules in which
         errors were silenced.
     """
@@ -155,7 +167,10 @@ def mypy_upgrade(
             safe_to_suppress, key=lambda error: error.line_no
         ):
             lines[line_number - 1] = silence_errors(
-                lines[line_number - 1], line_grouped_errors, suffix
+                lines[line_number - 1],
+                line_grouped_errors,
+                description_style,
+                fix_me.strip(),
             )
 
         with pathlib.Path(filename).open(mode="w", encoding="utf-8") as f:
@@ -177,7 +192,8 @@ def main() -> None:
         args.packages,
         args.modules,
         args.files,
-        args.suffix,
+        args.description_style,
+        args.fix_me.strip(),
     )
 
     if len(args.verbose) > 0:
