@@ -9,63 +9,63 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
-## [Unreleased]
+## [0.0.1-alpha.4] - 2023-08-06
 
 ### Added
 
 * Recommended `mypy` flags in README
 
-* `--fix-me` options for CLI and corresponding positional argument in `.main.mypy_upgrade`
-and `.silence.silence_errors`
+* `--fix-me` options for CLI and corresponding positional argument in `mypy_upgrade.cli.mypy_upgrade`
+and `mypy_upgrade.silence.silence_errors`
 
-* `.parsing.parse_report` optionally supports parsing the start column and end
+* `mypy_upgrade.parsing.parse_report` optionally supports parsing the start column and end
 lines/columns in mypy type checking reports
 
 * Sample mypy type checking reoprts for functional tests with column numbers
 
 * `MypyError`s have `col_offset` as an additional field
 
-* `utils.UnsilenceableRegion`: named tuple to represent line with line continuation
+* `mypy_upgrade.utils.UnsilenceableRegion`: named tuple to represent line with line continuation
 characters or lines encapsulated by multline strings.
 
 * Functions
 
-    * `.utils.find_safe_end_line`
+    * `mypy_upgrade.utils.find_safe_end_line`
 
-    * `.utils.find_unsilenceable_regions`
+    * `mypy_upgrade.utils.find_unsilenceable_regions`
 
 * Unit tests
 
-    * `.utils.find_safe_end_line`
+    * `mypy_upgrade.utils.find_safe_end_line`
 
-    * `.utils.find_unsilenceable_regions`
+    * `mypy_upgrade.utils.find_unsilenceable_regions`
 
-    * `.utils.UnsilenceableRegion.surrounds`
+    * `mypy_upgrade.utils.UnsilenceableRegion.surrounds`
 
-* `.parsing.parse_mypy_report` optionally parses error line/column number start/end locations
+* `mypy_upgrade.parsing.parse_mypy_report` optionally parses error line/column number start/end locations
 
 ### Changed
 
 * `--with-descriptions` flag changed to `--description-style` option which accepts `full` or `none`
 as values
 
-* `suffix` parameter renamed to `description_style` in `.main.mypy_upgrade` and
-`.silence.silence_errors`
+* `suffix` parameter renamed to `description_style` in `mypy_upgrade.cli.mypy_upgrade` and
+`mypy_upgrade.silence.silence_errors`
 
 * `MypyError.description` renamed to `MypyError.message`
 
-* `.utils.def correct_line_numbers` returns `tuple[list[MypyError], list[MypyError]]` whose
+* `mypy_upgrade.utils.def correct_line_numbers` returns `tuple[list[MypyError], list[MypyError]]` whose
 first entry represents `MypyError`s that can be safely silenced and whose second entry
 represents those `MypyError`s that cannot be safely silenced
 
 * Unit tests
 
-    * `.utils.correct_line_numbers`
+    * `mypy_upgrade.utils.correct_line_numbers`
 
         * changed to reflect new `MypyError` data model and return values for
         `correct_line_numbers`
 
-    * `.silence`: added arguments for `col_offset` in `MypyError`
+    * `mypy_upgrade.silence`: added arguments for `col_offset` in `MypyError`
 
 ## [0.0.1-alpha.3] - 2023-08-04
 
@@ -183,7 +183,7 @@ represents those `MypyError`s that cannot be safely silenced
 
 * First release
 
-[Unreleased]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...development
+[0.0.1-alpha.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...0.0.1-alpha.4
 [0.0.1-alpha.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.2...release-0.0.1-alpha.3
 [0.0.1-alpha.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.1...release-0.0.1-alpha.2
 [0.0.1-alpha.1]: https://github.com/ugognw/mypy-upgrade/tree/release-0.0.1-alpha.1
