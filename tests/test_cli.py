@@ -220,9 +220,9 @@ class TestMypyUpgrade6269340a3:
         assert modules
 
 
-# @pytest.mark.skip(
-#     reason="only intended to be run on git ref 35af5282d of branch master"
-# )
+@pytest.mark.skip(
+    reason="only intended to be run on git ref 35af5282d of branch master"
+)
 class TestMypyUpgrade35af5282d:
     @staticmethod
     @pytest.mark.functional1
