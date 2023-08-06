@@ -33,6 +33,9 @@ class UnsilenceableRegion(NamedTuple):
 
     def surrounds(self, error: MypyError) -> bool:
         positive_self = self._convert_to_positive_tuple()
+        if error.col_offset is None:
+            return positive_self[0][0] < error.line_no < positive_self[1][0]
+
         return (
             positive_self[0]
             <= (error.line_no, error.col_offset)
