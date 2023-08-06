@@ -13,6 +13,20 @@ from mypy_upgrade.parsing import MypyError
 
 @functools.total_ordering
 class UnsilenceableRegion(NamedTuple):
+    """A region within a source code that cannot be silenced by an inline
+    comment.
+
+    Attributes:
+        start: a 2-tuple representing the start of the unsilenceable region
+            whose first entry is the start line (1-indexed) and whose second
+            entry is the start column offset.
+        end: a 2-tuple representing the end of the unsilenceable region
+            whose first entry is the end line (1-indexed) and whose second
+            entry is the end column offset.
+
+        Setting any entry of either `start` or `end` to -1 will result in that
+        entry being set to `math.inf` for comparison operations.
+    """
     start: tuple[int, int]  # line, column
     end: tuple[int, int]  # line, column
 
