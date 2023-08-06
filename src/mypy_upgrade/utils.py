@@ -32,6 +32,18 @@ class UnsilenceableRegion(NamedTuple):
     end: tuple[int, int]  # line, column
 
     def surrounds(self, error: MypyError) -> bool:
+        """Determines whether a given error is surrounded by the unsilenceable
+        region
+
+        Args:
+            error: a MypyError instance.
+
+        Returns:
+            True if the MypyError lies within the region. False, otherwise.
+            Note that if the column offset is not specified in the error, this
+            function will only return `True` if the error lies on one of the
+            interior lines of the region.
+        """
         positive_self = self._convert_to_positive_tuple()
         if error.col_offset is None:
             return positive_self[0][0] < error.line_no < positive_self[1][0]
