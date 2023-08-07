@@ -8,6 +8,8 @@ import itertools
 import pathlib
 import sys
 
+from mypy_upgrade.__about__ import __version__
+
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
 else:
@@ -105,6 +107,14 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         help="Control the verbosity.",
     )
     parser.add_argument(
+        "-V",
+        "--version",
+        default=False,
+        action="store_const",
+        const=True,
+        help="Control the verbosity.",
+    )
+    parser.add_argument(
         "files",
         default=[],
         nargs="*",
@@ -189,16 +199,19 @@ def main() -> None:
     """Logic for CLI."""
     parser = _create_argument_parser()
     args = parser.parse_args()
-    errors, modules = mypy_upgrade(
-        args.report,
-        args.packages,
-        args.modules,
-        args.files,
-        args.description_style,
-        args.fix_me.strip(),
-    )
-
-    if len(args.verbose) > 0:
-        print(  # noqa: T201
-            f"{len(errors)} errors silenced across {len(modules)} modules."
+    if args.version:
+        print(f"mypy-upgrade {__version__}")  # noqa: T201
+    else:
+        errors, modules = mypy_upgrade(
+            args.report,
+            args.packages,
+            args.modules,
+            args.files,
+            args.description_style,
+            args.fix_me.strip(),
         )
+
+        if len(args.verbose) > 0:
+            print(  # noqa: T201
+                f"{len(errors)} errors silenced across {len(modules)} modules."
+            )
