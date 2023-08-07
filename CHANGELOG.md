@@ -19,6 +19,8 @@ This project implements a version of
 
 * The order of `MypyError.line_no` and `MypyError.col_offset` has be switched
 
+* `mypy_upgrade.cli.mypy_upgrade` returns `tuple[list[MypyError], list[MypyError]]`
+
 ### Fixed
 
 * Addition of duplicate error codes if there are duplicate error codes in the

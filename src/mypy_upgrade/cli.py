@@ -130,7 +130,7 @@ def mypy_upgrade(
     files: list[str],
     description_style: Literal["full", "none"],
     fix_me: str,
-) -> tuple[list[MypyError], list[str]]:
+) -> tuple[list[MypyError], list[MypyError]]:
     """Main logic for application.
 
     Args:
@@ -148,9 +148,9 @@ def mypy_upgrade(
             altogether.
 
     Returns:
-        A 2-tuple whose first element is a list of MypyErrors that were
-        silenced and whose second element is the list of modules in which
-        errors were silenced.
+        A 2-tuple whose first element is the list of MypyErrors that were
+        silenced and whose second element is the list of MypyErrors that were
+        not silenced.
     """
     if report is not None:
         with pathlib.Path(report).open(encoding="utf-8") as file:
@@ -192,7 +192,7 @@ def mypy_upgrade(
             edited_files.append(filename)
             silenced_errors.extend(safe_to_suppress)
 
-    return silenced_errors, edited_files
+    return silenced_errors, excluded
 
 
 def main() -> None:
@@ -202,7 +202,7 @@ def main() -> None:
     if args.version:
         print(f"mypy-upgrade {__version__}")  # noqa: T201
     else:
-        errors, modules = mypy_upgrade(
+        silenced, excluded = mypy_upgrade(
             args.report,
             args.packages,
             args.modules,
@@ -211,7 +211,8 @@ def main() -> None:
             args.fix_me.strip(),
         )
 
+        num_files = len({error.filename for error in silenced + excluded})
         if len(args.verbose) > 0:
             print(  # noqa: T201
-                f"{len(errors)} errors silenced across {len(modules)} modules."
+                f"{len(silenced)} errors silenced across {num_files} modules."
             )

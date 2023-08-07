@@ -173,7 +173,7 @@ class TestMypyUpgrade6269340a3:
             "6269340a3",
             "baseline_report_7c2def18.txt",
         )
-        errors, modules = mypy_upgrade(
+        silenced, _ = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -182,9 +182,8 @@ class TestMypyUpgrade6269340a3:
             fix_me="FIX ME",
         )
         assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
-        assert modules
 
     @staticmethod
     @pytest.mark.functional2
@@ -197,7 +196,7 @@ class TestMypyUpgrade6269340a3:
             "6269340a3",
             "second_report_96c979674.txt",
         )
-        errors, modules = mypy_upgrade(
+        silenced, _ = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -206,9 +205,8 @@ class TestMypyUpgrade6269340a3:
             fix_me="FIX ME",
         )
         assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
-        assert modules
 
     @staticmethod
     @pytest.mark.functional3
@@ -221,7 +219,7 @@ class TestMypyUpgrade6269340a3:
             "6269340a3",
             "third_report_ba79c42c7.txt",
         )
-        errors, modules = mypy_upgrade(
+        silenced, _ = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -230,9 +228,8 @@ class TestMypyUpgrade6269340a3:
             fix_me="FIX ME",
         )
         assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
-        assert modules
 
 
 @pytest.mark.skip(
@@ -250,7 +247,7 @@ class TestMypyUpgrade35af5282d:
             "with_columns",
             "baseline_report_47a422c16.txt",
         )
-        errors, modules = mypy_upgrade(
+        silenced, _ = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -259,9 +256,8 @@ class TestMypyUpgrade35af5282d:
             fix_me="FIX ME",
         )
         assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
-        assert modules
 
     @staticmethod
     @pytest.mark.functional2
@@ -274,7 +270,7 @@ class TestMypyUpgrade35af5282d:
             "35af5282d",
             "second_report_6f100101a.txt",
         )
-        errors, modules = mypy_upgrade(
+        silenced, _ = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -283,9 +279,8 @@ class TestMypyUpgrade35af5282d:
             fix_me="FIX ME",
         )
         assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
-        assert modules
 
     @staticmethod
     @pytest.mark.functional3
@@ -298,7 +293,7 @@ class TestMypyUpgrade35af5282d:
             "35af5282d",
             "third_report_ba79c42c7.txt",
         )
-        errors, modules = mypy_upgrade(
+        silenced, _ = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -307,9 +302,8 @@ class TestMypyUpgrade35af5282d:
             fix_me="FIX ME",
         )
         assert (
-            len(errors) == len(report.open(encoding="utf-8").readlines()) - 1
+            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
-        assert modules
 
 
 class TestMain:
