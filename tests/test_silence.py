@@ -147,7 +147,7 @@ class TestSilenceErrors:
     @staticmethod
     def test_should_not_add_duplicate_error_codes(
         silenced_line: str, errors_to_add: Iterable[MypyError]
-    ):
+    ) -> None:
         assert not any(
             silenced_line.count(error) > 1 for error in errors_to_add
         )
