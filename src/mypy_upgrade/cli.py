@@ -112,7 +112,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         default=False,
         action="store_const",
         const=True,
-        help="Control the verbosity.",
+        help="Print the version.",
     )
     parser.add_argument(
         "files",
