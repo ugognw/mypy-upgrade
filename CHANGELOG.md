@@ -19,7 +19,7 @@ This project implements a version of
 
 ### Fixed
 
-* Addition of duplicate error codes if there are duplicate error codes in the 
+* Addition of duplicate error codes if there are duplicate error codes in the
 mypy type checking report
 
 ### Removed
