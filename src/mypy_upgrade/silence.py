@@ -42,7 +42,7 @@ def silence_errors(
     for error in errors:
         if error.error_code == "unused-ignore":
             unused_ignore = error  # there should only be one
-        else:
+        elif error.error_code not in error_codes:
             error_codes.append(error.error_code)
             descriptions.append(error.message)
 

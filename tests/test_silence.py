@@ -77,6 +77,13 @@ def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
             "no-untyped-def",
         ),
         MypyError(
+            "ase/visualize/paraview_script.py",
+            0,
+            1,
+            "Function is missing a return type annotation",
+            "no-untyped-def",
+        ),
+        MypyError(
             "ase/lattice/bravais.py",
             0,
             72,
@@ -137,6 +144,14 @@ def fixture_silenced_line(
 
 
 class TestSilenceErrors:
+    @staticmethod
+    def test_should_not_add_duplicate_error_codes(
+        silenced_line: str, errors_to_add: Iterable[MypyError]
+    ):
+        assert not any(
+            silenced_line.count(error) > 1 for error in errors_to_add
+        )
+
     @staticmethod
     def test_should_place_all_non_unused_ignore_errors_in_comment(
         silenced_line: str, errors_to_add: Iterable[MypyError]
