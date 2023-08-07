@@ -149,7 +149,8 @@ class TestSilenceErrors:
         silenced_line: str, errors_to_add: Iterable[MypyError]
     ) -> None:
         assert not any(
-            silenced_line.count(error) > 1 for error in errors_to_add
+            silenced_line.count(error.error_code) > 1
+            for error in errors_to_add
         )
 
     @staticmethod
