@@ -104,7 +104,7 @@ class TestFindSafeEndLine:
     def test_should_return_none_if_error_in_explicitly_continued_line() -> (
         None
     ):
-        error = MypyError("", 0, 1, "", "")
+        error = MypyError("", 1, 0, "", "")
         region = UnsilenceableRegion((1, 0), (1, 1))
         end_line = find_safe_end_line(error, [region])
         assert end_line == -1
@@ -113,14 +113,14 @@ class TestFindSafeEndLine:
     def test_should_return_none_if_error_in_explicitly_continued_line_and_col_offset_is_none() -> (  # noqa: E501
         None
     ):
-        error = MypyError("", None, 1, "", "")
+        error = MypyError("", 1, None, "", "")
         region = UnsilenceableRegion((1, 0), (1, -1))
         end_line = find_safe_end_line(error, [region])
         assert end_line == -1
 
     @staticmethod
     def test_should_return_none_if_error_in_multiline_string() -> None:
-        error = MypyError("", 0, 2, "", "")
+        error = MypyError("", 2, 0, "", "")
         region = UnsilenceableRegion((1, 0), (3, 0))
         end_line = find_safe_end_line(error, [region])
         assert end_line == -1
@@ -129,14 +129,14 @@ class TestFindSafeEndLine:
     def test_should_return_none_if_error_on_multiline_string_line_and_col_offset_is_none() -> (  # noqa: E501
         None
     ):
-        error = MypyError("", None, 2, "", "")
+        error = MypyError("", 2, None, "", "")
         region = UnsilenceableRegion((1, 0), (3, 0))
         end_line = find_safe_end_line(error, [region])
         assert end_line == -1
 
     @staticmethod
     def test_should_return_same_line_for_single_line_statement() -> None:
-        error = MypyError("", None, 2, "", "")
+        error = MypyError("", 2, None, "", "")
         end_line = find_safe_end_line(error, [])
         assert end_line == 2
 
@@ -144,7 +144,7 @@ class TestFindSafeEndLine:
     def test_should_return_end_line_for_error_before_multiline_string() -> (
         None
     ):
-        error = MypyError("", 0, 1, "", "")
+        error = MypyError("", 1, 0, "", "")
         region = UnsilenceableRegion((1, 1), (3, 0))
         end_line = find_safe_end_line(error, [region])
         assert end_line == 3
@@ -157,7 +157,7 @@ class TestCorrectLineNumbers:
     ):
         code = "\n".join(["x = '''", "string", "'''"])
         stream = io.StringIO(code)
-        error = MypyError("", 0, 1, "", "")
+        error = MypyError("", 1, 0, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
         assert corrected_errors
         assert corrected_errors[0].line_no == 3
@@ -169,7 +169,7 @@ class TestCorrectLineNumbers:
     ):
         code = "\n".join(["x = '''", "string", "'''"])
         stream = io.StringIO(code)
-        error = MypyError("", 5, 1, "", "")
+        error = MypyError("", 1, 5, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
         assert len(corrected_errors) == 0
         assert not_added[0].line_no == 1
@@ -181,7 +181,7 @@ class TestCorrectLineNumbers:
     ):
         code = "\n".join(["x = '''", "string", "'''"])
         stream = io.StringIO(code)
-        error = MypyError("", 0, 3, "", "")
+        error = MypyError("", 3, 0, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
         assert corrected_errors
         assert corrected_errors[0].line_no == 3
@@ -195,7 +195,7 @@ class TestCorrectLineNumbers:
             ["x = '''", "string", "'''.join('''", "chain", "''')"]
         )
         stream = io.StringIO(code)
-        error = MypyError("", 0, 3, "", "")
+        error = MypyError("", 3, 0, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
         assert corrected_errors
         assert corrected_errors[0].line_no == 5
@@ -205,7 +205,7 @@ class TestCorrectLineNumbers:
     def test_should_separate_error_inside_multiline_string() -> None:
         code = "\n".join(["x = '''", "string", "'''"])
         stream = io.StringIO(code)
-        error = MypyError("", 0, 2, "", "")
+        error = MypyError("", 2, 0, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
         assert len(corrected_errors) == 0
         assert not_added[0].line_no == 2
@@ -217,7 +217,7 @@ class TestCorrectLineNumbers:
     ):
         code = "\n".join(["x = '''", "string", "'''.join('\\", "chain", "')"])
         stream = io.StringIO(code)
-        error = MypyError("", 0, 1, "", "")
+        error = MypyError("", 1, 0, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
         assert len(corrected_errors) == 0
         assert len(not_added) == 1
@@ -226,7 +226,7 @@ class TestCorrectLineNumbers:
     def test_should_separate_error_on_explicitly_continued_line() -> None:
         code = "\n".join(["x = 1 +\\", "1"])
         stream = io.StringIO(code)
-        error = MypyError("", 0, 1, "", "")
+        error = MypyError("", 1, 0, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
         assert len(corrected_errors) == 0
         assert not_added[0].line_no == 1
@@ -236,7 +236,7 @@ class TestCorrectLineNumbers:
     def test_should_not_change_line_number_for_single_line_errors() -> None:
         code = "x = 1"
         stream = io.StringIO(code)
-        error = MypyError("", 0, 1, "", "")
+        error = MypyError("", 1, 0, "", "")
         corrected_errors, not_added = correct_line_numbers(stream, [error])
         assert corrected_errors
         assert corrected_errors[0].line_no == 1

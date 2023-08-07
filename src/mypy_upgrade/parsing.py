@@ -7,8 +7,8 @@ from typing import NamedTuple, TextIO
 
 class MypyError(NamedTuple):
     filename: str
-    col_offset: int | None
     line_no: int
+    col_offset: int | None
     message: str
     error_code: str
 
@@ -54,8 +54,8 @@ def parse_mypy_report(
             errors.append(
                 MypyError(
                     filename,
-                    col_offset,
                     line_no,
+                    col_offset,
                     message.strip(),
                     error_code,
                 )

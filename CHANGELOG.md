@@ -17,6 +17,8 @@ This project implements a version of
 
 ### Changed
 
+* The order of `MypyError.line_no` and `MypyError.col_offset` has be switched
+
 ### Fixed
 
 * Addition of duplicate error codes if there are duplicate error codes in the

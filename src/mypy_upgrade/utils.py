@@ -146,8 +146,8 @@ def find_safe_end_line(
 
     new_error = MypyError(
         error.filename,
-        new_col_offset,
         new_line,
+        new_col_offset,
         error.message,
         error.error_code,
     )
@@ -182,8 +182,8 @@ def correct_line_numbers(
             line_corrected_errors.append(
                 MypyError(
                     error.filename,
-                    error.col_offset,
                     end_line,
+                    error.col_offset,
                     error.message,
                     error.error_code,
                 )
