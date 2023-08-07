@@ -13,6 +13,8 @@ This project implements a version of
 
 ### Added
 
+* Print version with `-V/--version` flag
+
 ### Changed
 
 ### Fixed

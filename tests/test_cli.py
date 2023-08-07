@@ -3,10 +3,12 @@ from __future__ import annotations
 import argparse
 import os
 import pathlib
+import subprocess
 import sys
 
 import pytest
 
+from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.cli import _create_argument_parser, main, mypy_upgrade
 
 
@@ -327,3 +329,10 @@ class TestMain:
                 [sys.argv[0], "--package", "ase", "--report", report],
             )
             main()
+
+    @staticmethod
+    def test_should_print_version() -> None:
+        output = subprocess.check_output(
+            ["mypy-upgrade", "-V"], encoding="utf-8"  # noqa: S603, S607
+        )
+        assert __version__ in output
