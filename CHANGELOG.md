@@ -15,7 +15,10 @@ This project implements a version of
 
 ### Changed
 
-* 
+### Fixed
+
+* Addition of duplicate error codes if there are duplicate error codes in the 
+mypy type checking report
 
 ### Removed
 
@@ -195,6 +198,7 @@ represents those `MypyError`s that cannot be safely silenced
 
 * First release
 
+[Unreleased]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...development
 [0.0.1-alpha.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...0.0.1-alpha.4
 [0.0.1-alpha.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.2...release-0.0.1-alpha.3
 [0.0.1-alpha.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.1...release-0.0.1-alpha.2
