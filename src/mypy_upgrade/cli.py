@@ -6,15 +6,17 @@ from __future__ import annotations
 import argparse
 import itertools
 import pathlib
+import shutil
 import sys
-
-from mypy_upgrade.__about__ import __version__
+import textwrap
+from typing import NamedTuple
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
 else:
     from typing import Literal
 
+from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.filter import filter_mypy_errors
 from mypy_upgrade.parsing import (
     MypyError,
@@ -22,6 +24,17 @@ from mypy_upgrade.parsing import (
 )
 from mypy_upgrade.silence import silence_errors
 from mypy_upgrade.utils import correct_line_numbers
+from mypy_upgrade.warnings import (
+    MISSING_ERROR_CODES,
+    TRY_SHOW_ABSOLUTE_PATH,
+    create_not_silenced_errors_warning,
+)
+
+
+class MypyUpgradeResult(NamedTuple):
+    silenced: tuple[MypyError]
+    not_silenced: tuple[MypyError]
+    messages: tuple[str]
 
 
 def _create_argument_parser() -> argparse.ArgumentParser:
@@ -130,27 +143,33 @@ def mypy_upgrade(
     files: list[str],
     description_style: Literal["full", "none"],
     fix_me: str,
-) -> tuple[list[MypyError], list[MypyError]]:
+) -> MypyUpgradeResult:
     """Main logic for application.
 
     Args:
-        report: a text file object representing the mypy error report.
-        packages: a list of string representing the packages in which to
+        report: an optional `pathlib.Path` pointing to the the mypy error
+            report. If `None`, the report is read from the standard input.
+        packages: a list of strings representing the packages in which to
             silence errors.
-        modules: a list of string representing the modules in which to
+        modules: a list of strings representing the modules in which to
             silence errors.
-        files: a list of string representing the files in which to
+        files: a list of strings representing the files in which to
             silence errors.
         description_style: a string specifying the style of error descriptions
-            appended to the end of error suppression comments.
+            appended to the end of error suppression comments. A value of
+            "full" appends the complete error message. A value of "none"
+            does not append anything.
         fix_me: a string specifying the 'Fix Me' message in type error
-            suppresion comments. Pass " " to omit a 'Fix Me' message
+            suppresion comments. Pass "" to omit a 'Fix Me' message
             altogether.
 
     Returns:
-        A 2-tuple whose first element is the list of MypyErrors that were
-        silenced and whose second element is the list of MypyErrors that were
-        not silenced.
+        A `MypyUpgradeResult` object. The errors that are silenced via type
+        checking suppression comments are stored in the `silenced` attribute.
+        Those that are unable to be silenced are stored in the `not_silenced`
+        attribute. If a `FileNotFoundError` is raised while reading a file in
+        which an error is to be silenced or `mypy-upgrade`-related warnings
+        are raised during execution are stored in the `messages` attribute.
     """
     if report is not None:
         with pathlib.Path(report).open(encoding="utf-8") as file:
@@ -160,49 +179,98 @@ def mypy_upgrade(
 
     filtered_errors = filter_mypy_errors(errors, packages, modules, files)
 
-    edited_files = []
-    excluded = []  # Do something with these
-    silenced_errors = []
+    messages = []
+    not_silenced: list[MypyError] = []
+    silenced: list[MypyError] = []
     for filename, filename_grouped_errors in itertools.groupby(
         filtered_errors, key=lambda error: error.filename
     ):
-        with pathlib.Path(filename).open(encoding="utf-8") as f:
-            safe_to_suppress, to_exclude = correct_line_numbers(
-                f, filename_grouped_errors
+        try:
+            with pathlib.Path(filename).open(encoding="utf-8") as f:
+                safe_to_silence, unsafe_to_silence = correct_line_numbers(
+                    f, filename_grouped_errors
+                )
+                f.seek(0)
+                lines = f.readlines()
+        except FileNotFoundError:
+            messages.append(
+                TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
             )
-            f.seek(0)
-            lines = f.readlines()
+            return MypyUpgradeResult(
+                tuple(silenced), tuple(not_silenced), tuple(messages)
+            )
 
-        excluded.extend(to_exclude)
+        not_silenced.extend(unsafe_to_silence)
 
         for line_number, line_grouped_errors in itertools.groupby(
-            safe_to_suppress, key=lambda error: error.line_no
+            safe_to_silence, key=lambda error: error.line_no
         ):
             lines[line_number - 1] = silence_errors(
                 lines[line_number - 1],
                 line_grouped_errors,
                 description_style,
-                fix_me.strip(),
+                fix_me,
             )
 
         with pathlib.Path(filename).open(mode="w", encoding="utf-8") as f:
             _ = f.write("".join(lines))
 
-        if safe_to_suppress:
-            edited_files.append(filename)
-            silenced_errors.extend(safe_to_suppress)
+        if safe_to_silence:
+            silenced.extend(safe_to_silence)
 
-    return silenced_errors, excluded
+    if any(error.error_code is None for error in silenced + not_silenced):
+        messages.append(MISSING_ERROR_CODES)
+
+    return MypyUpgradeResult(
+        tuple(silenced), tuple(not_silenced), tuple(messages)
+    )
+
+
+def print_results(results: MypyUpgradeResult, verbosity: int) -> None:
+    """Print the results contained in a `MypyUpgradeResult` object.
+
+    Args:
+        results: a `MypyUpgradeResult` object.
+        verbosity: an integer specifying the verbosity.
+    """
+    width = min(79, shutil.get_terminal_size(fallback=(140, 0)).columns)
+
+    def fill_(text: str) -> str:
+        return textwrap.fill(text, width=width)
+
+    if results.not_silenced:
+        not_silenced_warning = create_not_silenced_errors_warning(
+            results.not_silenced, verbosity
+        )
+        print(" WARNING ".center(width, "-"))  # noqa: T201
+        print(fill_(not_silenced_warning))  # noqa: T201
+        print()  # noqa: T201
+
+    for message in results.messages:
+        print(" WARNING ".center(width, "-"))  # noqa: T201
+        print(fill_(message))  # noqa: T201
+        print()  # noqa: T201
+
+    if verbosity > 0:
+        num_files = len({err.filename for err in results.silenced})
+        num_silenced = len(results.silenced)
+        text = fill_(
+            f"{num_silenced} error{'' if num_silenced == 1 else 's'} "
+            f"silenced across {num_files} file{'' if num_files == 1 else 's'}."
+        )
+        print(text)  # noqa: T201
 
 
 def main() -> None:
-    """Logic for CLI."""
+    """An interface to `mypy_upgrade` from the command-line."""
     parser = _create_argument_parser()
     args = parser.parse_args()
     if args.version:
         print(f"mypy-upgrade {__version__}")  # noqa: T201
-    else:
-        silenced, excluded = mypy_upgrade(
+        return None
+
+    try:
+        results = mypy_upgrade(
             args.report,
             args.packages,
             args.modules,
@@ -210,9 +278,12 @@ def main() -> None:
             args.description_style,
             args.fix_me.strip(),
         )
-
-        num_files = len({error.filename for error in silenced + excluded})
-        if len(args.verbose) > 0:
+    except FileNotFoundError as error:
+        if error.filename == args.report:
             print(  # noqa: T201
-                f"{len(silenced)} errors silenced across {num_files} modules."
+                f"Aborting: Unable to find report {args.report}"
             )
+        else:
+            raise
+
+    print_results(results, len(args.verbose))
