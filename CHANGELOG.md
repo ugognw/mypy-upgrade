@@ -9,7 +9,7 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
-## [Unreleased]
+## [0.0.1-alpha.4] - 2023-08-08
 
 ### Added
 
@@ -27,7 +27,7 @@ This project implements a version of
 
 * `mypy_upgrade.warnings`: warning messages and message creation functions
 
-* Three levels of verbosity are now supported (0, 1, 2)
+* Three levels of verbosity are now supported for the CLI (0, 1, 2)
 
 * Optional warning suppression
 
@@ -48,7 +48,7 @@ mypy type checking report [(see Issue #4)](https://github.com/ugognw/mypy-upgrad
 
 ### Removed
 
-* `.utils.UnsilenceableRegion.surrounds` and corresponding unit tests
+* `mypy_upgrade.utils.UnsilenceableRegion.surrounds` and corresponding unit tests
 
 ## [0.0.1-alpha.4] - 2023-08-06
 
@@ -208,7 +208,7 @@ represents those errors that cannot be safely silenced
 
 * Pypy and Python 3.12+ classifiers
 
-* `.cli.extract_old_error`
+* `mypy_upgrade.cli.extract_old_error`
 
 ### Fixed
 
@@ -224,7 +224,7 @@ represents those errors that cannot be safely silenced
 
 * First release
 
-[Unreleased]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...development
+[0.0.1-alpha.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...0.0.1-alpha.5
 [0.0.1-alpha.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...0.0.1-alpha.4
 [0.0.1-alpha.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.2...release-0.0.1-alpha.3
 [0.0.1-alpha.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.1...release-0.0.1-alpha.2
