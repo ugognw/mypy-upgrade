@@ -49,19 +49,19 @@ Examples
 --------
 
 # Pyre-like invocation
-$ mypy --strict -p package | mypy-upgrade
+mypy --strict -p package | mypy-upgrade
 
 # Use saved report file
-$ mypy --strict -p package > mypy_report.txt
-$ mypy-upgrade --report mypy_report.txt
+mypy --strict -p package > mypy_report.txt
+mypy-upgrade --report mypy_report.txt
 
 # Only silence errors in package/module
-$ mypy --strict -p package > mypy_report.txt
-$ mypy-upgrade -p package.subpackage -m package.module --report mypy_report.txt
+mypy --strict -p package > mypy_report.txt
+mypy-upgrade -p package.subpackage -m package.module --report mypy_report.txt
 
 # Only silence errors in file/directory
-$ mypy --strict -p package > mypy_report.txt
-$ mypy-upgrade --report mypy_report.txt package/module.py doc
+mypy --strict -p package > mypy_report.txt
+mypy-upgrade --report mypy_report.txt package/module.py package/
 """,
     )
     parser.add_argument(
@@ -117,14 +117,16 @@ $ mypy-upgrade --report mypy_report.txt package/module.py doc
         "--verbose",
         action="count",
         default=0,
+        dest="verbosity",
         help=(
-            "Control the verbosity."
-            "0: Only warnings are printed."
+            "Control the verbosity. "
+            "0: Only warnings are printed. "
             "1: Print detailed warnings, a short summary of silenced errors, "
-            "and a detailed list of errors that were not silenced."
+            "and a detailed list of errors that were not silenced. "
             "2: Print detailed warnings, a detailed list of silenced errors, "
             "and a detailed list of errors that were not silenced. Defaults "
-            "to 0."
+            "to 0. "
+            "This flag may be repeated multiple times."
         ),
     )
     parser.add_argument(
@@ -140,7 +142,7 @@ $ mypy-upgrade --report mypy_report.txt package/module.py doc
         default=False,
         action="store_const",
         const=True,
-        help="Suppress all warnings.",
+        help="Suppress all warnings. Disabled by default.",
     )
     parser.add_argument(
         "files",
@@ -248,9 +250,12 @@ def print_results(
 
     Args:
         results: a `MypyUpgradeResult` object.
-        verbosity: an integer specifying the verbosity.
+        options: a dictionary containing the following keys:
+            verbosity: an integer specifying the verbosity
+            suppress_warnings: a boolean indicating whether to suppress
+                warnings
     """
-    width = min(79, shutil.get_terminal_size(fallback=(140, 0)).columns)
+    width = min(79, shutil.get_terminal_size(fallback=(79, 0)).columns)
 
     def fill_(text: str) -> str:
         return textwrap.fill(text, width=width)
@@ -325,4 +330,8 @@ def main() -> None:
         else:
             raise
 
-    print_results(results, args.verbose)
+    options = {
+        "verbosity": args.verbosity,
+        "suppress_warnings": args.suppress_warnings,
+    }
+    print_results(results, options=options)
