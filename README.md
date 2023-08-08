@@ -7,6 +7,7 @@
 [![code style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg)](https://github.com/python/mypy)
 [![License - MIT](https://img.shields.io/badge/license-MIT-9400d3.svg)](https://spdx.org/licenses/)
+[![Supported Implementations](https://img.shields.io/pypi/implementation/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
 
 -----
 
