@@ -169,7 +169,7 @@ def mypy_upgrade(
             does not append anything.
         fix_me: a string specifying the 'Fix Me' message in type error
             suppresion comments. Pass "" to omit a 'Fix Me' message
-            altogether.
+            altogether. All trailing whitespace will be trimmed.
 
     Returns:
         A `MypyUpgradeResult` object. The errors that are silenced via type
@@ -270,7 +270,7 @@ def print_results(results: MypyUpgradeResult, verbosity: int) -> None:
     elif verbosity > 1:
         if results.silenced:
             print(  # noqa: T201
-                f" SUPPRESSION COMMENTS ADDED ({len(results.silenced)}) ".center(
+                f" ERRORS SILENCED ({len(results.silenced)}) ".center(
                     width, "-"
                 )
             )
@@ -305,7 +305,7 @@ def main() -> None:
             args.modules,
             args.files,
             args.description_style,
-            args.fix_me.strip(),
+            args.fix_me.rstrip(),
         )
     except FileNotFoundError as error:
         if error.filename == args.report:
