@@ -4,7 +4,7 @@ from itertools import combinations, product
 
 import pytest
 
-from mypy_upgrade.editing import remove_unused_type_ignore
+from mypy_upgrade.editing import remove_unused_type_ignore_comment
 
 DESCRIPTION_STUBS = [
     'Unused "type: ignore<placeholder>" comment',
@@ -44,7 +44,7 @@ def test_should_remove_specified_error_codes1(
     stub: str, error_code: str, to_remove: str, comment_suffix: str
 ) -> None:
     comment = stub.replace("<placeholder>", f"[{error_code}]") + comment_suffix
-    result = remove_unused_type_ignore(comment, to_remove)
+    result = remove_unused_type_ignore_comment(comment, to_remove)
     assert to_remove not in result
 
 
@@ -67,7 +67,7 @@ def test_should_remove_specified_error_codes2(
         stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
         + comment_suffix
     )
-    result = remove_unused_type_ignore(comment, to_remove)
+    result = remove_unused_type_ignore_comment(comment, to_remove)
     assert to_remove not in result
 
 
@@ -90,7 +90,7 @@ def test_should_remove_specified_error_codes3(
         stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
         + comment_suffix
     )
-    result = remove_unused_type_ignore(comment, to_remove)
+    result = remove_unused_type_ignore_comment(comment, to_remove)
     assert all(code not in result for code in to_remove)
 
 
@@ -113,7 +113,7 @@ def test_should_remove_specified_error_codes4(
         stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
         + comment_suffix
     )
-    result = remove_unused_type_ignore(comment, to_remove)
+    result = remove_unused_type_ignore_comment(comment, to_remove)
     assert all(code not in result for code in to_remove)
 
 
@@ -128,5 +128,5 @@ def test_should_remove_whole_type_ignore_comment_if_no_code_specified(
 ) -> None:
     type_ignore = stub.replace("<placeholder>", error_code)
     comment = type_ignore + comment_suffix
-    result = remove_unused_type_ignore(comment, ())
+    result = remove_unused_type_ignore_comment(comment, ())
     assert type_ignore not in result

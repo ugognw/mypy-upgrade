@@ -12,7 +12,7 @@ else:
 from mypy_upgrade.editing import (
     add_type_ignore_comment,
     format_type_ignore_comment,
-    remove_unused_type_ignore,
+    remove_unused_type_ignore_comment,
 )
 from mypy_upgrade.parsing import MypyError, description_to_type_ignore
 from mypy_upgrade.utils import split_code_and_comment
@@ -51,7 +51,7 @@ def silence_errors(
 
     if unused_ignore:
         codes_to_remove = description_to_type_ignore(unused_ignore.message)
-        pruned_comment = remove_unused_type_ignore(comment, codes_to_remove)
+        pruned_comment = remove_unused_type_ignore_comment(comment, codes_to_remove)
         cleaned_comment = format_type_ignore_comment(pruned_comment)
     else:
         cleaned_comment = comment

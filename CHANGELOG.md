@@ -9,6 +9,13 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
+## [Unreleased]
+
+### Changed
+
+* `mypy_upgrade.editing.remove_unused_type_ignore` renamed to
+`mypy_upgrade.editing.remove_unused_type_ignore_comment`
+
 ## [0.0.1-alpha.5] - 2023-08-08
 
 ### Added
