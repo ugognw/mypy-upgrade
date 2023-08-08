@@ -51,7 +51,9 @@ def silence_errors(
 
     if unused_ignore:
         codes_to_remove = description_to_type_ignore(unused_ignore.message)
-        pruned_comment = remove_unused_type_ignore_comment(comment, codes_to_remove)
+        pruned_comment = remove_unused_type_ignore_comment(
+            comment, codes_to_remove
+        )
         cleaned_comment = format_type_ignore_comment(pruned_comment)
     else:
         cleaned_comment = comment
