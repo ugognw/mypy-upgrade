@@ -15,11 +15,27 @@ This project implements a version of
 
 * Print version with `-V/--version` flag
 
+* Print warnings if:
+
+    * there are errors which are not silenced
+
+    * there are errors without error codes
+
+    * the filenames reported in the mypy error report are not found
+
+* `mypy_upgrade.cli.MypyUpgradeResult`
+
+* `mypy_upgrade.warnings`: warning messages and message creation functions
+
+* Unit tests
+
+    * `mypy.warnings.create_not_silenced_errors_warning`
+
 ### Changed
 
-* The order of `MypyError.line_no` and `MypyError.col_offset` has be switched
+* The order of `MypyError.line_no` and `MypyError.col_offset` has been switched
 
-* `mypy_upgrade.cli.mypy_upgrade` returns `tuple[list[MypyError], list[MypyError]]`
+* `mypy_upgrade.cli.mypy_upgrade` returns `MypyUpgradeResult`
 
 ### Fixed
 
@@ -44,7 +60,7 @@ lines/columns in mypy type checking reports
 
 * Sample mypy type checking reoprts for functional tests with column numbers
 
-* `MypyError`s have `col_offset` as an additional field
+* `MypyError` has `col_offset` as an additional field
 
 * `mypy_upgrade.utils.UnsilenceableRegion`: named tuple to represent line with line continuation
 characters or lines encapsulated by multline strings.
@@ -76,8 +92,8 @@ as values
 * `MypyError.description` renamed to `MypyError.message`
 
 * `mypy_upgrade.utils.def correct_line_numbers` returns `tuple[list[MypyError], list[MypyError]]` whose
-first entry represents `MypyError`s that can be safely silenced and whose second entry
-represents those `MypyError`s that cannot be safely silenced
+first entry represents errors that can be safely silenced and whose second entry
+represents those errors that cannot be safely silenced
 
 * Unit tests
 
