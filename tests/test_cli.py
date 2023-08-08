@@ -9,7 +9,11 @@ import sys
 import pytest
 
 from mypy_upgrade.__about__ import __version__
-from mypy_upgrade.cli import _create_argument_parser, main, mypy_upgrade
+from mypy_upgrade.cli import (
+    _create_argument_parser,
+    main,
+    mypy_upgrade,
+)
 
 
 @pytest.fixture(
@@ -173,7 +177,7 @@ class TestMypyUpgrade6269340a3:
             "6269340a3",
             "baseline_report_7c2def18.txt",
         )
-        silenced, _ = mypy_upgrade(
+        results = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -181,6 +185,7 @@ class TestMypyUpgrade6269340a3:
             description_style="none",
             fix_me="FIX ME",
         )
+        silenced = results.silenced
         assert (
             len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
@@ -196,7 +201,7 @@ class TestMypyUpgrade6269340a3:
             "6269340a3",
             "second_report_96c979674.txt",
         )
-        silenced, _ = mypy_upgrade(
+        results = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -204,6 +209,7 @@ class TestMypyUpgrade6269340a3:
             description_style="none",
             fix_me="FIX ME",
         )
+        silenced = results.silenced
         assert (
             len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
@@ -219,7 +225,7 @@ class TestMypyUpgrade6269340a3:
             "6269340a3",
             "third_report_ba79c42c7.txt",
         )
-        silenced, _ = mypy_upgrade(
+        results = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -227,6 +233,7 @@ class TestMypyUpgrade6269340a3:
             description_style="none",
             fix_me="FIX ME",
         )
+        silenced = results.silenced
         assert (
             len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
@@ -247,7 +254,7 @@ class TestMypyUpgrade35af5282d:
             "with_columns",
             "baseline_report_47a422c16.txt",
         )
-        silenced, _ = mypy_upgrade(
+        results = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -255,6 +262,7 @@ class TestMypyUpgrade35af5282d:
             description_style="none",
             fix_me="FIX ME",
         )
+        silenced = results.silenced
         assert (
             len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
@@ -270,7 +278,7 @@ class TestMypyUpgrade35af5282d:
             "35af5282d",
             "second_report_6f100101a.txt",
         )
-        silenced, _ = mypy_upgrade(
+        results = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -278,6 +286,7 @@ class TestMypyUpgrade35af5282d:
             description_style="none",
             fix_me="FIX ME",
         )
+        silenced = results.silenced
         assert (
             len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
@@ -293,7 +302,7 @@ class TestMypyUpgrade35af5282d:
             "35af5282d",
             "third_report_ba79c42c7.txt",
         )
-        silenced, _ = mypy_upgrade(
+        results = mypy_upgrade(
             report=report,
             packages=[],
             modules=[],
@@ -301,6 +310,7 @@ class TestMypyUpgrade35af5282d:
             description_style="none",
             fix_me="FIX ME",
         )
+        silenced = results.silenced
         assert (
             len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
         )
