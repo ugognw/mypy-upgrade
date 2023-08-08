@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from mypy_upgrade.parsing import MypyError
 
 MISSING_ERROR_CODES = (
@@ -24,7 +26,7 @@ def create_not_silenced_errors_warning(
     """Create a warning for the user about errors that were not silenced.
 
     Args:
-        excluded: a list of MypyErrors that were not silenced.
+        not_silenced: a list of MypyErrors that were not silenced.
         verbosity: an integer indicating the verbosity level for printing
 
     Returns:
@@ -37,11 +39,12 @@ def create_not_silenced_errors_warning(
             err.col_offset is not None for err in not_silenced
         )
 
-    num_excluded = len(not_silenced)
-    verb = "error was not" if num_excluded == 1 else "errors were not"
+    num_not_silenced = len(not_silenced)
+    verb = "error was not" if num_not_silenced == 1 else "errors were not"
 
     warning_stem = (
-        f"{num_excluded} {verb} not silenced due to syntax limitations.\n\n"
+        f"{num_not_silenced} {verb} not silenced due to syntax "
+        "limitations.\n\n"
     )
     if not with_column_numbers:
         warning_suffix = (
