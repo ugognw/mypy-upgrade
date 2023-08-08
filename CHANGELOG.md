@@ -29,6 +29,8 @@ This project implements a version of
 
 * Three levels of verbosity are now supported (0, 1, 2)
 
+* Optional warning suppression
+
 * Unit tests
 
     * `mypy.warnings.create_not_silenced_errors_warning`

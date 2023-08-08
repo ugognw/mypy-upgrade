@@ -37,7 +37,6 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
         # format comment
         comment = f' # {comment.lstrip("# ")}'
 
-
     sorted_error_codes = ", ".join(sorted(error_codes))
 
     return f"# type: ignore[{sorted_error_codes}]{comment}"

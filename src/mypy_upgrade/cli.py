@@ -136,6 +136,13 @@ $ mypy-upgrade --report mypy_report.txt package/module.py doc
         help="Print the version.",
     )
     parser.add_argument(
+        "--suppress-warnings",
+        default=False,
+        action="store_const",
+        const=True,
+        help="Suppress all warnings.",
+    )
+    parser.add_argument(
         "files",
         default=[],
         nargs="*",
@@ -234,7 +241,9 @@ def mypy_upgrade(
     )
 
 
-def print_results(results: MypyUpgradeResult, verbosity: int) -> None:
+def print_results(
+    results: MypyUpgradeResult, options: dict[str, int | bool]
+) -> None:
     """Print the results contained in a `MypyUpgradeResult` object.
 
     Args:
@@ -246,20 +255,21 @@ def print_results(results: MypyUpgradeResult, verbosity: int) -> None:
     def fill_(text: str) -> str:
         return textwrap.fill(text, width=width)
 
-    if results.not_silenced:
+    if results.not_silenced and not options["suppress_warnings"]:
         not_silenced_warning = create_not_silenced_errors_warning(
-            results.not_silenced, verbosity
+            results.not_silenced, options["verbosity"]
         )
         print(" WARNING ".center(width, "-"))  # noqa: T201
         print(fill_(not_silenced_warning))  # noqa: T201
         print()  # noqa: T201
 
-    for message in results.messages:
-        print(" WARNING ".center(width, "-"))  # noqa: T201
-        print(fill_(message))  # noqa: T201
-        print()  # noqa: T201
+    if not options["suppress_warnings"]:
+        for message in results.messages:
+            print(" WARNING ".center(width, "-"))  # noqa: T201
+            print(fill_(message))  # noqa: T201
+            print()  # noqa: T201
 
-    if verbosity == 1:
+    if options["verbosity"] == 1:
         num_files = len({err.filename for err in results.silenced})
         num_silenced = len(results.silenced)
         text = fill_(
@@ -267,7 +277,7 @@ def print_results(results: MypyUpgradeResult, verbosity: int) -> None:
             f"silenced across {num_files} file{'' if num_files == 1 else 's'}."
         )
         print(text)  # noqa: T201
-    elif verbosity > 1:
+    elif options["verbosity"] > 1:
         if results.silenced:
             print(  # noqa: T201
                 f" ERRORS SILENCED ({len(results.silenced)}) ".center(
