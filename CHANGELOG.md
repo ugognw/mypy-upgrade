@@ -15,6 +15,8 @@ This project implements a version of
 
 * Python 3.12+ support
 
+* Add PyPy 3.7-3.10 support
+
 * CI-only functional tests for CLI
 
 ### Changed
