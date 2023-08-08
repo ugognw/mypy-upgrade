@@ -46,13 +46,10 @@ skip-string-normalization = true
 source_pkgs = ["mypy_upgrade", "tests"]
 branch = true
 parallel = true
-omit = [
-  "src/mypy_upgrade/__about__.py",
-]
 
 [tool.coverage.paths]
 mypy_upgrade = ["src/mypy_upgrade"]
-tests = ["tests", "*/mypy-upgrade/tests"]
+tests = ["tests"]
 
 [tool.coverage.report]
 exclude_lines = [
