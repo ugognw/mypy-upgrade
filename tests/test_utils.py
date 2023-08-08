@@ -212,6 +212,13 @@ class TestCorrectLineNumbers:
         assert len(not_added) == 1
 
     @staticmethod
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 12),
+        reason=(
+            "line continuation characters within function calls is "
+            "not valid syntax in Python 3.12+"
+        ),
+    )
     def test_should_separate_error_before_multiline_string_if_preceding_chained_explicitly_continued_line() -> (  # noqa: E501
         None
     ):
