@@ -32,7 +32,11 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
         if not re.search(r"[^#\s]", comment):
             comment = ""
         else:
-            comment = f' {comment.lstrip("# ")}'
+            comment = f' # {comment.lstrip("# ")}'
+    elif comment:
+        # format comment
+        comment = f' # {comment.lstrip("# ")}'
+
 
     sorted_error_codes = ", ".join(sorted(error_codes))
 
