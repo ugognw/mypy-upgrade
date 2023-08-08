@@ -27,6 +27,8 @@ This project implements a version of
 
 * `mypy_upgrade.warnings`: warning messages and message creation functions
 
+* Three levels of verbosity are now supported (0, 1, 2)
+
 * Unit tests
 
     * `mypy.warnings.create_not_silenced_errors_warning`

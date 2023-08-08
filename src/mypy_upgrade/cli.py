@@ -48,20 +48,20 @@ Place in-line comments into files to silence mypy errors.
 Examples
 --------
 
-Pyre-like invocation
-$ mypy --strict -p ase | mypy-upgrade
+# Pyre-like invocation
+$ mypy --strict -p package | mypy-upgrade
 
-Use saved report file
-$ mypy --strict -p ase > mypy_report.txt
+# Use saved report file
+$ mypy --strict -p package > mypy_report.txt
 $ mypy-upgrade --report mypy_report.txt
 
-Only silence errors in package/module
-$ mypy --strict -p ase > mypy_report.txt
-$ mypy-upgrade -p ase.build -m ase.atoms --report mypy_report.txt
+# Only silence errors in package/module
+$ mypy --strict -p package > mypy_report.txt
+$ mypy-upgrade -p package.subpackage -m package.module --report mypy_report.txt
 
-Only silence errors in file/directory
-$ mypy --strict -p ase > mypy_report.txt
-$ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
+# Only silence errors in file/directory
+$ mypy --strict -p package > mypy_report.txt
+$ mypy-upgrade --report mypy_report.txt package/module.py doc
 """,
     )
     parser.add_argument(
@@ -90,7 +90,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         type=pathlib.Path,
         help="""
         The path to a text file containing a mypy type checking report. If not
-        specified, input is read from standard input.
+        specified, input is read from standard input. Defaults to stdin.
         """,
     )
     parser.add_argument(
@@ -100,7 +100,7 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         choices=["full", "none"],
         help="""
         Specify the style in which mypy error descriptions are expressed in the
-        error suppression comment.
+        error suppression comment. Defaults to "none".
         """,
     )
     parser.add_argument(
@@ -109,15 +109,23 @@ $ mypy-upgrade --report mypy_report.txt ase/atoms.py doc
         help="""
         Specify a custom 'Fix Me' message to be placed after the error
         suppression comment. Pass " " to omit a 'Fix Me' message altogether.
+        Defaults to "FIX ME".
         """,
     )
     parser.add_argument(
         "-v",
         "--verbose",
-        action="append_const",
-        const=True,
-        default=[],
-        help="Control the verbosity.",
+        action="count",
+        default=0,
+        help=(
+            "Control the verbosity."
+            "0: Only warnings are printed."
+            "1: Print detailed warnings, a short summary of silenced errors, "
+            "and a detailed list of errors that were not silenced."
+            "2: Print detailed warnings, a detailed list of silenced errors, "
+            "and a detailed list of errors that were not silenced. Defaults "
+            "to 0."
+        ),
     )
     parser.add_argument(
         "-V",
@@ -251,7 +259,7 @@ def print_results(results: MypyUpgradeResult, verbosity: int) -> None:
         print(fill_(message))  # noqa: T201
         print()  # noqa: T201
 
-    if verbosity > 0:
+    if verbosity == 1:
         num_files = len({err.filename for err in results.silenced})
         num_silenced = len(results.silenced)
         text = fill_(
@@ -259,6 +267,27 @@ def print_results(results: MypyUpgradeResult, verbosity: int) -> None:
             f"silenced across {num_files} file{'' if num_files == 1 else 's'}."
         )
         print(text)  # noqa: T201
+    elif verbosity > 1:
+        if results.silenced:
+            print(  # noqa: T201
+                f" SUPPRESSION COMMENTS ADDED ({len(results.silenced)}) ".center(
+                    width, "-"
+                )
+            )
+            for error in results.silenced:
+                print(  # noqa: T201
+                    f"{error.error_code}: {error.filename} ({error.line_no})"
+                )
+        if results.not_silenced:
+            print(  # noqa: T201
+                f" ERRORS NOT SILENCED ({len(results.not_silenced)}) ".center(
+                    width, "-"
+                )
+            )
+            for error in results.not_silenced:
+                print(  # noqa: T201
+                    f"{error.error_code}: {error.filename} ({error.line_no})"
+                )
 
 
 def main() -> None:
@@ -286,4 +315,4 @@ def main() -> None:
         else:
             raise
 
-    print_results(results, len(args.verbose))
+    print_results(results, args.verbose)
