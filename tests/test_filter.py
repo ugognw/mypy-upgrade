@@ -10,8 +10,6 @@ from mypy_upgrade.filter import filter_mypy_errors, get_module_paths
 from mypy_upgrade.parsing import MypyError
 
 MODULES = [
-    "ase.atoms",
-    "ase.calculators.vasp.vasp",
     "ast",
     "collections.abc",
     "pytest",
@@ -19,8 +17,6 @@ MODULES = [
 ]
 
 MODULE_PATHS = [
-    "ase/atoms.py",
-    "ase/calculators/vasp/vasp.py",
     "ast.py",
     "collections/abc.py",
     "pytest/__init__.py",
@@ -63,10 +59,9 @@ class TestGetModulePaths:
     name="packages_to_include",
     params=(
         [],
-        ["ase"],
-        ["ase.calculators"],
-        ["collections"],
-        ["ase.geometry", "ase.dft"],
+        ["os"],
+        ["xml.sax"],
+        ["os", "xml.sax"],
     ),
 )
 def fixture_packages_to_include(request: pytest.FixtureRequest) -> list[str]:
@@ -78,10 +73,9 @@ def fixture_packages_to_include(request: pytest.FixtureRequest) -> list[str]:
     name="modules_to_include",
     params=(
         [],
-        ["ase.atoms"],
-        ["ase.dft.wannierstate"],
-        ["collections"],
-        ["ase.atom", "ase.ga.population"],
+        ["pathlib"],
+        ["xml.sax.handler"],
+        ["pathlib", "xml.sax.handler"],
     ),
 )
 def fixture_modules_to_include(request: pytest.FixtureRequest) -> list[str]:
@@ -93,10 +87,10 @@ def fixture_modules_to_include(request: pytest.FixtureRequest) -> list[str]:
     name="files_to_include",
     params=(
         [],
-        ["ase/ga/population.py"],
-        ["ase/neighborlist.py"],
-        ["ase/__init__.py"],
-        ["ase/io/bundletrajectory.py", "aase/thermochemistry.py"],
+        ["xml/sax/handler.py"],
+        ["pathlib.py"],
+        ["xml/sax/__init__.py"],
+        ["pathlib.py", "xml/sax/handler.py"],
     ),
 )
 def fixture_files_to_include(request: pytest.FixtureRequest) -> list[str]:
