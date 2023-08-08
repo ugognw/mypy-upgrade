@@ -178,7 +178,7 @@ class TestMypyUpgrade:
     @pytest.fixture(name="mypy_report_pre")
     @staticmethod
     def fixture_mypy_report_pre() -> pathlib.Path:
-        return os.environ["MYPY_REPORT"]
+        return pathlib.Path(os.environ["MYPY_REPORT"])
 
     @pytest.fixture(name="mypy_upgrade_results")
     @staticmethod
