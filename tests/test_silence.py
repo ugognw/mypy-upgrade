@@ -70,28 +70,28 @@ def fixture_line(code: str, comment: str) -> str:
 def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
     errors_to_add = [
         MypyError(
-            "ase/visualize/paraview_script.py",
+            "package1/subpackage1/module1.py",
             1,
             0,
             "Function is missing a return type annotation",
             "no-untyped-def",
         ),
         MypyError(
-            "ase/visualize/paraview_script.py",
+            "package/subpackage1/module1.py",
             1,
             0,
             "Function is missing a return type annotation",
             "no-untyped-def",
         ),
         MypyError(
-            "ase/lattice/bravais.py",
+            "package2/subpackage2/module2.py",
             72,
             0,
             '"Bravais" has no attribute "get_lattice_constant"',
             "attr-defined",
         ),
         MypyError(
-            "ase/io/octopus/input.py",
+            "package3/subpackage3/module3.py",
             318,
             0,
             'Incompatible types in assignment (expression has type "None", '
