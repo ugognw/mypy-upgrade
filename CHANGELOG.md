@@ -118,7 +118,7 @@ as values
 
 * `MypyError.description` renamed to `MypyError.message`
 
-* `mypy_upgrade.utils.def correct_line_numbers` returns `tuple[list[MypyError], list[MypyError]]` whose
+* `mypy_upgrade.utils.correct_line_numbers` returns `tuple[list[MypyError], list[MypyError]]` whose
 first entry represents errors that can be safely silenced and whose second entry
 represents those errors that cannot be safely silenced
 
