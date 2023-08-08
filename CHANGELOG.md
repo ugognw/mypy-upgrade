@@ -40,7 +40,7 @@ This project implements a version of
 ### Fixed
 
 * Addition of duplicate error codes if there are duplicate error codes in the
-mypy type checking report
+mypy type checking report [(see Issue #4)](https://github.com/ugognw/mypy-upgrade/issues/4)
 
 ### Removed
 
@@ -136,7 +136,7 @@ represents those errors that cannot be safely silenced
 
     * `mypy_upgrade.utils`: utilities for processing code text
 
-* Testing
+* Testing [(closes Issue #1)](https://github.com/ugognw/mypy-upgrade/issues/1)
 
     * Group common data to fixtures in `conftest.py`
 
@@ -208,7 +208,7 @@ represents those errors that cannot be safely silenced
 
 ### Fixed
 
-* Support for placing suppression errors on the end of multiline statements
+* Support for placing suppression errors on the end of multiline statements [(see Issue #3)](https://github.com/ugognw/mypy-upgrade/issues/3)
 
 ## [0.0.1-alpha.2] - 2023-07-31
 
