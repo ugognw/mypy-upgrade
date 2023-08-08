@@ -67,7 +67,7 @@ def silence_errors(
     updated_line = f"{python_code}  {final_comment}".rstrip()
 
     if fix_me:
-        updated_line += f" # {fix_me.strip()}"
+        updated_line += f" # {fix_me}"
 
     if description_style == "full" and descriptions:
         updated_line += f" # {', '.join(descriptions)}"
