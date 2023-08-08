@@ -8,7 +8,7 @@ class TestCreateNotSilencedErrorsWarning:
         None
     ):
         warning = create_not_silenced_errors_warning(
-            [MypyError("", 1, None, "", "")]
+            (MypyError("", 1, None, "", ""),)
         )
         assert "--show-column-numbers" in warning
 
@@ -17,6 +17,6 @@ class TestCreateNotSilencedErrorsWarning:
         None
     ):
         warning = create_not_silenced_errors_warning(
-            [MypyError("", 1, 0, "", "")], verbosity=0
+            (MypyError("", 1, 0, "", ""),), verbosity=0
         )
         assert "(option -v)" in warning

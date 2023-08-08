@@ -19,7 +19,7 @@ TRY_SHOW_ABSOLUTE_PATH = (
 
 
 def create_not_silenced_errors_warning(
-    not_silenced: list[MypyError], verbosity: int = 0
+    not_silenced: tuple[MypyError, ...], verbosity: int = 0
 ) -> str:
     """Create a warning for the user about errors that were not silenced.
 

@@ -32,9 +32,9 @@ from mypy_upgrade.warnings import (
 
 
 class MypyUpgradeResult(NamedTuple):
-    silenced: tuple[MypyError]
-    not_silenced: tuple[MypyError]
-    messages: tuple[str]
+    silenced: tuple[MypyError, ...]
+    not_silenced: tuple[MypyError, ...]
+    messages: tuple[str, ...]
 
 
 def _create_argument_parser() -> argparse.ArgumentParser:
