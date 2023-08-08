@@ -247,9 +247,9 @@ represents those errors that cannot be safely silenced
 
 * First release
 
-[0.0.1-beta.1]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.5...0.0.1-beta.1
-[0.0.1-alpha.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...0.0.1-alpha.5
-[0.0.1-alpha.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...0.0.1-alpha.4
+[0.0.1-beta.1]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.5...release-0.0.1-beta.1
+[0.0.1-alpha.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...release-0.0.1-alpha.5
+[0.0.1-alpha.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...release-0.0.1-alpha.4
 [0.0.1-alpha.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.2...release-0.0.1-alpha.3
 [0.0.1-alpha.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.1...release-0.0.1-alpha.2
 [0.0.1-alpha.1]: https://github.com/ugognw/mypy-upgrade/tree/release-0.0.1-alpha.1
