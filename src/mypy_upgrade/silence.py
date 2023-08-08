@@ -28,7 +28,8 @@ def silence_errors(
 
     Args:
         line: a string containing the line.
-        error: an `Iterable` of `MypyError`s to be silenced.
+        error: an `Iterable` in which each entry is a `MypyError` to be
+            silenced.
         description_style: a string specifying the style of the description of
             errors.
         fix_me: a string specifying a "fix me" message to be appended after the

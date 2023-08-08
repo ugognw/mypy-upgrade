@@ -105,7 +105,8 @@ def find_safe_end_line(
     Args:
         error: a `MypyError` for which a type error suppression comment is to
             placed.
-        unsilenceable_regions: an `Iterable` of `UnsilenceableRegion`s.
+        unsilenceable_regions: an `Iterable` in which each entry is an
+            `UnsilenceableRegion`.
 
     Returns:
         An integer representing a safe line on which to place an error
@@ -165,19 +166,19 @@ def correct_line_numbers(
         errors: The errors whose line numbers are to be corrected.
 
     Returns:
-        A 2-tuple whose first entry is a list of MypyErrors from `errors` for
-        which type suppression comments can be added (with line numbers
-        corrected) and whose second entry is a list of the excluded MypyErrors.
+        A 2-tuple whose first entry is a list in which each entry is a
+        `MypyError` from `errors` for which type suppression comments can be
+        added (with line numbers corrected) and whose second entry is a list
+        of each `MypyError` that cannot be silenced.
     """
-    # ? need to copy
     unsilenceable_regions = find_unsilenceable_regions(stream)
     line_corrected_errors = []
-    excluded_errors = []
+    unsilenceable_errors = []
     for error in errors:
         end_line = find_safe_end_line(error, unsilenceable_regions)
 
         if end_line == -1:
-            excluded_errors.append(error)
+            unsilenceable_errors.append(error)
         else:
             line_corrected_errors.append(
                 MypyError(
@@ -189,4 +190,4 @@ def correct_line_numbers(
                 )
             )
 
-    return line_corrected_errors, excluded_errors
+    return line_corrected_errors, unsilenceable_errors
