@@ -4,16 +4,16 @@ import argparse
 import os
 import pathlib
 import subprocess
-import sys
 
 import pytest
 
 from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.cli import (
+    MypyUpgradeResult,
     _create_argument_parser,
-    main,
     mypy_upgrade,
 )
+from mypy_upgrade.parsing import parse_mypy_report
 
 
 @pytest.fixture(
@@ -162,181 +162,105 @@ class TestParseArgs:
             assert args.report is None
 
 
-@pytest.mark.skip(
-    reason="only intended to be run on git ref 6269340a3 of branch master"
+@pytest.mark.skipif(
+    "CI" not in os.environ,
+    reason="CI-only tests",
 )
-class TestMypyUpgrade6269340a3:
-    @staticmethod
-    @pytest.mark.functional1
-    def test_functional1(
-        shared_datadir: pathlib.Path,
-    ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports",
-            "with_columns",
-            "6269340a3",
-            "baseline_report_7c2def18.txt",
-        )
-        results = mypy_upgrade(
-            report=report,
-            packages=[],
-            modules=[],
-            files=[],
-            description_style="none",
-            fix_me="FIX ME",
-        )
-        silenced = results.silenced
-        assert (
-            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
-        )
-
-    @staticmethod
-    @pytest.mark.functional2
-    def test_functional2(
-        shared_datadir: pathlib.Path,
-    ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports",
-            "with_columns",
-            "6269340a3",
-            "second_report_96c979674.txt",
-        )
-        results = mypy_upgrade(
-            report=report,
-            packages=[],
-            modules=[],
-            files=[],
-            description_style="none",
-            fix_me="FIX ME",
-        )
-        silenced = results.silenced
-        assert (
-            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
-        )
-
-    @staticmethod
-    @pytest.mark.functional3
-    def test_functional3(
-        shared_datadir: pathlib.Path,
-    ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports",
-            "with_columns",
-            "6269340a3",
-            "third_report_ba79c42c7.txt",
-        )
-        results = mypy_upgrade(
-            report=report,
-            packages=[],
-            modules=[],
-            files=[],
-            description_style="none",
-            fix_me="FIX ME",
-        )
-        silenced = results.silenced
-        assert (
-            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
-        )
-
-
-@pytest.mark.skip(
-    reason="only intended to be run on git ref 35af5282d of branch master"
+@pytest.mark.skipif(
+    "MYPY_REPORT" not in os.environ, reason="path to mypy error report not set"
 )
-class TestMypyUpgrade35af5282d:
+@pytest.mark.skipif(
+    "MYPY_UPGRADE_TARGET" not in os.environ,
+    reason="no target specified for mypy-upgrade",
+)
+@pytest.mark.slow
+class TestMypyUpgrade:
+    @pytest.fixture(name="mypy_report_pre")
     @staticmethod
-    @pytest.mark.functional1
-    def test_functional1(
-        shared_datadir: pathlib.Path,
-    ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports",
-            "35af5282d",
-            "with_columns",
-            "baseline_report_47a422c16.txt",
-        )
-        results = mypy_upgrade(
-            report=report,
+    def fixture_mypy_report_pre() -> pathlib.Path:
+        return os.environ["MYPY_REPORT"]
+
+    @pytest.fixture(name="mypy_upgrade_results")
+    @staticmethod
+    def fixture_mypy_upgrade_results(
+        mypy_report_pre: pathlib.Path,
+    ) -> MypyUpgradeResult:
+        return mypy_upgrade(
+            report=mypy_report_pre,
             packages=[],
             modules=[],
             files=[],
             description_style="none",
             fix_me="FIX ME",
         )
-        silenced = results.silenced
-        assert (
-            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
+
+    @pytest.fixture(name="mypy_report_post")
+    @staticmethod
+    def fixture_mypy_report_post(
+        mypy_report_pre: MypyUpgradeResult,  # noqa: ARG004
+        tmp_path_factory: pathlib.Path,
+    ) -> pathlib.Path:
+        output = subprocess.check_output(
+            [
+                "/usr/bin/env",
+                "python3",
+                "-m",
+                "mypy",
+                "--strict",
+                "--show-error-codes",
+                "--show-absolute-path",
+                "--show-column-numbers",
+                "-p",
+                os.environ["MYPY_UPGRADE_TARGET"],
+            ],
         )
+        filename = pathlib.Path(tmp_path_factory / "mypy_report_post.txt")
+        with filename.open("wb") as file:
+            _ = file.write(output)
+        return filename
 
     @staticmethod
-    @pytest.mark.functional2
-    def test_functional2(
-        shared_datadir: pathlib.Path,
+    def test_should_silence_all_silenceable_errors(
+        mypy_report_post: pathlib.Path, mypy_upgrade_results: MypyUpgradeResult
     ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports",
-            "with_columns",
-            "35af5282d",
-            "second_report_6f100101a.txt",
-        )
-        results = mypy_upgrade(
-            report=report,
-            packages=[],
-            modules=[],
-            files=[],
-            description_style="none",
-            fix_me="FIX ME",
-        )
-        silenced = results.silenced
-        assert (
-            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
-        )
+        with mypy_report_post.open(encoding="utf-8") as file:
+            errors = parse_mypy_report(file)
+        assert len(mypy_upgrade_results.not_silenced) == len(errors)
 
     @staticmethod
-    @pytest.mark.functional3
-    def test_functional3(
-        shared_datadir: pathlib.Path,
+    def test_should_not_increase_number_of_errors(
+        mypy_report_pre: pathlib.Path, mypy_report_post: pathlib.Path
     ) -> None:
-        report = shared_datadir.joinpath(
-            "mypy_reports",
-            "with_columns",
-            "35af5282d",
-            "third_report_ba79c42c7.txt",
-        )
-        results = mypy_upgrade(
-            report=report,
-            packages=[],
-            modules=[],
-            files=[],
-            description_style="none",
-            fix_me="FIX ME",
-        )
-        silenced = results.silenced
-        assert (
-            len(silenced) == len(report.open(encoding="utf-8").readlines()) - 1
-        )
+        with mypy_report_pre.open(encoding="utf-8") as file:
+            errors_pre = parse_mypy_report(file)
+        with mypy_report_post.open(encoding="utf-8") as file:
+            errors_post = parse_mypy_report(file)
+        assert len(errors_pre) >= len(errors_post)
 
 
+@pytest.mark.skipif(
+    "CI" not in os.environ,
+    reason="CI-only tests",
+)
+@pytest.mark.skipif(
+    "MYPY_REPORT" not in os.environ, reason="path to mypy error report not set"
+)
+@pytest.mark.skipif(
+    "MYPY_UPGRADE_TARGET" not in os.environ,
+    reason="no target specified for mypy-upgrade",
+)
+@pytest.mark.slow
 class TestMain:
     @staticmethod
-    @pytest.mark.skip(reason="need to refactor functional test")
-    def test(
-        shared_datadir: pathlib.Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        report = str(shared_datadir / "mypy_fix-1267.txt")
-
-        with monkeypatch.context() as mp:
-            os.chdir("/Users/ugo/Projects/nwt/ase")
-            mp.syspath_prepend("/Users/ugo/Projects/nwt/ase")
-            mp.setattr(
-                sys,
-                "argv",
-                [sys.argv[0], "--package", "ase", "--report", report],
-            )
-            main()
+    def test_should_run_from_command_line_without_error() -> None:
+        process = subprocess.run(
+            ["mypy-upgrade", "--r", os.environ["MYPY_REPORT"]]  # noqa: S607
+        )
+        assert process.returncode == 0
 
     @staticmethod
     def test_should_print_version() -> None:
         output = subprocess.check_output(
-            ["mypy-upgrade", "-V"], encoding="utf-8"  # noqa: S603, S607
+            ["mypy-upgrade", "-V"], encoding="utf-8"  # noqa: S607
         )
         assert __version__ in output
