@@ -9,6 +9,12 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
+## [Unreleased]
+
+### Changed
+
+* Link targets CHANGELOG headers
+
 ## [0.0.1-beta.1] - 2023-08-08
 
 ### Added
@@ -247,6 +253,7 @@ represents those errors that cannot be safely silenced
 
 * First release
 
+[Unreleased]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.1...development
 [0.0.1-beta.1]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.5...release-0.0.1-beta.1
 [0.0.1-alpha.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...release-0.0.1-alpha.5
 [0.0.1-alpha.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...release-0.0.1-alpha.4
