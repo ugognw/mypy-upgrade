@@ -11,10 +11,24 @@ This project implements a version of
 
 ## [Unreleased]
 
+### Added
+
+* Python 3.12+ support
+
+* CI-only functional tests for CLI
+
 ### Changed
 
 * `mypy_upgrade.editing.remove_unused_type_ignore` renamed to
 `mypy_upgrade.editing.remove_unused_type_ignore_comment`
+
+### Removed
+
+* Functional tests under `test_cli.TestMypyUpgrade6269340a3`
+
+* "functionalx" pytest marks
+
+* `ase` test dependency
 
 ## [0.0.1-alpha.5] - 2023-08-08
 
