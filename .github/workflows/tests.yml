@@ -61,7 +61,9 @@ jobs:
           hatch run pip download --src $MYPY_UPGRADE_TARGET_INSTALL_DIR  git+${{ matrix.package.git-url }}
 
       - name: Test with Hatch (+ Coverage)
-        run: hatch run test-cov
+        run: |
+          hatch run pytest -V
+          hatch run test-cov
         env:
           MYPY_UPGRADE_TARGET: ${{ matrix.package.name }}
 
@@ -85,7 +87,7 @@ jobs:
       HATCH_ENV: lint
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v3
@@ -100,7 +102,7 @@ jobs:
           pipx install $HATCH_SPECIFIER
 
       - name: Run Mypy with Hatch
-        run: hatch run lint:typing --python-version ${{ matrix.python-version }}
+        run: hatch run typing --python-version ${{ matrix.python-version }} src/myp_upgrade tests
 
   style:
     name: Formatting with Black and Ruff
