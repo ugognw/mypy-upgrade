@@ -44,12 +44,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }} and Hatch
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
           cache: pip
+
+      - name: Install Hatch
         run: |
           pipx --version
           pipx install $HATCH_SPECIFIER
@@ -92,11 +94,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }} and Hatch
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.python-version }}
           cache: pip
+
+      - name: Install Hatch
         run: |
           pipx --version
           pipx install $HATCH_SPECIFIER
@@ -113,12 +117,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }} and Hatch
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-      - run: pipx install $HATCH_SPECIFIER
+
+      - name: Install Hatch
+        run: |
+          pipx --version
+          pipx install $HATCH_SPECIFIER
 
       - name: Run Mypy with Hatch
         run: hatch run style
