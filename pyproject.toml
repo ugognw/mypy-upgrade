@@ -68,7 +68,7 @@ include = [
   "/tests",
 ]
 
-[[tool.hatch.envs.all.matrix]]
+[[tool.hatch.envs.test.matrix]]
 python = [
   "3.7",
   "3.8",
@@ -85,6 +85,7 @@ python = [
 
 [tool.hatch.envs.default]
 dependencies = [
+  "mypy",
   "pytest",
   "pytest-cov",
   "pytest-datadir",
@@ -110,7 +111,7 @@ dependencies = [
 python = "3.11"
 
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/mypy_upgrade tests}"
+typing = "mypy --strict --install-types --non-interactive {args:src/mypy_upgrade tests}"
 style = [
   "ruff {args:.}",
   "black --check --diff {args:.}",
@@ -149,6 +150,8 @@ python_files = [
 testpaths = "tests"
 markers = [
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+  "cli: marks tests for the command-line interface (deselect with '-m \"not cli\"')",
+  "mypy_upgrade: marks functional tests for mypy_upgrade (deselect with '-m \"not mypy_upgrade\"')"
 ]
 
 [tool.ruff]
