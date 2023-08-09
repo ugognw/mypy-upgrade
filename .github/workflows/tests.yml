@@ -17,6 +17,7 @@ jobs:
     env:
       HATCH_ENV: test.${{ startswith(matrix.python-version, 'pypy') && matrix.python-version || format('py{0}', matrix.python-version) }}
       MYPY_REPORT: "${{ github.workspace }}/mypy_report.txt"
+      MYPY_UPGRADE_TARGET_INSTALL_DIR: "${{ github.workspace }}/.src"
     strategy:
       fail-fast: false
       matrix:
