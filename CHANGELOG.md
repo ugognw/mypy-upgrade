@@ -15,6 +15,12 @@ This project implements a version of
 
 * Link targets CHANGELOG headers
 
+* Refactored CI-only functional tests
+
+    * CI must define `MYPY_UPGRADE_TARGET` and `MYPY_UPGRADE_TARGET_INSTALL_DIR`; no need to define `MYPY_REPORT`
+
+    * tests run `mypy` using pytest fixtures
+
 ## [0.0.1-beta.1] - 2023-08-08
 
 ### Added
