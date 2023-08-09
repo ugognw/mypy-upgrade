@@ -1,0 +1,130 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+    types: [opened, ready_for_review, reopened, review_requested, synchronize]
+
+env:
+  HATCH_VERSION: "1.5.1"
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  test:
+    name: Test mypy-upgrade on ${{ matrix.package }} (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest-16-cores
+    timeout-minutes: 30
+    env:
+      HATCH_ENV: all.${{ startswith(matrix.python-version, "pypy") && matrix.python-version || format("py{0}", matrix.python-version) }}
+      MYPY_REPORT: "${{ github.workspace }}/mypy_report.txt"
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "pypy3.7"
+          - "pypy3.8"
+          - "pypy3.9"
+          - "pypy3.10"
+        include:
+          - package: ase
+            git-url: https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2
+        exclude:
+          - python-version: "3.12"
+            package: ase
+          - python-version: "3.13"
+            package: ase
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install Hatch
+        run: pipx install hatch==$HATCH_VERSION
+
+      - name: Install target package
+        run: hatch run pip install git+${{ matrix.git-url }}
+
+      - name: Install Mypy
+        run: hatch run pip install mypy
+
+      - name: Create mypy report
+        run: hatch run mypy --strict --show-absolute-path --show-column-numbers -p ${{ matrix.package }} > $MYPY_REPORT
+
+      - name: Test with Hatch (+ Coverage)
+        run: hatch run test-cov
+        env:
+          MYPY_UPGRADE_TARGET: ${{ matrix.package }}
+
+      - name: Upload Coverage file
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-files
+          path: htmlcov/
+
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@v2
+        continue-on-error: true
+        with:
+          flag-name: ${{ matrix.python-version }}
+          parallel: true
+
+  typing:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.python-version }}
+          cache: pip
+
+      - name: Install Hatch
+        run: pipx install hatch==$HATCH_VERSION
+
+      - name: Run Mypy with Hatch
+        run: hatch run lint:typing --python-version ${{ matrix.python-version }}
+
+  style:
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/checkout@v3
+
+        - name: Set up Python ${{ env.PYTHON_VERSION }}
+          uses: actions/setup-python@v4
+          with:
+            python-version: ${{ env.PYTHON_VERSION }}
+            cache: pip
+
+        - name: Install Hatch
+          run: pipx install hatch==$HATCH_VERSION
+
+        - name: Run Mypy with Hatch
+          run: hatch run lint:style
+
+  finish:
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true
+        carryforward: "3.7,3.8,3.9,3.10,3.11,3.12,3.13,pypy3.7,pypy3.8,pypy3.9,pypy3.10"
