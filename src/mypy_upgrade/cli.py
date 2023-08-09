@@ -323,7 +323,7 @@ def main() -> None:
             args.fix_me.rstrip(),
         )
     except FileNotFoundError as error:
-        if error.filename == args.report:
+        if error.filename == str(args.report):
             print(  # noqa: T201
                 f"Aborting: Unable to find report {args.report}"
             )
