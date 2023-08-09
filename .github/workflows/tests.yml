@@ -11,8 +11,7 @@ env:
 
 jobs:
   test:
-    if: ${{ (${{ matrix.python-version }} != '3.12' && ${{ matrix.python-version }} != '3.13') || ${{ matrix.package }} != 'ase' }}
-    name: Test mypy-upgrade on ${{ matrix.package }} (Python ${{ matrix.python-version }})
+    name: Test mypy-upgrade on ${{ matrix.package.name }} (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest-16-cores
     timeout-minutes: 30
     env:
@@ -32,9 +31,14 @@ jobs:
           - "pypy3.8"
           - "pypy3.9"
           - "pypy3.10"
-        include:
-          - package: ase
-            git-url: https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2
+        package: [
+          {name: "ase", git-url: "https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2"}
+        ]
+        exclude:
+          - python-version: "3.12"
+            package: {name: "ase", git-url: "https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2"}
+          - python-version: "3.13"
+            package: {name: "ase", git-url: "https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2"}
 
     steps:
       - uses: actions/checkout@v3
@@ -49,18 +53,18 @@ jobs:
         run: pipx install hatch==$HATCH_VERSION
 
       - name: Install target package
-        run: hatch run pip install git+${{ matrix.git-url }}
+        run: hatch run pip install git+${{ matrix.package.git-url }}
 
       - name: Install Mypy
         run: hatch run pip install mypy
 
       - name: Create mypy report
-        run: hatch run mypy --strict --show-absolute-path --show-column-numbers -p ${{ matrix.package }} > $MYPY_REPORT
+        run: hatch run mypy --strict --show-absolute-path --show-column-numbers -p ${{ matrix.name }} > $MYPY_REPORT
 
       - name: Test with Hatch (+ Coverage)
         run: hatch run test-cov
         env:
-          MYPY_UPGRADE_TARGET: ${{ matrix.package }}
+          MYPY_UPGRADE_TARGET: ${{ matrix.package.name }}
 
       - name: Upload Coverage file
         uses: actions/upload-artifact@v3
