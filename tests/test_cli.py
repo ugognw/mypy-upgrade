@@ -193,7 +193,7 @@ def fixture_mypy_report_pre(
     mypy_args: list[str],
 ) -> Generator[pathlib.Path, None, None]:
     with monkeypatch.context() as mp:
-        filename = tmp_path_factory.mktemp() / "mypy_report_pre.txt"
+        filename = tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
         with filename.open("w") as file:
             from mypy.main import main
 
@@ -234,7 +234,7 @@ class TestMypyUpgrade:
         mypy_args: list[str],
         mypy_upgrade_results: MypyUpgradeResult,  # noqa: ARG004
     ) -> Generator[pathlib.Path, None, None]:
-        filename = tmp_path_factory.mktemp() / "mypy_report_post.txt"
+        filename = tmp_path_factory.mktemp("reports") / "mypy_report_post.txt"
         with filename.open("w") as file:
             from mypy.main import main
 
