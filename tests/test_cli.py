@@ -180,7 +180,7 @@ def fixture_mypy_args() -> list[str]:
 def fixture_python_path(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
-    python_path = tmp_path_factory.mktemp()
+    python_path = tmp_path_factory.mktemp(".src")
     shutil.copytree(os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"], python_path)
     return python_path
 
@@ -233,11 +233,11 @@ class TestMypyUpgrade:
         tmp_path_factory: pytest.TempPathFactory,
         mypy_args: list[str],
         mypy_upgrade_results: MypyUpgradeResult,  # noqa: ARG004
-    ) -> Generator[pathlib.Path, None, None]:
+    ) -> pathlib.Path:
         filename = tmp_path_factory.mktemp("reports") / "mypy_report_post.txt"
-        with filename.open("w") as file:
-            from mypy.main import main
+        from mypy.main import main
 
+        with filename.open(mode="w", encoding="utf-8") as file:
             main(args=mypy_args, stdout=file)
         return filename
 
