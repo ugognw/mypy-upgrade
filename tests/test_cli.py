@@ -5,6 +5,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import sys
 from typing import Generator
 
 import pytest
@@ -193,17 +194,16 @@ def fixture_python_path(
 def fixture_mypy_report_pre(
     python_path: pathlib.Path,
     tmp_path_factory: pytest.TempPathFactory,
-    monkeypatch: pytest.MonkeyPatch,
     mypy_args: list[str],
 ) -> Generator[pathlib.Path, None, None]:
-    with monkeypatch.context() as mp:
-        filename = tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
-        with filename.open("w") as file:
-            from mypy.main import main
+    filename = tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
+    with filename.open("w") as file:
+        from mypy.main import main
 
-            mp.syspath_prepend(python_path)
-            main(args=mypy_args, stdout=file)
-        yield filename
+        sys.path.insert(0, str(python_path))
+        main(args=mypy_args, stdout=file)
+    yield filename
+    sys.path.remove(str(python_path))
 
 
 @pytest.mark.skipif(
