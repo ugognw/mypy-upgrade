@@ -8,6 +8,8 @@
 [![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg)](https://github.com/python/mypy)
 [![License - MIT](https://img.shields.io/badge/license-MIT-9400d3.svg)](https://spdx.org/licenses/)
 [![Supported Implementations](https://img.shields.io/pypi/implementation/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
+[![Tests](https://github.com/<ugognw/mypy-upgrade/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ugognw/mypy-upgrade/actions)
+[![Coverage](https://coveralls.io/repos/github/ugognw/{mypy-upgrade/badge.svg?branch=main)](https://coveralls.io/github/ugognw/{mypy-upgrade?branch=main)
 
 -----
 
