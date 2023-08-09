@@ -11,11 +11,11 @@ env:
 
 jobs:
   test:
-    name: Test mypy-upgrade on ${{ matrix.package.name }} (Python ${{ matrix.python-version }})
+    name: Testing and Coverage - ${{ matrix.package.name }} (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      HATCH_ENV: all.${{ startswith(matrix.python-version, 'pypy') && matrix.python-version || format('py{0}', matrix.python-version) }}
+      HATCH_ENV: test.${{ startswith(matrix.python-version, 'pypy') && matrix.python-version || format('py{0}', matrix.python-version) }}
       MYPY_REPORT: "${{ github.workspace }}/mypy_report.txt"
     strategy:
       fail-fast: false
@@ -78,7 +78,10 @@ jobs:
           parallel: true
 
   typing:
+    name: Type-checking (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    env:
+      HATCH_ENV: lint
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
@@ -86,7 +89,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }} and Hatch
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.python-version }}
@@ -99,10 +102,13 @@ jobs:
         run: hatch run lint:typing --python-version ${{ matrix.python-version }}
 
   style:
-      runs-on: ubuntu-latest
+    name: Formatting with Black and Ruff
+    runs-on: ubuntu-latest
+    env:
+      HATCH_ENV: lint
 
-      steps:
-        - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
       - name: Set up Python ${{ env.PYTHON_VERSION }} and Hatch
         uses: actions/setup-python@v4
@@ -111,10 +117,11 @@ jobs:
           cache: pip
       - run: pipx install $HATCH_SPECIFIER
 
-        - name: Run Mypy with Hatch
-          run: hatch run lint:style
+      - name: Run Mypy with Hatch
+        run: hatch run style
 
   finish:
+    name: Combine Test Coverage Data
     needs: test
     if: ${{ always() }}
     runs-on: ubuntu-latest
