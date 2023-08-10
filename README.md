@@ -8,7 +8,7 @@
 [![linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![code style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg)](https://github.com/python/mypy)
-[![Tests](https://github.com/<ugognw/mypy-upgrade/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ugognw/mypy-upgrade/actions)
+[![Tests](https://github.com/ugognw/mypy-upgrade/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ugognw/mypy-upgrade/actions)
 [![Coverage](https://coveralls.io/repos/github/ugognw/mypy-upgrade/badge.svg?branch=main)](https://coveralls.io/github/ugognw/mypy-upgrade?branch=main)
 [![License - MIT](https://img.shields.io/badge/license-MIT-9400d3.svg)](https://spdx.org/licenses/)
 
