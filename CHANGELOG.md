@@ -13,11 +13,14 @@ This project implements a version of
 
 ### Added
 
-* `filter.get_module_paths` now handles built-in and frozen modules/packages explicitly
+* `mypy_upgrade.filter.get_module_paths` now handles built-in and frozen modules/packages explicitly
 
 ### Changed
 
 * Link targets CHANGELOG headers
+
+* Rename `mypy_upgrade.parsing.description_to_type_ignore` to
+`mypy_upgrade.parsing.message_to_error_code`
 
 * Refactored CI-only functional tests
 
