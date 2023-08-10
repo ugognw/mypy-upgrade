@@ -181,12 +181,9 @@ def fixture_mypy_args() -> list[str]:
 def fixture_python_path(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
-    python_path = tmp_path_factory.mktemp(".src", numbered=True)
-    shutil.copytree(
-        os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"],
-        python_path,
-        dirs_exist_ok=True,
-    )
+    tmp_dir = tmp_path_factory.mktemp(".src", numbered=True)
+    python_path = tmp_dir.joinpath("__pypackages__")
+    shutil.copytree(os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"], python_path)
     return python_path
 
 
