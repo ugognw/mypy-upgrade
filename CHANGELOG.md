@@ -11,6 +11,10 @@ This project implements a version of
 
 ## [Unreleased]
 
+### Added
+
+* `filter.get_module_paths` now handles built-in and frozen modules/packages explicitly
+
 ### Changed
 
 * Link targets CHANGELOG headers
@@ -20,6 +24,8 @@ This project implements a version of
     * CI must define `MYPY_UPGRADE_TARGET` and `MYPY_UPGRADE_TARGET_INSTALL_DIR`; no need to define `MYPY_REPORT`
 
     * tests run `mypy` using pytest fixtures
+
+* Removed redundant unit tests
 
 ## [0.0.1-beta.1] - 2023-08-08
 
