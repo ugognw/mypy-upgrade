@@ -17,8 +17,6 @@ ERROR_CODES = [
     "attr-defined",
     "no-untyped-def",
     "override",
-    "type-arg",
-    "union-attr",
 ]
 
 
