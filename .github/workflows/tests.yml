@@ -106,7 +106,7 @@ jobs:
           pipx install $HATCH_SPECIFIER
 
       - name: Run Mypy with Hatch
-        run: hatch run typing --python-version ${{ matrix.python-version }} src/myp_upgrade tests
+        run: hatch run typing --python-version ${{ matrix.python-version }} src/mypy_upgrade tests
 
   style:
     name: Formatting with Black and Ruff
