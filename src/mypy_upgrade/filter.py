@@ -1,3 +1,4 @@
+"""This module defines functions for filtering mypy type checking errors."""
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+"""This module defines warnings strings and functions to create them."""
 from __future__ import annotations
 
 from mypy_upgrade.parsing import MypyError

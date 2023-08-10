@@ -1,3 +1,4 @@
+"""This module defines general utilities and the UnsilenceableRegion class."""
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
