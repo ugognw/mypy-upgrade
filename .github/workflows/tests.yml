@@ -60,7 +60,7 @@ jobs:
         run: |
           mkdir -p $MYPY_UPGRADE_TARGET_INSTALL_DIR
           hatch run pip -V
-          hatch run pip download --src $MYPY_UPGRADE_TARGET_INSTALL_DIR  git+${{ matrix.package.git-url }}
+          hatch run pip install --target $MYPY_UPGRADE_TARGET_INSTALL_DIR  git+${{ matrix.package.git-url }}
 
       - name: Test with Hatch (+ Coverage)
         run: |
