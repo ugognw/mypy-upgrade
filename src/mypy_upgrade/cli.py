@@ -327,6 +327,7 @@ def main() -> None:
             print(  # noqa: T201
                 f"Aborting: Unable to find report {args.report}"
             )
+            return None
         else:
             raise
 
