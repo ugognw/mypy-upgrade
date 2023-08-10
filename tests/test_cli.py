@@ -261,17 +261,13 @@ class TestMypyUpgrade:
         assert len(errors_pre) >= len(errors_post)
 
 
-@pytest.mark.skipif(
-    "CI" not in os.environ,
-    reason="CI-only tests",
-)
-@pytest.mark.skipif(
-    "MYPY_UPGRADE_TARGET" not in os.environ,
-    reason="no target specified for mypy-upgrade",
-)
-@pytest.mark.slow
 @pytest.mark.cli
 class TestCLI:
+    @pytest.mark.skipif(
+        "CI" not in os.environ or "MYPY_UPGRADE_TARGET" not in os.environ,
+        reason="CI-only tests or no target specified for mypy-upgrade",
+    )
+    @pytest.mark.slow
     @staticmethod
     def test_should_exit_with_zero(mypy_report_pre: pathlib.Path) -> None:
         process = subprocess.run(
@@ -284,7 +280,7 @@ class TestCLI:
         None
     ):
         output = subprocess.check_output(
-            ["mypy-upgrade", "--r", ".non_existent_report.fake"]  # noqa: S607
+            ["mypy-upgrade", "--r", ".non_existent_report.fake"],  # noqa: S607
         )
         assert b"Aborting: Unable to find report" in output
 
