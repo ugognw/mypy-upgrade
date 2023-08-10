@@ -28,10 +28,6 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-          - "pypy3.7"
-          - "pypy3.8"
-          - "pypy3.9"
-          - "pypy3.10"
         package: [
           {name: "ase", git-url: "https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2"}
         ]
