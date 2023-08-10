@@ -106,6 +106,7 @@ detached = true
 dependencies = [
   "black>=23.1.0",
   "mypy>=1.0.0",
+  "pytest>=7.40",
   "ruff>=0.0.243",
 ]
 python = "3.11"
