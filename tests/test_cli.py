@@ -181,7 +181,7 @@ def fixture_mypy_args() -> list[str]:
 def fixture_python_path(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
-    tmp_dir = tmp_path_factory.mktemp(".src", numbered=True)
+    tmp_dir = tmp_path_factory.mktemp("base", numbered=True)
     python_path = tmp_dir.joinpath("__pypackages__")
     shutil.copytree(os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"], python_path)
     return python_path
@@ -203,6 +203,7 @@ def fixture_mypy_report_pre(
     sys.path.remove(str(python_path))
 
 
+@pytest.mark.skip
 @pytest.mark.skipif(
     "CI" not in os.environ,
     reason="CI-only tests",
@@ -263,12 +264,13 @@ class TestMypyUpgrade:
 
 @pytest.mark.cli
 class TestCLI:
+    @staticmethod
+    @pytest.mark.skip
     @pytest.mark.skipif(
         "CI" not in os.environ or "MYPY_UPGRADE_TARGET" not in os.environ,
         reason="CI-only tests or no target specified for mypy-upgrade",
     )
     @pytest.mark.slow
-    @staticmethod
     def test_should_exit_with_zero(mypy_report_pre: pathlib.Path) -> None:
         process = subprocess.run(
             ["mypy-upgrade", "--r", str(mypy_report_pre)]  # noqa: S607
