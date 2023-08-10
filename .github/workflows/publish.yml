@@ -9,12 +9,20 @@ on:
 
 env:
   HATCH_SPECIFIER: "git+https://github.com/pypa/hatch.git@10d659f7109ad93cd9ba9e26384c8328d44e80ed"
+  PYTHON_VERSION: "3.11"
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          allow-prereleases: true
+          cache: pip
 
       - name: Install Hatch
         run: pipx install $HATCH_SPECIFIER
