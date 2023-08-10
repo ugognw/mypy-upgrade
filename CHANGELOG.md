@@ -9,6 +9,27 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
+## [0.0.1-beta.2] - 2023-08-10
+
+### Added
+
+* `mypy_upgrade.filter.get_module_paths` now handles built-in and frozen modules/packages explicitly
+
+### Changed
+
+* Link targets CHANGELOG headers
+
+* Rename `mypy_upgrade.parsing.description_to_type_ignore` to
+`mypy_upgrade.parsing.message_to_error_code`
+
+* Refactored CI-only functional tests
+
+    * CI must define `MYPY_UPGRADE_TARGET` and `MYPY_UPGRADE_TARGET_INSTALL_DIR`; no need to define `MYPY_REPORT`
+
+    * tests run `mypy` using pytest fixtures
+
+* Removed redundant unit tests
+
 ## [0.0.1-beta.1] - 2023-08-08
 
 ### Added
@@ -118,7 +139,7 @@ as values
 
 * `MypyError.description` renamed to `MypyError.message`
 
-* `mypy_upgrade.utils.def correct_line_numbers` returns `tuple[list[MypyError], list[MypyError]]` whose
+* `mypy_upgrade.utils.correct_line_numbers` returns `tuple[list[MypyError], list[MypyError]]` whose
 first entry represents errors that can be safely silenced and whose second entry
 represents those errors that cannot be safely silenced
 
@@ -247,9 +268,10 @@ represents those errors that cannot be safely silenced
 
 * First release
 
-[0.0.1-beta.1]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.5...0.0.1-beta.1
-[0.0.1-alpha.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...0.0.1-alpha.5
-[0.0.1-alpha.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...0.0.1-alpha.4
+[0.0.1-beta.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.1...release-0.0.1-beta.2
+[0.0.1-beta.1]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.5...release-0.0.1-beta.1
+[0.0.1-alpha.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...release-0.0.1-alpha.5
+[0.0.1-alpha.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.3...release-0.0.1-alpha.4
 [0.0.1-alpha.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.2...release-0.0.1-alpha.3
 [0.0.1-alpha.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.1...release-0.0.1-alpha.2
 [0.0.1-alpha.1]: https://github.com/ugognw/mypy-upgrade/tree/release-0.0.1-alpha.1

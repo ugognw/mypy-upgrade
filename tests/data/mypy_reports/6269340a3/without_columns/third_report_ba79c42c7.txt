@@ -1,7 +1,0 @@
-/Users/ugo/Projects/nwt/ase/ase/io/pov.py:400: error: Call to untyped function "pa" in typed context  [no-untyped-call]
-/Users/ugo/Projects/nwt/ase/ase/io/pov.py:400: error: Call to untyped function "pc" in typed context  [no-untyped-call]
-/Users/ugo/Projects/nwt/ase/ase/io/pov.py:606: error: Call to untyped function "pc" in typed context  [no-untyped-call]
-/Users/ugo/Projects/nwt/ase/ase/io/pov.py:875: error: Call to untyped function "pc" in typed context  [no-untyped-call]
-/Users/ugo/Projects/nwt/ase/ase/md/contour_exploration.py:350: note: Left operand is of type "Any | None"
-/Users/ugo/Projects/nwt/ase/ase/md/contour_exploration.py:350: note: Error code "operator" not covered by "type: ignore" comment
-Found 4 errors in 1 file (checked 1126 source files)

@@ -1,5 +1,4 @@
-"""This defines a tool to silence mypy errors using in-line comments.
-"""
+"""This module defines the main logic of `mypy-upgrade`."""
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
@@ -32,6 +31,17 @@ from mypy_upgrade.warnings import (
 
 
 class MypyUpgradeResult(NamedTuple):
+    """Results from running `mypy-upgrade`
+
+    Attributes:
+        silenced: a tuple of `MypyError` instances, each of which
+            representing an error that was silenced
+        non_silenced: a tuple of `MypyError` instances, each of which
+            representing an error that was not silenced
+        messages: a tuple of strings representing messages produced during
+            execution of `mypy-upgrade`
+    """
+
     silenced: tuple[MypyError, ...]
     not_silenced: tuple[MypyError, ...]
     messages: tuple[str, ...]
@@ -161,7 +171,10 @@ def mypy_upgrade(
     description_style: Literal["full", "none"],
     fix_me: str,
 ) -> MypyUpgradeResult:
-    """Main logic for application.
+    """Silence errors listed in a given mypy error report.
+
+    If `packages`, `modules`, and `files` are all empty, all errors listed in
+    the report will be silenced.
 
     Args:
         report: an optional `pathlib.Path` pointing to the the mypy error
@@ -323,10 +336,11 @@ def main() -> None:
             args.fix_me.rstrip(),
         )
     except FileNotFoundError as error:
-        if error.filename == args.report:
+        if error.filename == str(args.report):
             print(  # noqa: T201
                 f"Aborting: Unable to find report {args.report}"
             )
+            return None
         else:
             raise
 

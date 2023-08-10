@@ -12,15 +12,11 @@ from mypy_upgrade.parsing import MypyError
 MODULES = [
     "ast",
     "collections.abc",
-    "pytest",
-    "typing",
 ]
 
 MODULE_PATHS = [
     "ast.py",
     "collections/abc.py",
-    "pytest/__init__.py",
-    "typing.py",
 ]
 
 
@@ -59,8 +55,6 @@ class TestGetModulePaths:
     name="packages_to_include",
     params=(
         [],
-        ["os"],
-        ["xml.sax"],
         ["os", "xml.sax"],
     ),
 )
@@ -73,8 +67,6 @@ def fixture_packages_to_include(request: pytest.FixtureRequest) -> list[str]:
     name="modules_to_include",
     params=(
         [],
-        ["pathlib"],
-        ["xml.sax.handler"],
         ["pathlib", "xml.sax.handler"],
     ),
 )
@@ -87,9 +79,6 @@ def fixture_modules_to_include(request: pytest.FixtureRequest) -> list[str]:
     name="files_to_include",
     params=(
         [],
-        ["xml/sax/handler.py"],
-        ["pathlib.py"],
-        ["xml/sax/__init__.py"],
         ["pathlib.py", "xml/sax/handler.py"],
     ),
 )

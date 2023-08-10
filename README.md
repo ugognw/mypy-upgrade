@@ -2,10 +2,14 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
+[![Wheel Support](https://img.shields.io/pypi/wheel/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
+[![Supported Implementations](https://img.shields.io/pypi/implementation/mypy-upgrade.svg)](https://pypi.org/project/mypy-upgrade)
 [![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
 [![linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![code style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg)](https://github.com/python/mypy)
+[![Tests](https://github.com/<ugognw/mypy-upgrade/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ugognw/mypy-upgrade/actions)
+[![Coverage](https://coveralls.io/repos/github/ugognw/{mypy-upgrade/badge.svg?branch=main)](https://coveralls.io/github/ugognw/{mypy-upgrade?branch=main)
 [![License - MIT](https://img.shields.io/badge/license-MIT-9400d3.svg)](https://spdx.org/licenses/)
 
 -----
@@ -24,7 +28,9 @@
 ## What is `mypy-upgrade`?
 
 `mypy-upgrade` is a command-line utility that provides automatic error
-suppression for [`mypy`](http://mypy.readthedocs.io/) (analogous to [`pyre-upgrade`](https://pyre-check.org/docs/types-in-python/#upgrade) and [`pylint-silent`](https://github.com/udifuchs/pylint-silent/)).
+suppression for [`mypy`](http://mypy.readthedocs.io/) (analogous to
+[`pyre-upgrade`](https://pyre-check.org/docs/types-in-python/#upgrade) and
+[`pylint-silent`](https://github.com/udifuchs/pylint-silent/)).
 
 Given a type checking report from `mypy`, `mypy-upgrade` will silence
 the listed errors using error suppression comments. For example, with
@@ -152,7 +158,8 @@ error suppression.
 
 If this doesn't fit your use-case, maybe one of these other projects will!
 
-* [`geo7/mypy_clean_slate`](https://github.com/geo7/mypy_clean_slate/tree/main): `mypy` reports are generated internally in `--strict` mode; includes
+* [`geo7/mypy_clean_slate`](https://github.com/geo7/mypy_clean_slate/tree/main): `mypy`
+reports are generated internally in `--strict` mode; includes
 support for suppressing multiple errors on a single line; an inspiration for
 much of `mypy-upgrade`'s implementation
 
@@ -162,8 +169,9 @@ library; includes support for removing unused `type: ignore` comments but no
 support for suppressing multiple errors on a single line; another inspiration
 for much of `mypy-upgrade`'s implementation
 
-* [`patrick91/mypy-silent`](https://github.com/patrick91/mypy-silent/tree/feature/multiple-errors): a fork of `whtsky/mypy-silent` with support for
+* [`patrick91/mypy-silent`](https://github.com/patrick91/mypy-silent/tree/feature/multiple-errors): a
+fork of `whtsky/mypy-silent` with support for
 suppressing multiple errors on a single line (on the `feature/multiple-errors` branch)
 
-* [`uptickmetachu/mypy-silent`](https://github.com/uptickmetachu/mypy-silent/tree/main): a fork of `whtsky/mypy-silent` with support for suppressing
-multiple errors on a single line
+* [`uptickmetachu/mypy-silent`](https://github.com/uptickmetachu/mypy-silent/tree/main): a fork
+of `whtsky/mypy-silent` with support for suppressing multiple errors on a single line

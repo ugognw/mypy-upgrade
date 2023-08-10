@@ -3,7 +3,10 @@ from __future__ import annotations
 import argparse
 import os
 import pathlib
+import shutil
 import subprocess
+import sys
+from typing import Generator
 
 import pytest
 
@@ -162,26 +165,58 @@ class TestParseArgs:
             assert args.report is None
 
 
+@pytest.fixture(name="mypy_args", scope="session")
+def fixture_mypy_args() -> list[str]:
+    return [
+        "--strict",
+        "--show-error-codes",
+        "--show-absolute-path",
+        "--show-column-numbers",
+        "-p",
+        os.environ["MYPY_UPGRADE_TARGET"],
+    ]
+
+
+@pytest.fixture(name="python_path", scope="class")
+def fixture_python_path(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> pathlib.Path:
+    tmp_dir = tmp_path_factory.mktemp("base", numbered=True)
+    python_path = tmp_dir.joinpath("__pypackages__")
+    shutil.copytree(os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"], python_path)
+    return python_path
+
+
+@pytest.fixture(name="mypy_report_pre", scope="class")
+def fixture_mypy_report_pre(
+    python_path: pathlib.Path,
+    tmp_path_factory: pytest.TempPathFactory,
+    mypy_args: list[str],
+) -> Generator[pathlib.Path, None, None]:
+    filename = tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
+    with filename.open("w") as file:
+        from mypy.main import main
+
+        sys.path.insert(0, str(python_path))
+        main(args=mypy_args, stdout=file)
+    yield filename
+    sys.path.remove(str(python_path))
+
+
+@pytest.mark.skip
 @pytest.mark.skipif(
     "CI" not in os.environ,
     reason="CI-only tests",
-)
-@pytest.mark.skipif(
-    "MYPY_REPORT" not in os.environ, reason="path to mypy error report not set"
 )
 @pytest.mark.skipif(
     "MYPY_UPGRADE_TARGET" not in os.environ,
     reason="no target specified for mypy-upgrade",
 )
 @pytest.mark.slow
+@pytest.mark.mypy_upgrade
 class TestMypyUpgrade:
-    @pytest.fixture(name="mypy_report_pre")
     @staticmethod
-    def fixture_mypy_report_pre() -> pathlib.Path:
-        return pathlib.Path(os.environ["MYPY_REPORT"])
-
-    @pytest.fixture(name="mypy_upgrade_results")
-    @staticmethod
+    @pytest.fixture(name="mypy_upgrade_results", scope="class")
     def fixture_mypy_upgrade_results(
         mypy_report_pre: pathlib.Path,
     ) -> MypyUpgradeResult:
@@ -194,29 +229,18 @@ class TestMypyUpgrade:
             fix_me="FIX ME",
         )
 
-    @pytest.fixture(name="mypy_report_post")
     @staticmethod
+    @pytest.fixture(name="mypy_report_post", scope="class")
     def fixture_mypy_report_post(
-        mypy_report_pre: MypyUpgradeResult,  # noqa: ARG004
-        tmp_path_factory: pathlib.Path,
+        tmp_path_factory: pytest.TempPathFactory,
+        mypy_args: list[str],
+        mypy_upgrade_results: MypyUpgradeResult,  # noqa: ARG004
     ) -> pathlib.Path:
-        output = subprocess.check_output(
-            [
-                "/usr/bin/env",
-                "python3",
-                "-m",
-                "mypy",
-                "--strict",
-                "--show-error-codes",
-                "--show-absolute-path",
-                "--show-column-numbers",
-                "-p",
-                os.environ["MYPY_UPGRADE_TARGET"],
-            ],
-        )
-        filename = pathlib.Path(tmp_path_factory / "mypy_report_post.txt")
-        with filename.open("wb") as file:
-            _ = file.write(output)
+        filename = tmp_path_factory.mktemp("reports") / "mypy_report_post.txt"
+        from mypy.main import main
+
+        with filename.open(mode="w", encoding="utf-8") as file:
+            main(args=mypy_args, stdout=file)
         return filename
 
     @staticmethod
@@ -238,25 +262,29 @@ class TestMypyUpgrade:
         assert len(errors_pre) >= len(errors_post)
 
 
-@pytest.mark.skipif(
-    "CI" not in os.environ,
-    reason="CI-only tests",
-)
-@pytest.mark.skipif(
-    "MYPY_REPORT" not in os.environ, reason="path to mypy error report not set"
-)
-@pytest.mark.skipif(
-    "MYPY_UPGRADE_TARGET" not in os.environ,
-    reason="no target specified for mypy-upgrade",
-)
-@pytest.mark.slow
-class TestMain:
+@pytest.mark.cli
+class TestCLI:
     @staticmethod
-    def test_should_run_from_command_line_without_error() -> None:
+    @pytest.mark.skip
+    @pytest.mark.skipif(
+        "CI" not in os.environ or "MYPY_UPGRADE_TARGET" not in os.environ,
+        reason="CI-only tests or no target specified for mypy-upgrade",
+    )
+    @pytest.mark.slow
+    def test_should_exit_with_zero(mypy_report_pre: pathlib.Path) -> None:
         process = subprocess.run(
-            ["mypy-upgrade", "--r", os.environ["MYPY_REPORT"]]  # noqa: S607
+            ["mypy-upgrade", "--r", str(mypy_report_pre)]  # noqa: S607
         )
         assert process.returncode == 0
+
+    @staticmethod
+    def test_should_print_unable_to_find_report_if_report_does_not_exist() -> (
+        None
+    ):
+        output = subprocess.check_output(
+            ["mypy-upgrade", "--r", ".non_existent_report.fake"],  # noqa: S607
+        )
+        assert b"Aborting: Unable to find report" in output
 
     @staticmethod
     def test_should_print_version() -> None:

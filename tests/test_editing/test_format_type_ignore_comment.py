@@ -10,30 +10,14 @@ from mypy_upgrade.editing import format_type_ignore_comment
 SINGLE_CODE_DANGLING_COMMA_COMMENT_STUBS = [
     # Type ignore comments with 1 error code
     "type: ignore[, <error-code>]",
-    "type: ignore[<error-code>, ]",
-    "type: ignore[, , <error-code>]",
     "type: ignore[<error-code>, , ]",
     "type: ignore[, <error-code>, ]",
-    "type: ignore[,<error-code>]",
-    "type: ignore[<error-code>,]",
-    "type: ignore[,,<error-code>]",
-    "type: ignore[<error-code>,,]",
-    "type: ignore[,<error-code>,]",
 ]
 
 DUAL_CODE_DANGLING_COMMA_COMMENT_STUBS = [
     # Type ignore comments with 2 error codes
-    "type: ignore[, <error-code-1>, <error-code-2>]",
-    "type: ignore[<error-code-1>, <error-code-2>, ]",
     "type: ignore[, , <error-code-1>, <error-code-2>]",
-    "type: ignore[<error-code-1>, <error-code-2>, , ]",
     "type: ignore[, <error-code-1>, <error-code-2>, ]",
-    "type: ignore[, <error-code-1>, , <error-code-2>, ]",
-    "type: ignore[,<error-code-1>,<error-code-2>]",
-    "type: ignore[<error-code-1>,<error-code-2>,]",
-    "type: ignore[,,<error-code-1>,<error-code-2>]",
-    "type: ignore[<error-code-1>,<error-code-2>,,]",
-    "type: ignore[,<error-code-1>,<error-code-2>,]",
     "type: ignore[,<error-code-1>,,<error-code-2>,]",
 ]
 
@@ -41,15 +25,6 @@ NO_ERROR_CODE_TYPE_IGNORES = [
     "type: ignore",
     "type: ignore[]",
     "type: ignore[,]",
-    "type: ignore[, ]",
-    "type: ignore[ ,]",
-    "type: ignore[ , ]",
-    "type: ignore[,,]",
-    "type: ignore[ ,,]",
-    "type: ignore[,, ]",
-    "type: ignore[, ,]",
-    "type: ignore[ , ,]",
-    "type: ignore[, , ]",
     "type: ignore[ , , ]",
 ]
 
@@ -61,12 +36,8 @@ ERROR_CODES = [
 
 COMMENT_SUFFIXES = [
     "# noqa",
-    " # noqa",
     "I'm supposed to be here",
-    " I'm supposed to be here",
     "# I'm supposed to be here",
-    " # I'm supposed to be here",
-    " #I'm supposed to be here",
 ]
 
 TYPE_IGNORE_FORMAT_RE = re.compile(r"type: ignore\[[a-z\-]+(, [a-z\-]+)*\]")

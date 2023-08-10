@@ -1,0 +1,140 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+    types: [opened, ready_for_review, reopened, review_requested, synchronize]
+
+env:
+  HATCH_SPECIFIER: "git+https://github.com/pypa/hatch.git@10d659f7109ad93cd9ba9e26384c8328d44e80ed"
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  test:
+    name: Testing and Coverage - ${{ matrix.package.name }} (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HATCH_ENV: test.${{ startswith(matrix.python-version, 'pypy') && matrix.python-version || format('py{0}', matrix.python-version) }}
+      MYPY_REPORT: "${{ github.workspace }}/mypy_report.txt"
+      MYPY_UPGRADE_TARGET_INSTALL_DIR: "${{ github.workspace }}/.src"
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+        package: [
+          {name: "ase", git-url: "https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2"}
+        ]
+        exclude:
+          - python-version: "3.12"
+            package: {name: "ase", git-url: "https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2"}
+          - python-version: "3.13"
+            package: {name: "ase", git-url: "https://gitlab.com/ase/ase.git@6269340a3c65559e7e23ca7c6e50ba717fb0f9f2"}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+          cache: pip
+
+      - name: Install Hatch
+        run: |
+          pipx --version
+          pipx install $HATCH_SPECIFIER
+
+      - name: Download ${{ matrix.package.name }}
+        run: |
+          mkdir -p $MYPY_UPGRADE_TARGET_INSTALL_DIR
+          hatch run pip -V
+          hatch run pip install --target $MYPY_UPGRADE_TARGET_INSTALL_DIR  git+${{ matrix.package.git-url }}
+
+      - name: Test with Hatch (+ Coverage)
+        run: |
+          hatch run pytest -V
+          hatch run test-cov
+        env:
+          MYPY_UPGRADE_TARGET: ${{ matrix.package.name }}
+
+      - name: Upload Coverage file
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-files
+          path: htmlcov/
+
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@v2
+        continue-on-error: true
+        with:
+          flag-name: ${{ matrix.python-version }}
+          parallel: true
+
+  typing:
+    name: Type-checking (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    env:
+      HATCH_ENV: lint
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install Hatch
+        run: |
+          pipx --version
+          pipx install $HATCH_SPECIFIER
+
+      - name: Run Mypy with Hatch
+        run: hatch run typing --python-version ${{ matrix.python-version }} src/mypy_upgrade tests
+
+  style:
+    name: Formatting with Black and Ruff
+    runs-on: ubuntu-latest
+    env:
+      HATCH_ENV: lint
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install Hatch
+        run: |
+          pipx --version
+          pipx install $HATCH_SPECIFIER
+
+      - name: Run Mypy with Hatch
+        run: hatch run style
+
+  finish:
+    name: Combine Test Coverage Data
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true
+        carryforward: "3.7,3.8,3.9,3.10,3.11,3.12,3.13,pypy3.7,pypy3.8,pypy3.9,pypy3.10"

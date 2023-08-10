@@ -1,0 +1,35 @@
+name: publish
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+env:
+  HATCH_SPECIFIER: "git+https://github.com/pypa/hatch.git@10d659f7109ad93cd9ba9e26384c8328d44e80ed"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Hatch
+        run: pipx install $HATCH_SPECIFIER
+
+      - name: Build package
+        run: hatch build -c
+
+      - name: Upload distribution files
+        uses: actions/upload-artifact@v3
+        with:
+          name: distribution-files
+          path: dist/
+
+      - name: Publish package on PyPI
+        run: hatch publish -r main
+        env:
+          HATCH_INDEX_USER: ${{ secrets.HATCH_INDEX_USER }}
+          HATCH_INDEX_AUTH: ${{ secrets.HATCH_INDEX_AUTH }}

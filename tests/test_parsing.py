@@ -7,7 +7,7 @@ from itertools import combinations, product
 
 import pytest
 
-from mypy_upgrade.parsing import MypyError, description_to_type_ignore
+from mypy_upgrade.parsing import MypyError, message_to_error_code
 
 
 class TestParseReport:
@@ -35,7 +35,7 @@ class TestParseReport:
         assert all(isinstance(e.line_no, int) for e in parsed_errors)
 
     @staticmethod
-    def test_should_strip_whitespace_from_description(
+    def test_should_strip_whitespace_from_message(
         parsed_errors: list[MypyError],
     ) -> None:
         assert (e.message.strip() == e.message for e in parsed_errors)
@@ -67,7 +67,7 @@ class TestParseReport:
         assert all(increasing_within_group)
 
 
-DESCRIPTION_STUBS = [
+MESSAGE_STUBS = [
     'Unused "type: ignore<placeholder>" comment',
     "Unused 'type: ignore<placeholder>' comment",
     'Unused "type :ignore<placeholder>" comment',
@@ -87,45 +87,41 @@ ERROR_CODES = [
 ]
 
 
-class TestDescriptionToTypeIgnore:
+class TestMessageToErrorCode:
     @staticmethod
-    @pytest.mark.parametrize("stub", DESCRIPTION_STUBS)
+    @pytest.mark.parametrize("stub", MESSAGE_STUBS)
     def test_should_return_empty_tuple_with_no_error_code(stub: str) -> None:
-        description = stub.replace("<placeholder>", "")
-        assert description_to_type_ignore(description) == ()
+        message = stub.replace("<placeholder>", "")
+        assert message_to_error_code(message) == ()
 
     @staticmethod
     @pytest.mark.parametrize(
-        ("stub", "error_code"), product(DESCRIPTION_STUBS, ERROR_CODES[1:3])
+        ("stub", "error_code"), product(MESSAGE_STUBS, ERROR_CODES[1:3])
     )
     def test_should_return_error_code_string_with_one_error_code(
         stub: str, error_code: str
     ) -> None:
-        description = stub.replace("<placeholder>", f"[{error_code}]")
-        assert description_to_type_ignore(description) == (error_code,)
+        message = stub.replace("<placeholder>", f"[{error_code}]")
+        assert message_to_error_code(message) == (error_code,)
 
     @staticmethod
     @pytest.mark.parametrize(
         ("stub", "error_codes"),
-        product(DESCRIPTION_STUBS, combinations(ERROR_CODES[1:4], 2)),
+        product(MESSAGE_STUBS, combinations(ERROR_CODES[1:4], 2)),
     )
     def test_should_return_error_code_string_with_two_error_code(
         stub: str, error_codes: tuple[str, str]
     ) -> None:
-        description = stub.replace(
-            "<placeholder>", f"[{', '.join(error_codes)}]"
-        )
-        assert description_to_type_ignore(description) == error_codes
+        message = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
+        assert message_to_error_code(message) == error_codes
 
     @staticmethod
     @pytest.mark.parametrize(
         ("stub", "error_codes"),
-        product(DESCRIPTION_STUBS, combinations(ERROR_CODES[-4:], 3)),
+        product(MESSAGE_STUBS, combinations(ERROR_CODES[-4:], 3)),
     )
     def test_should_return_error_code_string_with_three_error_codes(
         stub: str, error_codes: tuple[str, str, str]
     ) -> None:
-        description = stub.replace(
-            "<placeholder>", f"[{', '.join(error_codes)}]"
-        )
-        assert description_to_type_ignore(description) == error_codes
+        message = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
+        assert message_to_error_code(message) == error_codes

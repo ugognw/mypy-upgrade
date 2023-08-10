@@ -1,3 +1,4 @@
+"""This module defines the MypyError class and parsing functions."""
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
@@ -6,6 +7,18 @@ from typing import NamedTuple, TextIO
 
 
 class MypyError(NamedTuple):
+    """A mypy error
+
+    Attributes:
+        filename: a string representing the path containing the error
+        line_no: an integer representing the 1-indexed line number where the
+            error starts
+        col_offset: an integer representing the 0-indexed line number where the
+            error starts
+        message: the mypy error message
+        error_code: the mypy error code
+    """
+
     filename: str
     line_no: int
     col_offset: int | None
@@ -64,12 +77,20 @@ def parse_mypy_report(
     return sorted(errors, key=MypyError.filename_and_line_number)
 
 
-def description_to_type_ignore(description: str) -> tuple[str, ...]:
+def message_to_error_code(message: str) -> tuple[str, ...]:
+    """Return the unused error code specified in a mypy error message
+
+    Args:
+        message: a string representing a mypy error message
+
+    Returns:
+        A tuple of strings, each of which is a mypy error code.
+    """
     type_ignore_re = re.compile(
         r"type\s*:\s*ignore\s*(\[(?P<error_code>[a-z, \-]+)\])?"
     )
     # Extract unused type ignore error codes from error description
-    match = type_ignore_re.search(description)
+    match = type_ignore_re.search(message)
     if match:
         error_codes = match.group("error_code")
         if error_codes:

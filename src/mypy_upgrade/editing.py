@@ -1,3 +1,4 @@
+"""This module defines comment editing utilities."""
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
@@ -6,14 +7,16 @@ from collections.abc import Iterable
 
 
 def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
-    """Add type ignore comment with error codes to in-line comment.
+    """Add a `type: ignore` comment with error codes to in-line comment.
 
     Args:
-        comment: A comment in which to add a type ignore comment.
-        error_codes: The error codes to add to the type ignore comment.
+        comment: a string representing a comment in which to add a type ignore
+            comment.
+        error_codes: the error codes to add to the `type: ignore` comment.
 
     Returns:
-        A copy of the comment with a "type: ignore[error-code]" comment
+        A copy of the original comment with a `type: ignore[error-code]`
+        comment added
     """
     old_type_ignore_re = re.compile(
         r"type\s*:\s*ignore\[(?P<error_code>[a-z, \-]+)\]"
@@ -43,7 +46,7 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
 
 
 def format_type_ignore_comment(comment: str) -> str:
-    """Remove excess whitespace and commas from `"type: ignore"` comments."""
+    """Remove excess whitespace and commas from a `"type: ignore"` comment."""
     type_ignore_re = re.compile(
         r"type\s*:\s*ignore(\[(?P<error_codes>[a-z, \-]+)\])?"
     )

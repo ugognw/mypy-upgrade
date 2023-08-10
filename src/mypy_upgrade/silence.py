@@ -1,3 +1,4 @@
+"""This module defines the `silence_errors` function."""
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ from mypy_upgrade.editing import (
     format_type_ignore_comment,
     remove_unused_type_ignore_comment,
 )
-from mypy_upgrade.parsing import MypyError, description_to_type_ignore
+from mypy_upgrade.parsing import MypyError, message_to_error_code
 from mypy_upgrade.utils import split_code_and_comment
 
 
@@ -50,7 +51,7 @@ def silence_errors(
     python_code, comment = split_code_and_comment(line.rstrip())
 
     if unused_ignore:
-        codes_to_remove = description_to_type_ignore(unused_ignore.message)
+        codes_to_remove = message_to_error_code(unused_ignore.message)
         pruned_comment = remove_unused_type_ignore_comment(
             comment, codes_to_remove
         )
