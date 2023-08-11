@@ -7,7 +7,7 @@ from itertools import combinations, product
 
 import pytest
 
-from mypy_upgrade.parsing import MypyError, message_to_error_code
+from mypy_upgrade.parsing import MypyError, string_to_error_codes
 
 
 class TestParseReport:
@@ -87,12 +87,12 @@ ERROR_CODES = [
 ]
 
 
-class TestMessageToErrorCode:
+class TestStringToErrorCodes:
     @staticmethod
     @pytest.mark.parametrize("stub", MESSAGE_STUBS)
     def test_should_return_empty_tuple_with_no_error_code(stub: str) -> None:
         message = stub.replace("<placeholder>", "")
-        assert message_to_error_code(message) == ()
+        assert string_to_error_codes(message) == ()
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -102,7 +102,7 @@ class TestMessageToErrorCode:
         stub: str, error_code: str
     ) -> None:
         message = stub.replace("<placeholder>", f"[{error_code}]")
-        assert message_to_error_code(message) == (error_code,)
+        assert string_to_error_codes(message) == (error_code,)
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -113,7 +113,7 @@ class TestMessageToErrorCode:
         stub: str, error_codes: tuple[str, str]
     ) -> None:
         message = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
-        assert message_to_error_code(message) == error_codes
+        assert string_to_error_codes(message) == error_codes
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -124,4 +124,4 @@ class TestMessageToErrorCode:
         stub: str, error_codes: tuple[str, str, str]
     ) -> None:
         message = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
-        assert message_to_error_code(message) == error_codes
+        assert string_to_error_codes(message) == error_codes
