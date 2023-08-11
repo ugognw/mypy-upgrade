@@ -25,6 +25,10 @@ comma-separated list of error codes in string
 to `type: ignore` comments but instead will add the mypy-suggested error code
 to the comment
 
+### Removed
+
+* PyPy support
+
 ## [0.0.1-beta.2] - 2023-08-10
 
 ### Added
