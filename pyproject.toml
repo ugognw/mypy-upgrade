@@ -25,7 +25,6 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development",
 ]
 dependencies = [
@@ -77,10 +76,6 @@ python = [
   "3.11",
   "3.12",
   "3.13",
-  "pypy3.7",
-  "pypy3.8",
-  "pypy3.9",
-  "pypy3.10"
 ]
 
 [tool.hatch.envs.default]
@@ -105,7 +100,7 @@ test-cov = "pytest -n auto --cov=mypy_upgrade --cov-report=html --cov-report=lco
 detached = true
 dependencies = [
   "black>=23.1.0",
-  "mypy>=1.0.0",
+  "mypy>=1.4.1",
   "pytest>=7.4.0",
   "ruff>=0.0.243",
 ]
