@@ -52,7 +52,7 @@ jobs:
       - name: Download Python artifacts
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: distribution-files
           path: dist
 
       - name: Push Python artifacts to PyPI
