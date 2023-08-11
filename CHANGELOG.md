@@ -17,9 +17,11 @@ This project implements a version of
 `mypy_upgrade.parsing.string_to_error_codes` and now returns longest
 comma-separated list of error codes in string
 
+* `mypy_upgrade.silence.silence_errors` refactored
+
 ### Fixed
 
-* `mypy_upgrade.silence.silence_errors` does not added "ignore-without-code"
+* `mypy_upgrade.silence.silence_errors` does not add "ignore-without-code"
 to `type: ignore` comments but instead will add the mypy-suggested error code
 to the comment
 
