@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Iterable
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -10,7 +9,7 @@ else:
 
 import pytest
 
-from mypy_upgrade.parsing import MypyError
+from mypy_upgrade.parsing import MypyError, string_to_error_codes
 from mypy_upgrade.silence import silence_errors
 
 CODE_SNIPPETS = [
@@ -67,7 +66,7 @@ def fixture_line(code: str, comment: str) -> str:
 
 
 @pytest.fixture(name="errors_to_add")
-def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
+def fixture_errors_to_add(type_ignore_comment: str) -> list[MypyError]:
     errors_to_add = [
         MypyError(
             "package1/subpackage1/module1.py",
@@ -80,15 +79,16 @@ def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
             "package/subpackage1/module1.py",
             1,
             0,
-            "Function is missing a return type annotation",
-            "no-untyped-def",
+            '"type: ignore" comment without error code (consider "type: '
+            'ignore[operator, type-var]" instead)',
+            "ignore-without-code",
         ),
         MypyError(
             "package2/subpackage2/module2.py",
             72,
             0,
-            '"Bravais" has no attribute "get_lattice_constant"',
-            "attr-defined",
+            '"type: ignore" comment without error code',
+            "ignore-without-code",
         ),
         MypyError(
             "package3/subpackage3/module3.py",
@@ -111,7 +111,7 @@ def fixture_errors_to_add(type_ignore_comment: str) -> Iterable[MypyError]:
             )
         )
 
-    return (error for error in errors_to_add)
+    return errors_to_add
 
 
 @pytest.fixture(
@@ -133,12 +133,12 @@ def fixture_fix_me(request: pytest.FixtureRequest) -> str:
 @pytest.fixture(name="silenced_line")
 def fixture_silenced_line(
     line: str,
-    errors_to_add: Iterable[MypyError],
+    errors_to_add: list[MypyError],
     description_style: Literal["full", "none"],
     fix_me: str,
 ) -> str:
     silenced_line: str = silence_errors(
-        line, errors_to_add, description_style, fix_me
+        line, iter(errors_to_add), description_style, fix_me
     )
     return silenced_line
 
@@ -146,21 +146,21 @@ def fixture_silenced_line(
 class TestSilenceErrors:
     @staticmethod
     def test_should_not_add_duplicate_error_codes(
-        silenced_line: str, errors_to_add: Iterable[MypyError]
+        silenced_line: str, errors_to_add: list[MypyError]
     ) -> None:
+        added_errors = string_to_error_codes(silenced_line)
         assert not any(
-            silenced_line.count(error.error_code) > 1
-            for error in errors_to_add
+            added_errors.count(error.error_code) > 1 for error in errors_to_add
         )
 
     @staticmethod
     def test_should_place_all_non_unused_ignore_errors_in_comment(
-        silenced_line: str, errors_to_add: Iterable[MypyError]
+        silenced_line: str, errors_to_add: list[MypyError]
     ) -> None:
         assert all(
             error.error_code in silenced_line
             for error in errors_to_add
-            if error.error_code != "unused-ignore"
+            if error.error_code not in ("unused-ignore", "ignore-without-code")
         )
 
     @staticmethod
@@ -209,3 +209,18 @@ class TestSilenceErrors:
             assert fix_me in silenced_line
         else:
             assert "FIX ME" not in silenced_line
+
+    @staticmethod
+    def test_should_not_add_ignore_without_code(silenced_line: str) -> None:
+        assert "ignore-without-code" not in silenced_line
+
+    @staticmethod
+    def test_should_add_mypy_suggested_codes_from_ignore_without_code(
+        silenced_line: str, errors_to_add: list[MypyError]
+    ) -> None:
+        for error in errors_to_add:
+            suggested_codes = string_to_error_codes(error.message)
+            if suggested_codes:
+                break
+
+        assert all(code in silenced_line for code in suggested_codes)
