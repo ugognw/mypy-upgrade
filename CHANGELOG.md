@@ -9,6 +9,20 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
+## [Unreleased]
+
+### Changed
+
+* `mypy_upgrade.parsing.message_to_error_code` renamed to
+`mypy_upgrade.parsing.string_to_error_codes` and now returns longest
+comma-separated list of error codes in string
+
+### Fixed
+
+* `mypy_upgrade.silence.silence_errors` does not added "ignore-without-code"
+to `type: ignore` comments but instead will add the mypy-suggested error code
+to the comment
+
 ## [0.0.1-beta.2] - 2023-08-10
 
 ### Added
@@ -268,6 +282,7 @@ represents those errors that cannot be safely silenced
 
 * First release
 
+[Unreleased]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.2...development
 [0.0.1-beta.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.1...release-0.0.1-beta.2
 [0.0.1-beta.1]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.5...release-0.0.1-beta.1
 [0.0.1-alpha.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.4...release-0.0.1-alpha.5

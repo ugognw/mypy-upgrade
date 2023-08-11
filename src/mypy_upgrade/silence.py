@@ -15,7 +15,7 @@ from mypy_upgrade.editing import (
     format_type_ignore_comment,
     remove_unused_type_ignore_comment,
 )
-from mypy_upgrade.parsing import MypyError, message_to_error_code
+from mypy_upgrade.parsing import MypyError, string_to_error_codes
 from mypy_upgrade.utils import split_code_and_comment
 
 
@@ -44,6 +44,13 @@ def silence_errors(
     for error in errors:
         if error.error_code == "unused-ignore":
             unused_ignore = error  # there should only be one
+        elif error.error_code == "ignore-without-code":
+            suggested_error_codes = string_to_error_codes(error.message)
+            if suggested_error_codes:
+                for error_code in suggested_error_codes:
+                    if error_code not in error_codes:
+                        error_codes.append(error_code)
+                        descriptions.append("")
         elif error.error_code not in error_codes:
             error_codes.append(error.error_code)
             descriptions.append(error.message)
@@ -51,7 +58,7 @@ def silence_errors(
     python_code, comment = split_code_and_comment(line.rstrip())
 
     if unused_ignore:
-        codes_to_remove = message_to_error_code(unused_ignore.message)
+        codes_to_remove = string_to_error_codes(unused_ignore.message)
         pruned_comment = remove_unused_type_ignore_comment(
             comment, codes_to_remove
         )

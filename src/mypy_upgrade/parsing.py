@@ -77,22 +77,35 @@ def parse_mypy_report(
     return sorted(errors, key=MypyError.filename_and_line_number)
 
 
-def message_to_error_code(message: str) -> tuple[str, ...]:
-    """Return the unused error code specified in a mypy error message
+def string_to_error_codes(string: str) -> tuple[str, ...]:
+    """Return the error codes in a string containin the phrase "type: ignore"
 
     Args:
-        message: a string representing a mypy error message
+        string: a string containing "type: ignore"
 
     Returns:
-        A tuple of strings, each of which is a mypy error code.
+        A tuple of strings, each of which is a mypy error code. If no error
+        codes exist within the "string" parameter, return an empty tuple.
+
+        If multiple "type: ignore" phrases exist, the error codes
+        corresponding to phrase with more error codes is returned.
+
+    Example::
+        >>> string = (
+        ... '"type: ignore" comment without error code (consider '
+        ... '"type: ignore[operator, type-var]" instead)'
+        ... )
+        >>> string_to_error_codes(string)
+        ("operator", "type-var")
     """
     type_ignore_re = re.compile(
-        r"type\s*:\s*ignore\s*(\[(?P<error_code>[a-z, \-]+)\])?"
+        r"type\s*:\s*ignore\s*(?:\[(?P<error_code>[a-z, \-]+)\])?"
     )
     # Extract unused type ignore error codes from error description
-    match = type_ignore_re.search(message)
-    if match:
-        error_codes = match.group("error_code")
+    code_match = type_ignore_re.findall(string)
+    type_ignore_re.search(string)
+    if code_match:
+        error_codes = max(code_match)
         if error_codes:
             # Separate and trim
             return tuple(code.strip() for code in error_codes.split(","))
