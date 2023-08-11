@@ -21,7 +21,7 @@ from mypy_upgrade.utils import split_code_and_comment
 
 def _extract_error_details(
     errors: Iterable[MypyError],
-) -> tuple[list[str], list[str], bool, MypyError | None]:
+) -> tuple[list[str], list[str], MypyError | None, bool]:
     error_codes = []
     descriptions = []
     unused_ignore = None
@@ -86,7 +86,7 @@ def silence_errors(
         if unused_ignore:
             codes_to_remove = string_to_error_codes(unused_ignore.message)
         else:
-            codes_to_remove = []
+            codes_to_remove = ()
         pruned_comment = remove_unused_type_ignore_comment(
             comment, codes_to_remove
         )

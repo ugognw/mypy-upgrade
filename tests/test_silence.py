@@ -235,14 +235,14 @@ class TestSilenceErrors:
 @pytest.fixture(name="error_details")
 def fixture_error_details(
     errors_to_add: list[MypyError],
-) -> tuple[list[str], list[str], bool, MypyError | None]:
+) -> tuple[list[str], list[str], MypyError | None, bool]:
     return _extract_error_details(errors_to_add)
 
 
 class TestExtractErrorDetails:
     @staticmethod
     def test_should_return_used_ignore_without_code_error_codes(
-        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        error_details: tuple[list[str], list[str], MypyError | None, bool],
         errors_to_add: list[MypyError],
     ) -> None:
         error_codes = error_details[0]
@@ -254,7 +254,7 @@ class TestExtractErrorDetails:
 
     @staticmethod
     def test_should_return_unused_ignore_error(
-        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        error_details: tuple[list[str], list[str], MypyError | None, bool],
         errors_to_add: list[MypyError],
     ) -> None:
         unused_ignore = error_details[2]
@@ -265,12 +265,12 @@ class TestExtractErrorDetails:
 
     @staticmethod
     def test_should_not_return_without_code_errors(
-        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        error_details: tuple[list[str], list[str], MypyError | None, bool],
         errors_to_add: list[MypyError],
     ) -> None:
         error_codes = error_details[0]
         without_code_errors = [
-            error
+            error.error_code
             for error in errors_to_add
             if error.error_code == "ignore-without-code"
         ]
@@ -278,11 +278,11 @@ class TestExtractErrorDetails:
 
     @staticmethod
     def test_should_return_suggested_error_codes(
-        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        error_details: tuple[list[str], list[str], MypyError | None, bool],
         errors_to_add: list[MypyError],
     ) -> None:
         error_codes = error_details[0]
-        suggested_error_codes = []
+        suggested_error_codes: tuple[str, ...]
         for error in errors_to_add:
             if error.error_code == "ignore-without-code":
                 suggested_error_codes = string_to_error_codes(error.message)
@@ -290,7 +290,7 @@ class TestExtractErrorDetails:
 
     @staticmethod
     def test_should_return_descriptions_of_used_ignore_without_code_errors(
-        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        error_details: tuple[list[str], list[str], MypyError | None, bool],
         errors_to_add: list[MypyError],
     ) -> None:
         descriptions = error_details[1]
@@ -302,7 +302,7 @@ class TestExtractErrorDetails:
 
     @staticmethod
     def test_should_not_return_descriptions_of_unused_ignore_errors(
-        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        error_details: tuple[list[str], list[str], MypyError | None, bool],
         errors_to_add: list[MypyError],
     ) -> None:
         descriptions = error_details[1]
@@ -314,7 +314,7 @@ class TestExtractErrorDetails:
 
     @staticmethod
     def test_should_not_return_descriptions_of_without_code_errors(
-        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        error_details: tuple[list[str], list[str], MypyError | None, bool],
         errors_to_add: list[MypyError],
     ) -> None:
         descriptions = error_details[1]
@@ -326,6 +326,6 @@ class TestExtractErrorDetails:
 
     @staticmethod
     def test_should_return_without_code_error(
-        error_details: tuple[list[str], list[str], bool, MypyError | None]
+        error_details: tuple[list[str], list[str], MypyError | None, bool]
     ) -> None:
         assert error_details[3]
