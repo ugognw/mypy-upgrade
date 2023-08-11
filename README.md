@@ -40,7 +40,7 @@ the following output from mypy:
 
 `mypy-upgrade` will place a `# type: ignore[assignment] # FIX ME` comment at the
 end of line 13 in `package/subpackage/module.py`. If error codes are not
-present in the `mypy` report (e.g., the `hide-error-codes` flag is set when
+present in the `mypy` report (e.g., the `--hide-error-codes` flag is set when
 `mypy` was invoked), then a non-specific `# type: ignore # FIX ME` comment will be
 added instead.
 
@@ -48,14 +48,14 @@ added instead.
 
 * Removal of unused `type: ignore` comments
 
-* Optional inclusion of `mypy` error description messages
+* Replacement of blanket `type: ignore` comments with error code-specific
+comments
 
 * Support for suppressing multiple mypy errors per-line
 
 * Preservation of existing in-line comments
 
-* Replacement of blanket `type: ignore` comments with error code-specific
-comments
+* Optional inclusion of `mypy` error description messages
 
 ## Basic Usage
 
@@ -113,17 +113,28 @@ following flags should be set when creating the type checking report to pass to 
 
 * `--strict`
 
-    * This will ensure that `mypy-upgrade` will attempt to silence all possible mypy errors
+    * Enables `mypy-upgrade` to silence all possible mypy errors
+    (see [Known Limitations](#known-limitations) for exceptions)
 
 * `--show-column-numbers`
 
-    * This allows for more precise treatment of certain type error edge cases (e.g. type checking
+    * Allows for more precise treatment of certain type error edge cases (e.g. type checking
     errors before the start of multiline strings)
 
 * `--show-error-codes`
 
-    * This ensures that error-code specific comments are added instead of blanket `type: ignore`
+    * Ensures that error-code specific comments are added instead of blanket `type: ignore`
     comments
+
+* `--warn-unused-ignores`
+
+    * Ensures that unused `type: ignore` comments are removed
+
+* `ignore-without-code`
+
+    * When used with `--show-error-codes`, permits `mypy-upgrade` to replace existing
+    `type: ignore` comments with code-specific `type: ignore` comments (enable from the
+    command line with the `mypy` option `--enable-error-code`)
 
 ## Quick Start
 
@@ -134,7 +145,7 @@ following flags should be set when creating the type checking report to pass to 
 If you want to run the latest version of the code, you can install from the
 repo directly:
 
-    python3 -m pip install -U git+https://github.com/ugognw/mypy-upgrade.git
+    python3 -m pip install -U git+https://github.com/ugognw/mypy-upgrade.git@development
     # or if you don't have 'git' installed
     python3 -m pip install -U https://github.com/ugognw/mypy-upgrade/tree/development
 
