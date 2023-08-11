@@ -19,6 +19,41 @@ from mypy_upgrade.parsing import MypyError, string_to_error_codes
 from mypy_upgrade.utils import split_code_and_comment
 
 
+def _extract_error_details(
+    errors: Iterable[MypyError],
+) -> tuple[list[str], list[str], bool, MypyError | None]:
+    error_codes = []
+    descriptions = []
+    unused_ignore = None
+    ignore_without_code = False
+    for error in errors:
+        if error.error_code == "unused-ignore":
+            unused_ignore = error  # there should only be one error per line
+        elif error.error_code == "ignore-without-code":
+            suggested_error_codes = string_to_error_codes(error.message)
+            if suggested_error_codes:
+                ignore_without_code = True
+                for error_code in suggested_error_codes:
+                    if error_code not in error_codes:
+                        error_codes.append(error_code)
+                        descriptions.append("")
+            # 0 error codes in error.message = unused `type: ignore`
+            else:
+                error_ = MypyError(
+                    error.filename,
+                    error.line_no,
+                    error.col_offset,
+                    "",
+                    "unused-ignore",
+                )
+                unused_ignore = error_
+        elif error.error_code not in error_codes:
+            error_codes.append(error.error_code)
+            descriptions.append(error.message)
+
+    return error_codes, descriptions, unused_ignore, ignore_without_code
+
+
 def silence_errors(
     line: str,
     errors: Iterable[MypyError],
@@ -38,27 +73,20 @@ def silence_errors(
     Returns:
         The line with a type error suppression comment.
     """
-    unused_ignore = None
-    error_codes = []
-    descriptions = []
-    for error in errors:
-        if error.error_code == "unused-ignore":
-            unused_ignore = error  # there should only be one
-        elif error.error_code == "ignore-without-code":
-            suggested_error_codes = string_to_error_codes(error.message)
-            if suggested_error_codes:
-                for error_code in suggested_error_codes:
-                    if error_code not in error_codes:
-                        error_codes.append(error_code)
-                        descriptions.append("")
-        elif error.error_code not in error_codes:
-            error_codes.append(error.error_code)
-            descriptions.append(error.message)
+    (
+        codes_to_add,
+        descriptions,
+        unused_ignore,
+        ignore_without_code,
+    ) = _extract_error_details(errors)
 
     python_code, comment = split_code_and_comment(line.rstrip())
 
-    if unused_ignore:
-        codes_to_remove = string_to_error_codes(unused_ignore.message)
+    if unused_ignore or ignore_without_code:
+        if unused_ignore:
+            codes_to_remove = string_to_error_codes(unused_ignore.message)
+        else:
+            codes_to_remove = []
         pruned_comment = remove_unused_type_ignore_comment(
             comment, codes_to_remove
         )
@@ -66,10 +94,10 @@ def silence_errors(
     else:
         cleaned_comment = comment
 
-    if error_codes:
+    if codes_to_add:
         final_comment = add_type_ignore_comment(
             cleaned_comment,
-            error_codes,
+            codes_to_add,
         )
     else:
         final_comment = cleaned_comment

@@ -10,7 +10,7 @@ else:
 import pytest
 
 from mypy_upgrade.parsing import MypyError, string_to_error_codes
-from mypy_upgrade.silence import silence_errors
+from mypy_upgrade.silence import _extract_error_details, silence_errors
 
 CODE_SNIPPETS = [
     "if x == 5:",
@@ -215,6 +215,12 @@ class TestSilenceErrors:
         assert "ignore-without-code" not in silenced_line
 
     @staticmethod
+    def test_should_replace_existing_type_ignore_when_ignoring_without_code(
+        silenced_line: str,
+    ) -> None:
+        assert not silenced_line.count("type: ignore") > 1
+
+    @staticmethod
     def test_should_add_mypy_suggested_codes_from_ignore_without_code(
         silenced_line: str, errors_to_add: list[MypyError]
     ) -> None:
@@ -224,3 +230,102 @@ class TestSilenceErrors:
                 break
 
         assert all(code in silenced_line for code in suggested_codes)
+
+
+@pytest.fixture(name="error_details")
+def fixture_error_details(
+    errors_to_add: list[MypyError],
+) -> tuple[list[str], list[str], bool, MypyError | None]:
+    return _extract_error_details(errors_to_add)
+
+
+class TestExtractErrorDetails:
+    @staticmethod
+    def test_should_return_used_ignore_without_code_error_codes(
+        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        errors_to_add: list[MypyError],
+    ) -> None:
+        error_codes = error_details[0]
+        assert all(
+            error.error_code in error_codes
+            for error in errors_to_add
+            if error.error_code not in ("unused-ignore", "ignore-without-code")
+        )
+
+    @staticmethod
+    def test_should_return_unused_ignore_error(
+        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        errors_to_add: list[MypyError],
+    ) -> None:
+        unused_ignore = error_details[2]
+        if any(error.error_code == "unused-ignore" for error in errors_to_add):
+            assert unused_ignore
+        else:
+            assert True
+
+    @staticmethod
+    def test_should_not_return_without_code_errors(
+        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        errors_to_add: list[MypyError],
+    ) -> None:
+        error_codes = error_details[0]
+        without_code_errors = [
+            error
+            for error in errors_to_add
+            if error.error_code == "ignore-without-code"
+        ]
+        assert not any(code in without_code_errors for code in error_codes)
+
+    @staticmethod
+    def test_should_return_suggested_error_codes(
+        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        errors_to_add: list[MypyError],
+    ) -> None:
+        error_codes = error_details[0]
+        suggested_error_codes = []
+        for error in errors_to_add:
+            if error.error_code == "ignore-without-code":
+                suggested_error_codes = string_to_error_codes(error.message)
+        assert all(error in error_codes for error in suggested_error_codes)
+
+    @staticmethod
+    def test_should_return_descriptions_of_used_ignore_without_code_errors(
+        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        errors_to_add: list[MypyError],
+    ) -> None:
+        descriptions = error_details[1]
+        assert all(
+            error.message in descriptions
+            for error in errors_to_add
+            if error.error_code not in ("unused-ignore", "ignore-without-code")
+        )
+
+    @staticmethod
+    def test_should_not_return_descriptions_of_unused_ignore_errors(
+        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        errors_to_add: list[MypyError],
+    ) -> None:
+        descriptions = error_details[1]
+        assert not any(
+            error.message in descriptions
+            for error in errors_to_add
+            if error.error_code == "unused-ignore"
+        )
+
+    @staticmethod
+    def test_should_not_return_descriptions_of_without_code_errors(
+        error_details: tuple[list[str], list[str], bool, MypyError | None],
+        errors_to_add: list[MypyError],
+    ) -> None:
+        descriptions = error_details[1]
+        assert not any(
+            error.message in descriptions
+            for error in errors_to_add
+            if error.error_code == "ignore-without-code"
+        )
+
+    @staticmethod
+    def test_should_return_without_code_error(
+        error_details: tuple[list[str], list[str], bool, MypyError | None]
+    ) -> None:
+        assert error_details[3]
