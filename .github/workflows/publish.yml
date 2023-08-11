@@ -12,7 +12,8 @@ env:
   PYTHON_VERSION: "3.11"
 
 jobs:
-  publish:
+  build:
+    name: Build wheel and source distribution
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,9 +36,26 @@ jobs:
         with:
           name: distribution-files
           path: dist/
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    needs:
+      - build
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mypy-upgrade
+    permissions:
+      id-token: write
 
-      - name: Publish package on PyPI
-        run: hatch publish -r main
-        env:
-          HATCH_INDEX_USER: ${{ secrets.HATCH_INDEX_USER }}
-          HATCH_INDEX_AUTH: ${{ secrets.HATCH_INDEX_AUTH }}
+    steps:
+      - name: Download Python artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: dist
+
+      - name: Push Python artifacts to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.8.7
+        with:
+          skip-existing: true
