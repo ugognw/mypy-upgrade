@@ -2,10 +2,8 @@ name: publish
 
 on:
   push:
-    branches:
-      - main
     tags:
-      - '*'
+      - 'v*'
 
 env:
   HATCH_SPECIFIER: "git+https://github.com/pypa/hatch.git@10d659f7109ad93cd9ba9e26384c8328d44e80ed"
