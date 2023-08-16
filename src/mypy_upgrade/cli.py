@@ -8,6 +8,7 @@ import pathlib
 import shutil
 import sys
 import textwrap
+import tokenize
 from typing import NamedTuple
 
 if sys.version_info < (3, 8):
@@ -22,7 +23,7 @@ from mypy_upgrade.parsing import (
     parse_mypy_report,
 )
 from mypy_upgrade.silence import silence_errors
-from mypy_upgrade.utils import correct_line_numbers
+from mypy_upgrade.utils import correct_line_numbers, get_comments
 from mypy_upgrade.warnings import (
     MISSING_ERROR_CODES,
     TRY_SHOW_ABSOLUTE_PATH,
@@ -221,6 +222,8 @@ def mypy_upgrade(
                     f, filename_grouped_errors
                 )
                 f.seek(0)
+                comments = get_comments(f)
+                f.seek(0)
                 lines = f.readlines()
         except FileNotFoundError:
             messages.append(
@@ -229,14 +232,26 @@ def mypy_upgrade(
             return MypyUpgradeResult(
                 tuple(silenced), tuple(not_silenced), tuple(messages)
             )
+        except tokenize.TokenError:
+            pass
 
         not_silenced.extend(unsafe_to_silence)
 
         for line_number, line_grouped_errors in itertools.groupby(
             safe_to_silence, key=lambda error: error.line_no
         ):
+            line = lines[line_number - 1]
+            comment = ""
+            for comment_ in comments:
+                if comment_.line == line:
+                    comment = comment_.string
+                    break
+
+            python_code = line.replace(comment, "")
+
             lines[line_number - 1] = silence_errors(
-                lines[line_number - 1],
+                python_code.rstrip(),
+                comment.rstrip(),
                 line_grouped_errors,
                 description_style,
                 fix_me,

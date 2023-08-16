@@ -16,7 +16,6 @@ from mypy_upgrade.editing import (
     remove_unused_type_ignore_comment,
 )
 from mypy_upgrade.parsing import MypyError, string_to_error_codes
-from mypy_upgrade.utils import split_code_and_comment
 
 
 def _extract_error_details(
@@ -55,7 +54,8 @@ def _extract_error_details(
 
 
 def silence_errors(
-    line: str,
+    python_code: str,
+    comment: str,
     errors: Iterable[MypyError],
     description_style: Literal["full", "none"],
     fix_me: str,
@@ -79,8 +79,6 @@ def silence_errors(
         unused_ignore,
         ignore_without_code,
     ) = _extract_error_details(errors)
-
-    python_code, comment = split_code_and_comment(line.rstrip())
 
     if unused_ignore or ignore_without_code:
         if unused_ignore:
