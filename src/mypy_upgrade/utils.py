@@ -114,46 +114,23 @@ def find_safe_end_line(
         suppression comment if it exists. If no safe line exists, this method
         returns -1.
     """
-    new_line = None
-    new_col_offset = None
     for region in unsilenceable_regions:
         # It is safe to comment the last line of a multiline string
         if error.line_no == region.end[0] and region.start[0] != region.end[0]:
             continue
 
-        # It is indeterminant whether an error within an UnsilenceableRegion
-        # can be suppressed if its column number is unknown
+        # Error within an UnsilenceableRegion
         if (
             error.col_offset is None
             and region.start[0] <= error.line_no <= region.end[0]
+        ) or (
+            (region.start[0],)
+            <= (error.line_no, error.col_offset)
+            <= region.end
         ):
             return -1
 
-        if (
-            error.col_offset is not None
-            and region.start <= (error.line_no, error.col_offset) <= region.end
-        ):
-            return -1
-
-        # Error precedes same line multiline string
-        if (
-            error.line_no == region.start[0]
-            and region.start[0] != region.end[0]
-        ):
-            new_line = region.end[0]
-            new_col_offset = int(region.end[1])
-
-    if new_line is None:
-        return error.line_no
-
-    new_error = MypyError(
-        error.filename,
-        new_line,
-        new_col_offset,
-        error.message,
-        error.error_code,
-    )
-    return find_safe_end_line(new_error, unsilenceable_regions)
+    return error.line_no
 
 
 def correct_line_numbers(
