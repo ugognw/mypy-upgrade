@@ -165,6 +165,18 @@ error suppression.
     (e.g., [`black`](http://black.readthedocs.io)) to replace such lines with parentheses is
     recommended.
 
+* Improperly specified type hints within comments
+
+    * `mypy` will report a type error if a type hint is improperly specified;
+    for example, given the following code
+
+        x = {}  # type: set
+
+    `mypy` will produce a `type-arg` error in column 1 and `mypy-upgrade` will
+    place a `# type: ignore[type-arg]` comment at the end, which will, in turn,
+    negate the effectiveness of the `# type: set` commment and eliminate the
+    need for the `# type: ignore[type-arg]` comment
+
 ## Similar Projects
 
 If this doesn't fit your use-case, maybe one of these other projects will!
