@@ -28,6 +28,9 @@ arguments instead of `line` argument
 
 * Rename `mypy_upgrade.utils.correct_line_numbers` to `mypy_upgrade.utils.divide_errors`
 
+* `mypy_upgrade.filter.get_module_paths` raises a `NotImplementedError` for
+built-in modules
+
 ### Removed
 
 * Support for silencing errors preceding same line multiline string
