@@ -36,8 +36,6 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
                     module_path = module_path.parent
             elif spec.origin == "frozen":
                 module_path = pathlib.Path(spec.loader_state.filename)
-            elif spec.origin == "built-in":
-                pass  # ? Maybe should raise a warning
             else:
                 msg = "Uncountered an unsupported module type."
                 raise NotImplementedError(msg)
