@@ -104,15 +104,9 @@ def find_safe_end_line(
         if error.line_no == region.end[0] and region.start[0] != region.end[0]:
             continue
 
-        # Error within an UnsilenceableRegion
-        if (
-            error.col_offset is None
-            and region.start[0] <= error.line_no <= region.end[0]
-        ) or (
-            (region.start[0],)
-            <= (error.line_no, error.col_offset)
-            <= region.end
-        ):
+        # Error within an UnsilenceableRegion (but not last line of multiline
+        # string)
+        if region.start[0] <= error.line_no <= region.end[0]:
             return -1
 
     return error.line_no
