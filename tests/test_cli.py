@@ -165,45 +165,63 @@ class TestParseArgs:
             assert args.report is None
 
 
-@pytest.fixture(name="mypy_args", scope="session")
-def fixture_mypy_args() -> list[str]:
+@pytest.fixture(name="mypy_upgrade_target", scope="class", params=["ase"])
+def fixture_mypy_upgrade_target(request: pytest.FixtureRequest) -> str:
+    if "CI" in os.environ:
+        return os.environ["MYPY_UPGRADE_TARGET"]
+    target: str = request.param
+    return target
+
+
+@pytest.fixture(name="install_dir", scope="session")
+def fixture_install_dir() -> str:
+    if "CI" in os.environ:
+        return os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"]
+    return "/Users/ugo/Projects/nwt/mypy-upgrade/downloads"
+
+
+@pytest.fixture(name="mypy_args", scope="class")
+def fixture_mypy_args(mypy_upgrade_target: str) -> list[str]:
     return [
         "--strict",
         "--show-error-codes",
         "--show-absolute-path",
         "--show-column-numbers",
         "-p",
-        os.environ["MYPY_UPGRADE_TARGET"],
+        mypy_upgrade_target,
     ]
 
 
 @pytest.fixture(name="python_path", scope="class")
 def fixture_python_path(
+    install_dir: str,
     tmp_path_factory: pytest.TempPathFactory,
-) -> pathlib.Path:
+) -> Generator[None, None, None]:
     tmp_dir = tmp_path_factory.mktemp("base", numbered=True)
-    python_path = tmp_dir.joinpath("__pypackages__")
-    shutil.copytree(os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"], python_path)
-    return python_path
+    python_path = tmp_dir.joinpath("__pypackages__").resolve()
+    shutil.copytree(install_dir, python_path)
+    old_python_path = os.environ.get("PYTHONPATH", "")
+    os.environ["PYTHONPATH"] = f"{python_path}:{old_python_path}"
+    yield None
+    os.environ["PYTHONPATH"].replace(f"{python_path}:", "")
 
 
 @pytest.fixture(name="mypy_report_pre", scope="class")
 def fixture_mypy_report_pre(
-    python_path: pathlib.Path,
+    python_path: pathlib.Path,  # noqa: ARG001
     tmp_path_factory: pytest.TempPathFactory,
     mypy_args: list[str],
-) -> Generator[pathlib.Path, None, None]:
+) -> pathlib.Path:
     filename = tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
-    with filename.open("w") as file:
-        from mypy.main import main
+    with filename.open("wb") as file:
+        subprocess.run(
+            [sys.executable, "-m", "mypy", *mypy_args],
+            env=os.environ,
+            stdout=file,
+        )
+    return filename
 
-        sys.path.insert(0, str(python_path))
-        main(args=mypy_args, stdout=file)
-    yield filename
-    sys.path.remove(str(python_path))
 
-
-@pytest.mark.skip
 @pytest.mark.skipif(
     "CI" not in os.environ,
     reason="CI-only tests",
@@ -211,6 +229,10 @@ def fixture_mypy_report_pre(
 @pytest.mark.skipif(
     "MYPY_UPGRADE_TARGET" not in os.environ,
     reason="no target specified for mypy-upgrade",
+)
+@pytest.mark.skipif(
+    "MYPY_UPGRADE_TARGET_INSTALL_DIR" not in os.environ,
+    reason="no install directory specified for mypy-upgrade",
 )
 @pytest.mark.slow
 @pytest.mark.mypy_upgrade
@@ -237,10 +259,12 @@ class TestMypyUpgrade:
         mypy_upgrade_results: MypyUpgradeResult,  # noqa: ARG004
     ) -> pathlib.Path:
         filename = tmp_path_factory.mktemp("reports") / "mypy_report_post.txt"
-        from mypy.main import main
-
-        with filename.open(mode="w", encoding="utf-8") as file:
-            main(args=mypy_args, stdout=file)
+        with filename.open("wb") as file:
+            subprocess.run(
+                [sys.executable, "-m", "mypy", *mypy_args],
+                env=os.environ,
+                stdout=file,
+            )
         return filename
 
     @staticmethod
@@ -249,7 +273,13 @@ class TestMypyUpgrade:
     ) -> None:
         with mypy_report_post.open(encoding="utf-8") as file:
             errors = parse_mypy_report(file)
-        assert len(mypy_upgrade_results.not_silenced) == len(errors)
+
+        missed_errors = [
+            error
+            for error in errors
+            if error not in mypy_upgrade_results.not_silenced
+        ]
+        assert not missed_errors
 
     @staticmethod
     def test_should_not_increase_number_of_errors(
