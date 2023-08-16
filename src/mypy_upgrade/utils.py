@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import tokenize
-from collections.abc import Container, Iterable
+from collections.abc import Iterable, Sequence
 from typing import NamedTuple, TextIO
 
 from mypy_upgrade.parsing import MypyError
@@ -32,6 +32,16 @@ class UnsilenceableRegion(NamedTuple):
 def get_lines_and_tokens(
     stream: TextIO,
 ) -> tuple[list[str], list[tokenize.TokenInfo]]:
+    """Extract lines and tokenize text stream.
+
+    Args:
+        stream: a TextIO object.
+
+    Returns:
+        A 2-tuple whose first entry is a list of all lines in `stream` and
+        whose second entry is a list of `TokenInfo` objects representing the
+        tokens in `stream`.
+    """
     lines = []
     tokens = []
     for token in tokenize.generate_tokens(stream.readline):
@@ -44,7 +54,7 @@ def get_lines_and_tokens(
 
 def find_unsilenceable_regions(
     tokens: Iterable[tokenize.TokenInfo],
-    comments: Container[tokenize.TokenInfo],
+    comments: Sequence[tokenize.TokenInfo],
 ) -> list[UnsilenceableRegion]:
     """Find the regions encapsulated by line continuation characters or
     by multiline strings

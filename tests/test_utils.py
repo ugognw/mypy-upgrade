@@ -207,7 +207,7 @@ class TestDivideErrors:
     @staticmethod
     def test_should_not_change_line_number_for_single_line_errors() -> None:
         error = MypyError("", 1, 0, "", "")
-        regions = []
+        regions: list[UnsilenceableRegion] = []
         corrected_errors, not_added = divide_errors(regions, [error])
         assert corrected_errors
         assert corrected_errors[0].line_no == 1

@@ -63,7 +63,10 @@ def silence_errors(
     """Silences the given error on a line with an error code-specific comment.
 
     Args:
-        line: a string containing the line.
+        python_code: a string representing the executable Python code on a
+            physical line.
+        comment: a string representing the comment on a physical line of
+            Python code.
         error: an `Iterable` in which each entry is a `MypyError` to be
             silenced.
         description_style: a string specifying the style of the description of
