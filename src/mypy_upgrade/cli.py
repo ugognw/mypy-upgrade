@@ -24,7 +24,7 @@ from mypy_upgrade.parsing import (
 )
 from mypy_upgrade.silence import silence_errors
 from mypy_upgrade.utils import (
-    correct_line_numbers,
+    divide_errors,
     find_unsilenceable_regions,
     get_lines_and_tokens,
 )
@@ -230,14 +230,18 @@ def mypy_upgrade(
             messages.append(
                 TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
             )
+            not_silenced.extend(filename_grouped_errors)
             return MypyUpgradeResult(
                 tuple(silenced), tuple(not_silenced), tuple(messages)
             )
         except tokenize.TokenError:
-            pass
+            messages.append(f"Unable to tokenize file: {filename}")
+            not_silenced.extend(filename_grouped_errors)  # noqa: B031
+            continue
+
         unsilenceable_regions = find_unsilenceable_regions(tokens, comments)
-        safe_to_silence, unsafe_to_silence = correct_line_numbers(
-            unsilenceable_regions, filename_grouped_errors
+        safe_to_silence, unsafe_to_silence = divide_errors(
+            unsilenceable_regions, filename_grouped_errors  # noqa: B031
         )
         not_silenced.extend(unsafe_to_silence)
 
