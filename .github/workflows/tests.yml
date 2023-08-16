@@ -16,8 +16,7 @@ jobs:
     timeout-minutes: 30
     env:
       HATCH_ENV: test.py${{ matrix.python-version }}
-      MYPY_REPORT: "${{ github.workspace }}/mypy_report.txt"
-      MYPY_UPGRADE_TARGET_INSTALL_DIR: "${{ github.workspace }}/.src"
+      MYPY_UPGRADE_TARGET_INSTALL_DIR: "${{ github.workspace }}/downloads"
     strategy:
       fail-fast: false
       matrix:
