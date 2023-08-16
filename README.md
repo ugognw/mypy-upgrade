@@ -177,6 +177,10 @@ error suppression.
     negate the effectiveness of the `# type: set` commment and eliminate the
     need for the `# type: ignore[type-arg]` comment
 
+* mypy `syntax` errors are not silenced
+
+    * it is recommended that you fix your code such that it is syntactically valid prior to using `mypy-upgrade`
+
 ## Similar Projects
 
 If this doesn't fit your use-case, maybe one of these other projects will!
