@@ -60,11 +60,6 @@ def fixture_comment(type_ignore_comment: str, comment_suffix: str) -> str:
     return type_ignore_comment + comment_suffix
 
 
-@pytest.fixture(name="line", scope="class")
-def fixture_line(code: str, comment: str) -> str:
-    return code + comment
-
-
 @pytest.fixture(name="errors_to_add")
 def fixture_errors_to_add(type_ignore_comment: str) -> list[MypyError]:
     errors_to_add = [
@@ -132,13 +127,14 @@ def fixture_fix_me(request: pytest.FixtureRequest) -> str:
 
 @pytest.fixture(name="silenced_line")
 def fixture_silenced_line(
-    line: str,
+    code: str,
+    comment: str,
     errors_to_add: list[MypyError],
     description_style: Literal["full", "none"],
     fix_me: str,
 ) -> str:
     silenced_line: str = silence_errors(
-        line, iter(errors_to_add), description_style, fix_me
+        code, comment, iter(errors_to_add), description_style, fix_me
     )
     return silenced_line
 
