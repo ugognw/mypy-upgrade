@@ -45,13 +45,8 @@ line-length = 79
 skip-string-normalization = true
 
 [tool.coverage.run]
-source_pkgs = ["mypy_upgrade", "tests"]
 branch = true
 parallel = true
-
-[tool.coverage.paths]
-mypy_upgrade = ["src/mypy_upgrade"]
-tests = ["tests"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -94,7 +89,7 @@ PYTHONPATH="src"
 
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
-test-cov = "pytest -n auto --cov=mypy_upgrade --cov-report=html --cov-report=lcov --cov-report=xml --cov-report=term-missing tests/"
+test-cov = "pytest -n auto --cov=tests/ --cov=src/mypy_upgrade --cov-report=html --cov-report=lcov --cov-report=xml --cov-report=term-missing tests/"
 
 [tool.hatch.envs.lint]
 detached = true
