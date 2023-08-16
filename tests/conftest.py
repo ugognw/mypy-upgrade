@@ -14,6 +14,7 @@ from mypy_upgrade.parsing import MypyError, parse_mypy_report
     params=(
         "35af5282d/with_columns/baseline_report_47a422c16.txt",
         "35af5282d/without_columns/baseline_report_47a422c16.txt",
+        "stdlib_report.txt",
     ),
 )
 def fixture_report(
