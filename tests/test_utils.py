@@ -9,7 +9,7 @@ import pytest
 from mypy_upgrade.parsing import MypyError
 from mypy_upgrade.utils import (
     UnsilenceableRegion,
-    correct_line_numbers,
+    divide_errors,
     find_safe_end_line,
     find_unsilenceable_regions,
 )
@@ -132,14 +132,14 @@ class TestFindSafeEndLine:
         assert end_line == -1
 
 
-class TestCorrectLineNumbers:
+class TestDivideErrors:
     @staticmethod
     def test_should_separate_error_for_error_on_first_line_and_before_multiline_string() -> (  # noqa: E501
         None
     ):
         error = MypyError("", 1, 0, "", "")
         regions = [UnsilenceableRegion((1, 4), (3, 3))]
-        corrected_errors, not_added = correct_line_numbers(regions, [error])
+        corrected_errors, not_added = divide_errors(regions, [error])
         assert len(corrected_errors) == 0
         assert not_added[0].line_no == 1
         assert len(not_added) == 1
@@ -150,7 +150,7 @@ class TestCorrectLineNumbers:
     ):
         error = MypyError("", 1, 5, "", "")
         regions = [UnsilenceableRegion((1, 4), (3, 3))]
-        corrected_errors, not_added = correct_line_numbers(regions, [error])
+        corrected_errors, not_added = divide_errors(regions, [error])
         assert len(corrected_errors) == 0
         assert not_added[0].line_no == 1
         assert len(not_added) == 1
@@ -161,7 +161,7 @@ class TestCorrectLineNumbers:
     ):
         error = MypyError("", 3, 0, "", "")
         regions = [UnsilenceableRegion((1, 4), (3, 3))]
-        corrected_errors, not_added = correct_line_numbers(regions, [error])
+        corrected_errors, not_added = divide_errors(regions, [error])
         assert corrected_errors
         assert corrected_errors[0].line_no == 3
         assert len(not_added) == 0
@@ -170,7 +170,7 @@ class TestCorrectLineNumbers:
     def test_should_separate_error_inside_multiline_string() -> None:
         error = MypyError("", 2, 0, "", "")
         regions = [UnsilenceableRegion((1, 4), (3, 3))]
-        corrected_errors, not_added = correct_line_numbers(regions, [error])
+        corrected_errors, not_added = divide_errors(regions, [error])
         assert len(corrected_errors) == 0
         assert not_added[0].line_no == 2
         assert len(not_added) == 1
@@ -191,7 +191,7 @@ class TestCorrectLineNumbers:
             UnsilenceableRegion((1, 4), (3, 3)),
             UnsilenceableRegion((3, 10), (5, 2)),
         ]
-        corrected_errors, not_added = correct_line_numbers(regions, [error])
+        corrected_errors, not_added = divide_errors(regions, [error])
         assert len(corrected_errors) == 0
         assert len(not_added) == 1
 
@@ -199,7 +199,7 @@ class TestCorrectLineNumbers:
     def test_should_separate_error_on_explicitly_continued_line() -> None:
         error = MypyError("", 1, 0, "", "")
         regions = [UnsilenceableRegion((1, 8), (1, 9))]
-        corrected_errors, not_added = correct_line_numbers(regions, [error])
+        corrected_errors, not_added = divide_errors(regions, [error])
         assert len(corrected_errors) == 0
         assert not_added[0].line_no == 1
         assert len(not_added) == 1
@@ -208,7 +208,7 @@ class TestCorrectLineNumbers:
     def test_should_not_change_line_number_for_single_line_errors() -> None:
         error = MypyError("", 1, 0, "", "")
         regions = []
-        corrected_errors, not_added = correct_line_numbers(regions, [error])
+        corrected_errors, not_added = divide_errors(regions, [error])
         assert corrected_errors
         assert corrected_errors[0].line_no == 1
         assert len(not_added) == 0
