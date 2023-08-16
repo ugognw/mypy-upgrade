@@ -11,10 +11,29 @@ This project implements a version of
 
 ## [Unreleased]
 
+### Added
+
+* Do not silence `syntax` errors
+
+* `mypy_upgrade.utils.get_lines_and_tokens`
+
+### Changed
+
+* `mypy_upgrade.silence.silence_errors` accepts `python_code` and `comment`
+arguments instead of `line` argument
+
+* `mypy_upgrade.utils.find_unsilenceable_regions` accepts `tokens` and `comments` arguments instead of `TextIO` argument
+
+* `mypy_upgrade.utils.correct_line_numbers` accepts `unsilenceable_regions` instead of `TextIO` argument
+
+* Rename `mypy_upgrade.utils.correct_line_numbers` to `mypy_upgrade.utils.divide_errors`
+
 ### Removed
 
 * Support for silencing errors preceding same line multiline string
     (`mypy_upgrade.utils.find_safe_end_line` changed accordingly)
+
+* `mypy_upgrade.utils.split_code_and_comment`
 
 ## [0.0.1-beta.3] - 2023-08-11
 
