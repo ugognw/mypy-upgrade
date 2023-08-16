@@ -2,6 +2,7 @@
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
+import io
 import tokenize
 from collections.abc import Iterable, Sequence
 from typing import NamedTuple, TextIO
@@ -42,12 +43,11 @@ def get_lines_and_tokens(
         whose second entry is a list of `TokenInfo` objects representing the
         tokens in `stream`.
     """
-    lines = []
+    lines = stream.readlines()
+    copied_stream = io.StringIO("".join(lines))
     tokens = []
-    for token in tokenize.generate_tokens(stream.readline):
+    for token in tokenize.generate_tokens(copied_stream.readline):
         tokens.append(token)
-        if token.line not in lines:
-            lines.append(token.line)
 
     return lines, tokens
 
