@@ -296,7 +296,6 @@ class TestMypyUpgrade:
 @pytest.mark.cli
 class TestCLI:
     @staticmethod
-    @pytest.mark.skip
     @pytest.mark.skipif(
         "CI" not in os.environ or "MYPY_UPGRADE_TARGET" not in os.environ,
         reason="CI-only tests or no target specified for mypy-upgrade",
