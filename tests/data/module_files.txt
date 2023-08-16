@@ -1,4 +1,0 @@
-src/mypy_upgrade/__init__.py
-src/mypy_upgrade/__about__.py
-src/mypy_upgrade/__main__.py
-src/mypy_upgrade
