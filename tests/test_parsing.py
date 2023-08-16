@@ -17,7 +17,7 @@ class TestParseReport:
     ) -> None:
         summary = report.readlines()[-1]
 
-        match = re.search(r"Found (?P<num_errors>\d+) errors", summary)
+        match = re.search(r"Found (?P<num_errors>\d+) error", summary)
         assert match is not None
         num_errors = int(match.group("num_errors"))
         assert num_errors == len(parsed_errors)
