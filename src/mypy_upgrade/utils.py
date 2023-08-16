@@ -112,11 +112,11 @@ def find_safe_end_line(
     return error.line_no
 
 
-def correct_line_numbers(
+def divide_errors(
     unsilenceable_regions: Iterable[UnsilenceableRegion],
     errors: Iterable[MypyError],
 ) -> tuple[list[MypyError], list[MypyError]]:
-    """Correct the line numbers of MypyErrors considering multiline statements.
+    """Divide the MypyErrors into safe and unsafe to silence.
 
     Args:
         unsilenceable_regions: an iterable whose elements are
@@ -134,7 +134,7 @@ def correct_line_numbers(
     for error in errors:
         end_line = find_safe_end_line(error, unsilenceable_regions)
 
-        if end_line == -1:
+        if end_line == -1 or error.error_code == "syntax":
             unsilenceable_errors.append(error)
         else:
             line_corrected_errors.append(
