@@ -23,7 +23,11 @@ from mypy_upgrade.parsing import (
     parse_mypy_report,
 )
 from mypy_upgrade.silence import silence_errors
-from mypy_upgrade.utils import correct_line_numbers, get_comments
+from mypy_upgrade.utils import (
+    correct_line_numbers,
+    find_unsilenceable_regions,
+    get_lines_and_tokens,
+)
 from mypy_upgrade.warnings import (
     MISSING_ERROR_CODES,
     TRY_SHOW_ABSOLUTE_PATH,
@@ -218,13 +222,10 @@ def mypy_upgrade(
     ):
         try:
             with pathlib.Path(filename).open(encoding="utf-8") as f:
-                safe_to_silence, unsafe_to_silence = correct_line_numbers(
-                    f, filename_grouped_errors
-                )
-                f.seek(0)
-                comments = get_comments(f)
-                f.seek(0)
-                lines = f.readlines()
+                lines, tokens = get_lines_and_tokens(f)
+                comments = [
+                    t for t in tokens if t.exact_type == tokenize.COMMENT
+                ]
         except FileNotFoundError:
             messages.append(
                 TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
@@ -234,7 +235,10 @@ def mypy_upgrade(
             )
         except tokenize.TokenError:
             pass
-
+        unsilenceable_regions = find_unsilenceable_regions(tokens, comments)
+        safe_to_silence, unsafe_to_silence = correct_line_numbers(
+            unsilenceable_regions, filename_grouped_errors
+        )
         not_silenced.extend(unsafe_to_silence)
 
         for line_number, line_grouped_errors in itertools.groupby(

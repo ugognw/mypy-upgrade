@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import tokenize
-from collections.abc import Iterable
+from collections.abc import Container, Iterable
 from typing import NamedTuple, TextIO
 
 from mypy_upgrade.parsing import MypyError
@@ -29,20 +29,30 @@ class UnsilenceableRegion(NamedTuple):
     end: tuple[int, int]  # line, column
 
 
-def get_comments(stream: TextIO) -> tokenize.TokenInfo:
-    return [
-        t
-        for t in tokenize.generate_tokens(stream.readline)
-        if t.exact_type == tokenize.COMMENT
-    ]
+def get_lines_and_tokens(
+    stream: TextIO,
+) -> tuple[list[str], list[tokenize.TokenInfo]]:
+    lines = []
+    tokens = []
+    for token in tokenize.generate_tokens(stream.readline):
+        tokens.append(token)
+        if token.line not in lines:
+            lines.append(token.line)
+
+    return lines, tokens
 
 
-def find_unsilenceable_regions(stream: TextIO) -> list[UnsilenceableRegion]:
+def find_unsilenceable_regions(
+    tokens: Iterable[tokenize.TokenInfo],
+    comments: Container[tokenize.TokenInfo],
+) -> list[UnsilenceableRegion]:
     """Find the regions encapsulated by line continuation characters or
     by multiline strings
 
     Args:
-        stream: A text stream.
+        tokens: an `Iterable` of `tokenize.TokenInfo` instances.
+        comments: an `Iterable` of `tokenize.TokenInfo` instances which are
+            `tokenize.COMMENT`'s.
 
     Returns:
         A list of UnsilenceableRegion objects.
@@ -53,20 +63,15 @@ def find_unsilenceable_regions(stream: TextIO) -> list[UnsilenceableRegion]:
         UnsilienceableRegion objects whose first entries in their `start` and
         `end` attributes are the same.
     """
-    all_lines = list(tokenize.generate_tokens(stream.readline))
     unsilenceable_regions = []
-    for token in all_lines:
+    for token in tokens:
         if (
             token.start[0] != token.end[0]
             and token.exact_type == tokenize.STRING
         ):
             region = UnsilenceableRegion(token.start, token.end)
             unsilenceable_regions.append(region)
-
-    comments = [t for t in all_lines if t.exact_type == tokenize.COMMENT]
-
-    for token in all_lines:
-        if token.line.rstrip("\r\n").endswith("\\") and not any(
+        elif token.line.rstrip("\r\n").endswith("\\") and not any(
             comment.line == token.line for comment in comments
         ):
             start = token.end[0], 0
@@ -114,14 +119,15 @@ def find_safe_end_line(
 
 
 def correct_line_numbers(
-    stream: TextIO, errors: Iterable[MypyError]
+    unsilenceable_regions: Iterable[UnsilenceableRegion],
+    errors: Iterable[MypyError],
 ) -> tuple[list[MypyError], list[MypyError]]:
     """Correct the line numbers of MypyErrors considering multiline statements.
 
     Args:
-        stream: A text stream from which the line numbers of provided errors
-            are to be corrected.
-        errors: The errors whose line numbers are to be corrected.
+        unsilenceable_regions: an iterable whose elements are
+            `UnsilenceableRegion`'s in the same file as the errors.
+        errors: the errors whose line numbers are to be corrected.
 
     Returns:
         A 2-tuple whose first entry is a list in which each entry is a
@@ -129,7 +135,6 @@ def correct_line_numbers(
         added (with line numbers corrected) and whose second entry is a list
         of each `MypyError` that cannot be silenced.
     """
-    unsilenceable_regions = find_unsilenceable_regions(stream)
     line_corrected_errors = []
     unsilenceable_errors = []
     for error in errors:
