@@ -9,6 +9,13 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
+## [Unreleased]
+
+### Removed
+
+* Support for silencing errors preceding same line multiline string
+    (`mypy_upgrade.utils.find_safe_end_line` changed accordingly)
+
 ## [0.0.1-beta.3] - 2023-08-11
 
 ### Changed
@@ -288,6 +295,7 @@ represents those errors that cannot be safely silenced
 
 * First release
 
+[Unreleased]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.3...development
 [0.0.1-beta.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.2...release-0.0.1-beta.3
 [0.0.1-beta.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.1...release-0.0.1-beta.2
 [0.0.1-beta.1]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-alpha.5...release-0.0.1-beta.1
