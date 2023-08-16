@@ -268,7 +268,7 @@ class TestMypyUpgrade:
         return filename
 
     @staticmethod
-    def test_should_silence_all_silenceable_errors(
+    def test_should_silence_all_silenceable_errors_but_allow_unused_ignore(
         mypy_report_post: pathlib.Path, mypy_upgrade_results: MypyUpgradeResult
     ) -> None:
         with mypy_report_post.open(encoding="utf-8") as file:
@@ -278,6 +278,7 @@ class TestMypyUpgrade:
             error
             for error in errors
             if error not in mypy_upgrade_results.not_silenced
+            and error.error_code != "unused-ignore"
         ]
         assert not missed_errors
 
