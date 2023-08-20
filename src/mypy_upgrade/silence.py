@@ -7,7 +7,7 @@ import pathlib
 import sys
 import tokenize
 from collections.abc import Iterable, Iterator
-from typing import NamedTuple
+from typing import NamedTuple, TextIO
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -150,13 +150,29 @@ def silence_errors_on_line(
 
 
 def silence_errors_in_file(
-    filename: str,
+    file: TextIO,
     errors: Iterator[MypyError],
     description_style: str,
     fix_me: str,
 ) -> list[MypyError]:
-    with pathlib.Path(filename).open(encoding="utf-8") as f:
-        lines, tokens = get_lines_and_tokens(f)
+    """Silence errors in a given file.
+
+    Args:
+        file: A TextIO instance that must be opened for both reading and
+        writing
+        errors: an `Iterator` that returns `MypyError` instances.
+        description_style:  a string specifying the style of error descriptions
+            appended to the end of error suppression comments. A value of
+            "full" appends the complete error message. A value of "none"
+            does not append anything.
+        fix_me: a string specifying the 'Fix Me' message in type error
+            suppresion comments. Pass "" to omit a 'Fix Me' message
+            altogether. All trailing whitespace will be trimmed.
+
+    Returns:
+        A list of `MypyError`s which were silenced in the given file.
+    """
+    lines, tokens = get_lines_and_tokens(file)
 
     comments = [t for t in tokens if t.exact_type == tokenize.COMMENT]
     safe_to_silence = get_safe_to_silence_errors(tokens, comments, errors)
@@ -175,9 +191,9 @@ def silence_errors_in_file(
             description_style,
             fix_me,
         )
-
-    with pathlib.Path(filename).open(mode="w", encoding="utf-8") as f:
-        _ = f.write("".join(lines))
+    file.seek(0)
+    _ = file.write("".join(lines))
+    file.truncate()
 
     return safe_to_silence
 
@@ -228,9 +244,16 @@ def silence_errors_in_report(
         errors, key=lambda error: error.filename
     ):
         try:
-            silenced = silence_errors_in_file(
-                filename, filename_grouped_errors, description_style, fix_me
-            )
+            with pathlib.Path(filename).open(
+                mode="r+", encoding="utf-8"
+            ) as file:
+                safe_to_silence = silence_errors_in_file(
+                    file,
+                    filename_grouped_errors,
+                    description_style,
+                    fix_me,
+                )
+            silenced.append(safe_to_silence)
         except FileNotFoundError:
             messages += TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
         except tokenize.TokenError:
