@@ -30,6 +30,17 @@ class UnsilenceableRegion(NamedTuple):
     end: tuple[int, int]  # line, column
 
 
+def split_into_code_and_comment(line, comments) -> tuple[str, str]:
+    comment = ""
+    for comment_ in comments:
+        if comment_.line == line:
+            comment = comment_.string
+            break
+
+    python_code = line.replace(comment, "")
+    return python_code.rstrip(), comment.rstrip()
+
+
 def get_lines_and_tokens(
     stream: TextIO,
 ) -> tuple[list[str], list[tokenize.TokenInfo]]:
@@ -122,11 +133,12 @@ def find_safe_end_line(
     return error.line_no
 
 
-def divide_errors(
-    unsilenceable_regions: Iterable[UnsilenceableRegion],
+def get_safe_to_silence_errors(
+    tokens: list[tokenize.TokenInfo],
+    comments: list[tokenize.TokenInfo],
     errors: Iterable[MypyError],
-) -> tuple[list[MypyError], list[MypyError]]:
-    """Divide the MypyErrors into safe and unsafe to silence.
+) -> list[MypyError]:
+    """Find the MypyErrors which are safe to silence.
 
     Args:
         unsilenceable_regions: an iterable whose elements are
@@ -134,20 +146,16 @@ def divide_errors(
         errors: the errors whose line numbers are to be corrected.
 
     Returns:
-        A 2-tuple whose first entry is a list in which each entry is a
-        `MypyError` from `errors` for which type suppression comments can be
-        added (with line numbers corrected) and whose second entry is a list
-        of each `MypyError` that cannot be silenced.
+        A list in which each entry is a `MypyError` from `errors` for which
+        type suppression comments can be added (with line numbers corrected).
     """
-    line_corrected_errors = []
-    unsilenceable_errors = []
+    unsilenceable_regions = find_unsilenceable_regions(tokens, comments)
+    safe_to_silence = []
     for error in errors:
         end_line = find_safe_end_line(error, unsilenceable_regions)
 
-        if end_line == -1 or error.error_code == "syntax":
-            unsilenceable_errors.append(error)
-        else:
-            line_corrected_errors.append(
+        if end_line != -1 and error.error_code != "syntax":
+            safe_to_silence.append(
                 MypyError(
                     error.filename,
                     end_line,
@@ -157,4 +165,4 @@ def divide_errors(
                 )
             )
 
-    return line_corrected_errors, unsilenceable_errors
+    return safe_to_silence
