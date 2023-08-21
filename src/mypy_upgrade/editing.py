@@ -84,7 +84,7 @@ def format_type_ignore_comment(comment: str) -> str:
     return formatted_comment
 
 
-def remove_unused_type_ignore_comment(
+def remove_unused_type_ignore_comments(
     comment: str, codes_to_remove: Iterable[str]
 ) -> str:
     """Remove specified error codes from a comment string.
