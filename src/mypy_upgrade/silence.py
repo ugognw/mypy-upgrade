@@ -60,30 +60,27 @@ def _collect_errors(report: pathlib.Path | None) -> list[MypyError]:
 
 def _extract_error_details(
     errors: Iterable[MypyError],
-) -> tuple[list[str], list[str], str | None]:
-    """Get error codes/descriptions to add and message from error to remove."""
-    error_codes = []
-    descriptions = []
-    to_remove_message: str | None = None
+) -> tuple[list[str], list[str], list[str]]:
+    """Get error codes to add/remove and descriptions to add."""
+    codes_to_add = []
+    descriptions_to_add = []
+    codes_to_remove = []
     for error in errors:
-        if error.error_code == "unused-ignore":
-            to_remove_message = error.message
-        elif error.error_code == "ignore-without-code":
-            suggested_error_codes = string_to_error_codes(error.message)
-            # any error codes in error.message will be used to silence errors
-            if suggested_error_codes:
-                for error_code in suggested_error_codes:
-                    if error_code not in error_codes:
-                        error_codes.append(error_code)
-                        descriptions.append("")
+        codes_in_message = string_to_error_codes(error.message)
+        if error.error_code == "unused-ignore" or (
             # 0 error codes in error.message = unused `type: ignore`
-            else:
-                to_remove_message = to_remove_message or ""
-        elif error.error_code not in error_codes:
-            error_codes.append(error.error_code)
-            descriptions.append(error.message)
+            error.error_code == "ignore-without-code"
+            and not codes_in_message
+        ):
+            codes_to_remove.extend(codes_in_message)
+        elif error.error_code == "ignore-without-code":
+            codes_to_add.extend(codes_in_message)
+            descriptions_to_add.extend("No message" for _ in codes_in_message)
+        else:
+            codes_to_add.append(error.error_code)
+            descriptions_to_add.append(error.message)
 
-    return error_codes, descriptions, to_remove_message
+    return codes_to_add, descriptions_to_add, codes_to_remove
 
 
 def _generate_suppression_comment(
