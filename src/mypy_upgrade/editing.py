@@ -51,37 +51,20 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
 def format_type_ignore_comment(comment: str) -> str:
     """Remove excess whitespace and commas from a `"type: ignore"` comment."""
     type_ignore_re = re.compile(
-        r"type\s*:\s*ignore(\[(?P<error_codes>[a-z, \-]+)\])?"
+        r"type\s*:\s*ignore(\[(?P<error_codes>[a-z, \-]*)\])?"
     )
     match = type_ignore_re.search(comment)
 
     # Format existing error codes
-    if match:
-        error_codes = match.group("error_codes")
-        if error_codes:
-            pruned_error_codes = []
-            for code in error_codes.split(","):
-                pruned_code = code.strip()
-                if pruned_code:
-                    pruned_error_codes.append(pruned_code)
+    if match is None:
+        return comment.rstrip()
 
-            formatted_comment = comment.replace(
-                error_codes, ", ".join(pruned_error_codes)
-            )
-            if pruned_error_codes:
-                return formatted_comment
+    error_codes_section = match.group("error_codes") or ""
+    comma_separated_codes = error_codes_section.replace(" ", "")
+    error_codes = [e for e in comma_separated_codes.split(",") if e]
 
-            # Format again if there are no error codes
-            return format_type_ignore_comment(formatted_comment)
-
-    # Delete "type: ignore", "type: ignore[]"
-    formatted_comment = re.sub(r"type\s*:\s*ignore\s*(\[\])?", "", comment)
-
-    # Return empty string if nothing is left in the comment
-    if not re.search(r"[^#\s]", formatted_comment):
-        return ""
-
-    return formatted_comment
+    codes = f'[{", ".join(error_codes)}]' if error_codes else ""
+    return type_ignore_re.sub(f"type: ignore{codes}", comment).rstrip()
 
 
 def remove_unused_type_ignore_comments(

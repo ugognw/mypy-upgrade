@@ -77,17 +77,17 @@ def test_should_remove_dangling_commas2(
 
 
 @pytest.mark.parametrize("type_ignore_comment", NO_ERROR_CODE_TYPE_IGNORES)
-def test_should_remove_type_ignore_without_error_codes(
+def test_should_clean_type_ignore_without_error_codes(
     type_ignore_comment: str,
 ) -> None:
-    assert format_type_ignore_comment(type_ignore_comment) == ""
+    assert format_type_ignore_comment(type_ignore_comment) == "type: ignore"
 
 
 @pytest.mark.parametrize("type_ignore_stub", NO_ERROR_CODE_TYPE_IGNORES)
 def test_should_remove_trailing_whitespace(
     type_ignore_stub: str,
 ) -> None:
-    assert format_type_ignore_comment(type_ignore_stub + " ") == ""
+    assert format_type_ignore_comment(type_ignore_stub + " ") == "type: ignore"
 
 
 @pytest.mark.parametrize(
