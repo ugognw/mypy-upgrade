@@ -23,17 +23,17 @@ COMMENT_SUFFIXES = [
 
 
 @pytest.fixture(name="error_codes", scope="class", params=CODE_COMBINATIONS)
-def fixture_error_codes(request: pytest.FixtureRequest) -> str:
-    comment_suffix: str = request.param
-    return comment_suffix
+def fixture_error_codes(request: pytest.FixtureRequest) -> list[str]:
+    error_codes: list[str] = request.param
+    return error_codes
 
 
 @pytest.fixture(
     name="codes_to_remove", scope="class", params=CODE_COMBINATIONS
 )
-def fixture_codes_to_remove(request: pytest.FixtureRequest) -> str:
-    comment_suffix: str = request.param
-    return comment_suffix
+def fixture_codes_to_remove(request: pytest.FixtureRequest) -> list[str]:
+    codes_to_remove: list[str] = request.param
+    return codes_to_remove
 
 
 @pytest.fixture(name="stub", scope="class")
