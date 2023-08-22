@@ -108,6 +108,6 @@ def string_to_error_codes(string: str) -> tuple[str, ...]:
         error_codes = max(code_match)
         if error_codes:
             # Separate and trim
-            return tuple(code.strip() for code in error_codes.split(","))
+            return tuple({code.strip() for code in error_codes.split(",")})
 
     return ()
