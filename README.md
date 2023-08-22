@@ -116,11 +116,6 @@ following flags should be set when creating the type checking report to pass to 
     * Enables `mypy-upgrade` to silence all possible mypy errors
     (see [Known Limitations](#known-limitations) for exceptions)
 
-* `--show-column-numbers`
-
-    * Allows for more precise treatment of certain type error edge cases (e.g. type checking
-    errors before the start of multiline strings)
-
 * `--show-error-codes`
 
     * Ensures that error-code specific comments are added instead of blanket `type: ignore`
@@ -168,9 +163,9 @@ error suppression.
 * Improperly specified type hints within comments
 
     * `mypy` will report a type error if a type hint is improperly specified;
-    for example, given the following code
+    for example, given the following code:
 
-        x = {}  # type: set
+            x = {}  # type: set
 
     `mypy` will produce a `type-arg` error in column 1 and `mypy-upgrade` will
     place a `# type: ignore[type-arg]` comment at the end, which will, in turn,
