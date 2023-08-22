@@ -16,10 +16,7 @@ CODE_COMBINATIONS = (
 )
 
 
-COMMENT_SUFFIXES = [
-    "",
-    "# noqa",
-]
+COMMENT_SUFFIXES = ["", "# noqa", "# description with 'type: ignore' comment"]
 
 
 @pytest.fixture(name="error_codes", scope="class", params=CODE_COMBINATIONS)
