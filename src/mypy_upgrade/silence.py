@@ -112,6 +112,17 @@ def create_suppression_comment(
     return suppression_comment
 
 
+def _writelines(file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
+    """Write an iterable of `CommentSplitLine`s to a file."""
+    to_write = []
+    for line in lines:
+        if line.comment:
+            to_write.append(f"{line.code}  {line.comment}")
+        else:
+            to_write.append(f"{line.code}")
+    return file.write("\n".join(to_write))
+
+
 def silence_errors_in_file(
     file: TextIO,
     errors: Iterable[MypyError],
@@ -155,14 +166,7 @@ def silence_errors_in_file(
         lines[i] = CommentSplitLine(lines[i].code, new_comment)
 
     file.seek(start)
-    size = start
-    to_write = []
-    for line in lines:
-        if line.comment:
-            to_write.append(f"{line.code}  {line.comment}")
-        else:
-            to_write.append(f"{line.code}")
-    size = file.write("\n".join(to_write))
+    size = start + _writelines(file, lines)
     _ = file.truncate(size)
     return safe_to_silence
 
