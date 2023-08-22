@@ -2,6 +2,7 @@
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
+import io
 import itertools
 import pathlib
 import sys
@@ -18,14 +19,16 @@ else:
 from mypy_upgrade.editing import (
     add_type_ignore_comment,
     format_type_ignore_comment,
+    remove_unused_type_ignore_comments,
 )
-from mypy_upgrade.filter import filter_by_source
+from mypy_upgrade.filter import filter_by_silenceability, filter_by_source
 from mypy_upgrade.parsing import (
     MypyError,
     parse_mypy_report,
     string_to_error_codes,
 )
 from mypy_upgrade.utils import (
+    CommentSplitLine,
     split_into_code_and_comment,
 )
 from mypy_upgrade.warnings import MISSING_ERROR_CODES, TRY_SHOW_ABSOLUTE_PATH
@@ -73,72 +76,45 @@ def _extract_error_details(
     return codes_to_add, descriptions_to_add, codes_to_remove
 
 
-def _generate_suppression_comment(
-    comment: str,
-    codes_to_add: list[str],
-    error_message: str,
-) -> str:
-    """Generates comment for error suppression."""
-    if error_message is None:
-        cleaned_comment = comment
-    else:
-        codes_to_remove = string_to_error_codes(error_message)
-        pruned_comment = remove_unused_type_ignore_comment(
-            comment, codes_to_remove
-        )
-        cleaned_comment = format_type_ignore_comment(pruned_comment)
-
-    if codes_to_add:
-        return add_type_ignore_comment(
-            cleaned_comment,
-            codes_to_add,
-        )
-    return cleaned_comment
-
-
-def silence_errors_on_line(
-    python_code: str,
+def create_suppression_comment(
     comment: str,
     errors: Iterable[MypyError],
     description_style: Literal["full", "none"],
     fix_me: str,
 ) -> str:
-    """Silences the given error on a line with an error code-specific comment.
+    """Produce a type error suppression comment from the given errors.
 
     Args:
-        python_code: a string representing the executable Python code on a
-            physical line.
         comment: a string representing the comment on a physical line of
             Python code.
-        error: an `Iterable` in which each entry is a `MypyError` to be
+        errors: an `Iterable` in which each entry is a `MypyError` to be
             silenced.
         description_style: a string specifying the style of the description of
             errors.
         fix_me: a string specifying a "fix me" message to be appended after the
             silencing comment.
     Returns:
-        The line with a type error suppression comment.
+        A type error suppression comment.
     """
-    codes_to_add, descriptions, message = _extract_error_details(errors)
-
-    comment_with_suppression = _generate_suppression_comment(
-        comment, codes_to_add, message
+    to_add, descriptions, to_remove = _extract_error_details(errors)
+    pruned_comment = remove_unused_type_ignore_comments(comment, to_remove)
+    formatted_comment = format_type_ignore_comment(pruned_comment)
+    suppression_comment = add_type_ignore_comment(
+        formatted_comment,
+        to_add,
     )
-
-    updated_line = f"{python_code}  {comment_with_suppression}".rstrip()
-
     if fix_me:
-        updated_line += f" # {fix_me}"
+        suppression_comment += f" # {fix_me}"
 
     if description_style == "full" and descriptions:
-        updated_line += f" # {', '.join(descriptions)}"
+        suppression_comment += f" # {', '.join(descriptions)}"
 
-    return updated_line + "\n"
+    return suppression_comment
 
 
 def silence_errors_in_file(
     file: TextIO,
-    errors: Iterator[MypyError],
+    errors: Iterable[MypyError],
     description_style: str,
     fix_me: str,
 ) -> list[MypyError]:
@@ -146,12 +122,12 @@ def silence_errors_in_file(
 
     Args:
         file: A TextIO instance that must be opened for both reading and
-        writing
-        errors: an `Iterator` that returns `MypyError` instances.
+            writing.
+        errors: an iterable of `MypyError`s.
         description_style:  a string specifying the style of error descriptions
-            appended to the end of error suppression comments. A value of
-            "full" appends the complete error message. A value of "none"
-            does not append anything.
+            appended to the end of error suppression comments.
+                - A value of "full" appends the complete error message.
+                - A value of "none" does not append anything.
         fix_me: a string specifying the 'Fix Me' message in type error
             suppresion comments. Pass "" to omit a 'Fix Me' message
             altogether. All trailing whitespace will be trimmed.
@@ -159,29 +135,34 @@ def silence_errors_in_file(
     Returns:
         A list of `MypyError`s which were silenced in the given file.
     """
-    lines, tokens = get_lines_and_tokens(file)
-
-    comments = [t for t in tokens if t.exact_type == tokenize.COMMENT]
-    safe_to_silence = get_safe_to_silence_errors(tokens, comments, errors)
+    start = file.tell()
+    raw_code = file.read()
+    tokens = list(tokenize.generate_tokens(io.StringIO(raw_code).readline))
+    lines = split_into_code_and_comment(raw_code, tokens)
+    safe_to_silence = filter_by_silenceability(errors, lines, tokens)
 
     for line_number, line_grouped_errors in itertools.groupby(
-        safe_to_silence, key=lambda error: error.line_no
+        safe_to_silence, key=attrgetter("line_no")
     ):
-        python_code, comment = split_into_code_and_comment(
-            lines[line_number - 1], comments
-        )
-
-        lines[line_number - 1] = silence_errors_on_line(
-            python_code,
-            comment,
+        i = line_number - 1
+        new_comment = create_suppression_comment(
+            lines[i].comment,
             line_grouped_errors,
             description_style,
             fix_me,
         )
-    file.seek(0)
-    _ = file.write("".join(lines))
-    file.truncate()
+        lines[i] = CommentSplitLine(lines[i].code, new_comment)
 
+    file.seek(start)
+    size = start
+    to_write = []
+    for line in lines:
+        if line.comment:
+            to_write.append(f"{line.code}  {line.comment}")
+        else:
+            to_write.append(f"{line.code}")
+    size = file.write("\n".join(to_write))
+    _ = file.truncate(size)
     return safe_to_silence
 
 
