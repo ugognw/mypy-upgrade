@@ -21,7 +21,8 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
         comment added
     """
     type_ignore = re.compile(r"# type\s*:\s*ignore(\[[a-z, \-]*\])?")
-    existing_codes = string_to_error_codes(type_ignore.match(comment).string)
+    match = type_ignore.match(comment)
+    existing_codes = string_to_error_codes(match.string if match else "")
     error_codes.extend(existing_codes)
     codes = f'[{", ".join(sorted({*error_codes}))}]' if error_codes else ""
     return type_ignore.sub(f"# type: ignore{codes}", comment).rstrip()
@@ -60,13 +61,13 @@ def remove_unused_type_ignore_comments(
         A copy of the original string with the specified error codes removed.
     """
     type_ignore = re.compile(
-        r"type\s*:\s*ignore(\[(?P<error_code>[a-z, \-]+)\])?"
+        r"#\s*type\s*:\s*ignore(\[(?P<error_code>[a-z, \-]+)\])?"
     )
     if "*" in codes_to_remove:
         return type_ignore.sub("", comment)
 
     match = type_ignore.search(comment)
-    old_codes = match.group("error_code") or ""
+    old_codes = match.group("error_code") or "" if match is not None else ""
     new_codes = old_codes
     for code in codes_to_remove:
         new_codes = new_codes.replace(code, "")
