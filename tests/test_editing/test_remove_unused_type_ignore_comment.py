@@ -58,3 +58,12 @@ class TestAllCombinations:
         comment_suffix: str,
     ) -> None:
         assert comment_suffix in remove_result
+
+    @staticmethod
+    def test_should_not_change_comment_without_type_ignore_comment(
+        comment_suffix: str, codes_to_remove: list[str]
+    ) -> None:
+        result = remove_unused_type_ignore_comments(
+            comment_suffix, codes_to_remove
+        )
+        assert result == comment_suffix
