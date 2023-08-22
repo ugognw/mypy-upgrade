@@ -9,7 +9,7 @@ from importlib import util
 from mypy_upgrade.parsing import MypyError
 
 
-def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
+def _get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
     """Determine file system paths of given modules/packages.
 
     Args:
@@ -44,29 +44,30 @@ def get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
     return paths
 
 
-def filter_mypy_errors(
+def filter_by_source(
+    *,
     errors: list[MypyError],
     packages: list[str],
     modules: list[str],
     files: list[str],
 ) -> list[MypyError]:
-    """Select errors based on specified packages, modules, files.
+    """Filter `MypyError`s by source (e.g., packages, modules, files).
 
     Args:
-        errors: a list of MypyErrors.
+        errors: a list of `MypyError`s.
         packages: a list of strings specifying packages to be included.
         modules: a list of strings specifying modules to be included.
         files: a list of strings specifying files to be included.
 
     Returns:
-        A list of MypyErrors including only those in either ``packages``,
+        A list of `MypyError`s including only those in either ``packages``,
         ``modules``, or ``files``.
     """
     if len(packages + modules + files) == 0:
         return errors
 
-    package_paths = [p for p in get_module_paths(packages) if p is not None]
-    module_paths = [m for m in get_module_paths(modules) if m is not None]
+    package_paths = [p for p in _get_module_paths(packages) if p is not None]
+    module_paths = [m for m in _get_module_paths(modules) if m is not None]
     file_paths = [pathlib.Path(f).resolve() for f in files]
     paths = package_paths + module_paths + file_paths
     selected = []

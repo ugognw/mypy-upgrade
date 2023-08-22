@@ -234,7 +234,9 @@ def silence_errors_in_report(
         are raised during execution are stored in the `messages` attribute.
     """
     errors = _collect_errors(report)
-    filtered_errors = filter_mypy_errors(errors, packages, modules, files)
+    filtered_errors = filter_mypy_errors(
+        errors=errors, packages=packages, modules=modules, files=files
+    )
     messages = []
     silenced: list[MypyError] = []
     for filename, filename_grouped_errors in itertools.groupby(
