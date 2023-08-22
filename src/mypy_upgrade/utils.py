@@ -2,9 +2,9 @@
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
-import io
 import tokenize
-from typing import NamedTuple, TextIO
+from collections.abc import Iterable
+from typing import NamedTuple
 
 
 class CommentSplitLine(NamedTuple):
@@ -12,34 +12,33 @@ class CommentSplitLine(NamedTuple):
     comment: str
 
 
-def split_into_code_and_comment(line, comments) -> tuple[str, str]:
-    comment = ""
-    for comment_ in comments:
-        if comment_.line == line:
-            comment = comment_.string
-            break
-
-    python_code = line.replace(comment, "")
-    return python_code.rstrip(), comment.rstrip()
-
-
-def get_lines_and_tokens(
-    stream: TextIO,
-) -> tuple[list[str], list[tokenize.TokenInfo]]:
-    """Extract lines and tokenize text stream.
+def split_into_code_and_comment(
+    source: str, tokens: Iterable[tokenize.TokenInfo]
+) -> list[CommentSplitLine]:
+    """Split lines of source code into code and comments.
 
     Args:
-        stream: a TextIO object.
+        source: a string representing source code.
+        tokens: an iterable containing the `TokenInfo` objects generated from
+            tokenizing `source`.
 
     Returns:
-        A 2-tuple whose first entry is a list of all lines in `stream` and
+        A list of all lines in `source` (split into code and comment) and
         whose second entry is a list of `TokenInfo` objects representing the
-        tokens in `stream`.
+        tokens in `source`.
     """
-    lines = stream.readlines()
-    copied_stream = io.StringIO("".join(lines))
-    tokens = []
-    for token in tokenize.generate_tokens(copied_stream.readline):
-        tokens.append(token)
+    code_lines = source.splitlines()
+    comments = [""] * len(code_lines)
 
-    return lines, tokens
+    for token in tokens:
+        if token.exact_type == tokenize.COMMENT:
+            line = token.start[0] - 1
+            comments[line] = token.string
+            code_lines[line] = code_lines[: token.start[1]]
+
+    lines = [
+        CommentSplitLine(code, comment)
+        for code, comment in zip(code_lines, comments)
+    ]
+
+    return lines
