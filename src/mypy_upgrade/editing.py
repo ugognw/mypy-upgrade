@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Collection
 
 
 def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
@@ -85,26 +85,27 @@ def format_type_ignore_comment(comment: str) -> str:
 
 
 def remove_unused_type_ignore_comments(
-    comment: str, codes_to_remove: Iterable[str]
+    comment: str, codes_to_remove: Collection[str]
 ) -> str:
     """Remove specified error codes from a comment string.
 
     Args:
         comment: a string whose "type: ignore" codes are to be removed.
-        codes_to_remove: an iterable of strings which represent mypy error
-            codes. If this iterable is length zero, the entire "type: ignore"
-            comment is removed.
+        codes_to_remove: a collection of strings which represent mypy error
+            codes.
 
     Returns:
         A copy of the original string with the specified error codes removed.
     """
-    if codes_to_remove:
-        pruned_comment = comment
-        for code_to_remove in codes_to_remove:
-            pruned_comment = pruned_comment.replace(code_to_remove, "")
-    else:
-        pruned_comment = re.sub(
-            r"type\s*:\s*ignore(\[[a-z, \-]+\])?", "", comment
-        )
+    type_ignore_re = re.compile(
+        r"type\s*:\s*ignore(\[(?P<error_code>[a-z, \-]+)\])?"
+    )
+    if "*" in codes_to_remove:
+        return type_ignore_re.sub("", comment)
 
-    return pruned_comment
+    match = type_ignore_re.search(comment)
+    old_codes = match.group("error_code") or ""
+    new_codes = old_codes
+    for code in codes_to_remove:
+        new_codes = new_codes.replace(code, "")
+    return type_ignore_re.sub(f"type: ignore[{new_codes}]", comment)
