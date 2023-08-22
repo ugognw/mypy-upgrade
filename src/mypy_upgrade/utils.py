@@ -34,10 +34,10 @@ def split_into_code_and_comment(
         if token.exact_type == tokenize.COMMENT:
             line = token.start[0] - 1
             comments[line] = token.string
-            code_lines[line] = code_lines[: token.start[1]]
+            code_lines[line] = code_lines[line][: token.start[1]]
 
     lines = [
-        CommentSplitLine(code, comment)
+        CommentSplitLine(code.rstrip(), comment)
         for code, comment in zip(code_lines, comments)
     ]
 
