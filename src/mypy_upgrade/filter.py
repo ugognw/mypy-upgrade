@@ -128,7 +128,7 @@ def _find_unsilenceable_regions(
         objects whose first entries in their `start` and `end` attributes are
         the same.
     """
-    unsilenceable_regions: set[UnsilenceableRegion] = {}
+    unsilenceable_regions: set[UnsilenceableRegion] = set()
     for token in tokens:
         if (
             token.start[0] != token.end[0]

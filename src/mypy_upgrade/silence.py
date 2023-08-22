@@ -55,9 +55,9 @@ def _extract_error_details(
     errors: Iterable[MypyError],
 ) -> tuple[list[str], list[str], list[str]]:
     """Get error codes to add/remove and descriptions to add."""
-    codes_to_add = []
-    descriptions_to_add = []
-    codes_to_remove = []
+    codes_to_add: list[str] = []
+    descriptions_to_add: list[str] = []
+    codes_to_remove: list[str] = []
     for error in errors:
         codes_in_message = string_to_error_codes(error.message) or ("*",)
         if error.error_code == "unused-ignore" or (
@@ -126,7 +126,7 @@ def _writelines(file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
 def silence_errors_in_file(
     file: TextIO,
     errors: Iterable[MypyError],
-    description_style: str,
+    description_style: Literal["full", "none"],
     fix_me: str,
 ) -> list[MypyError]:
     """Silence errors in a given file.
@@ -151,7 +151,9 @@ def silence_errors_in_file(
     raw_code = file.read()
     tokens = list(tokenize.generate_tokens(io.StringIO(raw_code).readline))
     lines = split_into_code_and_comment(raw_code, tokens)
-    safe_to_silence = filter_by_silenceability(errors, lines, tokens)
+    safe_to_silence = filter_by_silenceability(
+        errors=errors, comments=[line.comment for line in lines], tokens=tokens
+    )
 
     for line_number, line_grouped_errors in itertools.groupby(
         safe_to_silence, key=attrgetter("line_no")
@@ -217,7 +219,7 @@ def silence_errors_in_report(
     source_filtered_errors = filter_by_source(
         errors=errors, packages=packages, modules=modules, files=files
     )
-    messages = []
+    messages: list[str] = []
     silenced: list[MypyError] = []
     for filename, filename_grouped_errors in itertools.groupby(
         errors, key=attrgetter("filename")
