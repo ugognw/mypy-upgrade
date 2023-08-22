@@ -59,11 +59,11 @@ def _extract_error_details(
     descriptions_to_add = []
     codes_to_remove = []
     for error in errors:
-        codes_in_message = string_to_error_codes(error.message)
+        codes_in_message = string_to_error_codes(error.message) or ("*",)
         if error.error_code == "unused-ignore" or (
             # 0 error codes in error.message = unused `type: ignore`
             error.error_code == "ignore-without-code"
-            and not codes_in_message
+            and "*" in codes_in_message
         ):
             codes_to_remove.extend(codes_in_message)
         elif error.error_code == "ignore-without-code":
