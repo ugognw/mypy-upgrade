@@ -178,7 +178,7 @@ def filter_by_silenceability(
     *,
     errors: Iterable[MypyError],
     comments: Sequence[str],
-    tokens: list[tokenize.TokenInfo],
+    tokens: Iterable[tokenize.TokenInfo],
 ) -> list[MypyError]:
     """Filter `MypyError`s by those which are safe to silence.
 

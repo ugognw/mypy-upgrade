@@ -1,12 +1,22 @@
 from __future__ import annotations
 
+import io
 import pathlib
 import sys
+import tokenize
+from collections.abc import Generator
 from importlib import util
 
 import pytest
 
-from mypy_upgrade.filter import filter_mypy_errors, get_module_paths
+from mypy_upgrade.filter import (
+    UnsilenceableRegion,
+    _find_unsilenceable_regions,
+    _get_module_paths,
+    _is_safe_to_silence,
+    filter_by_silenceability,
+    filter_by_source,
+)
 from mypy_upgrade.parsing import MypyError
 
 MODULES = [
@@ -40,25 +50,25 @@ class TestGetModulePaths:
 
     @staticmethod
     def test_should_return_path_of_testfile() -> None:
-        path = get_module_paths(["mypy_upgrade.cli"])[0]
+        path = _get_module_paths(["mypy_upgrade.cli"])[0]
         assert path == pathlib.Path("src/mypy_upgrade/cli.py").resolve()
 
     @staticmethod
     def test_should_return_path_of_testdir() -> None:
-        path = get_module_paths(["mypy_upgrade"])[0]
+        path = _get_module_paths(["mypy_upgrade"])[0]
         assert (
             path == pathlib.Path(__file__, "../../src/mypy_upgrade").resolve()
         )
 
     @staticmethod
     def test_should_return_none_for_nonexistent_module() -> None:
-        path = get_module_paths(["fake_module"])[0]
+        path = _get_module_paths(["fake_module"])[0]
         assert path is None
 
     @staticmethod
     def test_should_raise_error_for_built_in_module() -> None:
         with pytest.raises(NotImplementedError) as exc_info:
-            _ = get_module_paths(["sys"])
+            _ = _get_module_paths(["sys"])
         message = "Uncountered an unsupported module type."
         assert exc_info.value.args[0] == message
 
@@ -99,14 +109,17 @@ def fixture_files_to_include(request: pytest.FixtureRequest) -> list[str]:
     return files_to_include
 
 
-class TestFilterMypyErrors:
+class TestFilterBySource:
     @staticmethod
     @pytest.mark.slow
     def test_should_only_include_selected_packages(
         parsed_errors: list[MypyError], packages_to_include: list[str]
     ) -> None:
-        filtered_errors = filter_mypy_errors(
-            parsed_errors, packages_to_include, [], []
+        filtered_errors = filter_by_source(
+            errors=parsed_errors,
+            packages=packages_to_include,
+            modules=[],
+            files=[],
         )
         if packages_to_include:
             packages_supposed_to_be_included = []
@@ -123,8 +136,11 @@ class TestFilterMypyErrors:
     def test_should_only_include_selected_modules(
         parsed_errors: list[MypyError], modules_to_include: list[str]
     ) -> None:
-        filtered_errors = filter_mypy_errors(
-            parsed_errors, modules_to_include, [], []
+        filtered_errors = filter_by_source(
+            errors=parsed_errors,
+            packages=[],
+            modules=modules_to_include,
+            files=[],
         )
         if modules_to_include:
             modules_supposed_to_be_included = []
@@ -141,8 +157,11 @@ class TestFilterMypyErrors:
     def test_should_only_include_selected_files(
         parsed_errors: list[MypyError], files_to_include: list[str]
     ) -> None:
-        filtered_errors = filter_mypy_errors(
-            parsed_errors, [], [], files_to_include
+        filtered_errors = filter_by_source(
+            errors=parsed_errors,
+            packages=[],
+            modules=[],
+            files=files_to_include,
         )
         if files_to_include:
             assert all(
@@ -159,11 +178,11 @@ class TestFilterMypyErrors:
         modules_to_include: list[str],
         files_to_include: list[str],
     ) -> None:
-        filtered_errors = filter_mypy_errors(
-            parsed_errors,
-            packages_to_include,
-            modules_to_include,
-            files_to_include,
+        filtered_errors = filter_by_source(
+            errors=parsed_errors,
+            packages=packages_to_include,
+            modules=modules_to_include,
+            files=files_to_include,
         )
 
         to_include = (
@@ -178,3 +197,185 @@ class TestFilterMypyErrors:
             assert all(supposed_to_be_included)
         else:
             assert filtered_errors == parsed_errors
+
+
+class TestFindUnsilenceableRegions:
+    @staticmethod
+    def test_should_return_explicitly_continued_lines() -> None:
+        code = "\n".join(
+            [
+                "x = 1+\\",
+                "1",
+                "if x == 4:",
+                "    return True",
+            ]
+        )
+        stream = io.StringIO(code)
+        tokens = list(tokenize.generate_tokens(stream.readline))
+        comments = ["" for _ in code.splitlines()]
+        regions = _find_unsilenceable_regions(tokens=tokens, comments=comments)
+        expected = UnsilenceableRegion(1, 1)
+        assert expected in regions
+
+    @staticmethod
+    def test_should_not_return_explicitly_continued_lines_in_comment() -> None:
+        code = "x = 1 #\\"
+        stream = io.StringIO(code)
+        tokens = list(tokenize.generate_tokens(stream.readline))
+        comments = ["#\\"]
+        regions = _find_unsilenceable_regions(tokens=tokens, comments=comments)
+        assert len(regions) == 0
+
+    @staticmethod
+    def test_should_return_multiline_string() -> None:
+        code = "\n".join(
+            [
+                "x = '''Hi,",
+                "this is a multiline",
+                "string'''",
+            ]
+        )
+        stream = io.StringIO(code)
+        tokens = list(tokenize.generate_tokens(stream.readline))
+        comments = ["" for _ in code.splitlines()]
+        regions = _find_unsilenceable_regions(tokens=tokens, comments=comments)
+        expected = UnsilenceableRegion(1, 3)
+        assert expected in regions
+
+
+class TestIsSafeToSilence:
+    @staticmethod
+    def test_should_return_false_if_error_in_explicitly_continued_line() -> (  # noqa: E501
+        None
+    ):
+        error = MypyError("", 1, 0, "", "")
+        region = UnsilenceableRegion(1, 1)
+        safe_to_silence = _is_safe_to_silence(
+            error=error, unsilenceable_regions=[region]
+        )
+        assert not safe_to_silence
+
+    @staticmethod
+    def test_should_return_false_if_error_in_explicitly_continued_line_and_col_offset_is_none() -> (  # noqa: E501
+        None
+    ):
+        error = MypyError("", 1, None, "", "")
+        region = UnsilenceableRegion(1, 1)
+        safe_to_silence = _is_safe_to_silence(
+            error=error, unsilenceable_regions=[region]
+        )
+        assert not safe_to_silence
+
+    @staticmethod
+    def test_should_return_false_if_error_in_multiline_string() -> None:
+        error = MypyError("", 2, 0, "", "")
+        region = UnsilenceableRegion(1, 3)
+        safe_to_silence = _is_safe_to_silence(
+            error=error, unsilenceable_regions=[region]
+        )
+        assert not safe_to_silence
+
+    @staticmethod
+    def test_should_return_false_if_error_on_multiline_string_line_and_col_offset_is_none() -> (  # noqa: E501
+        None
+    ):
+        error = MypyError("", 2, None, "", "")
+        region = UnsilenceableRegion(1, 3)
+        safe_to_silence = _is_safe_to_silence(
+            error=error, unsilenceable_regions=[region]
+        )
+        assert not safe_to_silence
+
+    @staticmethod
+    def test_should_return_true_for_single_line_statement() -> None:
+        error = MypyError("", 2, None, "", "")
+        safe_to_silence = _is_safe_to_silence(
+            error=error, unsilenceable_regions=[]
+        )
+        assert safe_to_silence
+
+    @staticmethod
+    def test_should_return_false_for_error_before_multiline_string() -> None:
+        error = MypyError("", 1, 0, "", "")
+        region = UnsilenceableRegion(1, 3)
+        safe_to_silence = _is_safe_to_silence(
+            error=error, unsilenceable_regions=[region]
+        )
+        assert not safe_to_silence
+
+
+class TestFilterBySilenceability:
+    @staticmethod
+    @pytest.fixture(name="single_line_tokens")
+    def fixture_single_line_tokens() -> (
+        Generator[tokenize.TokenInfo, None, None]
+    ):
+        code = "x = 1"
+        reader = io.StringIO(code).readline
+        return tokenize.generate_tokens(reader)
+
+    @staticmethod
+    @pytest.fixture(name="multiline_tokens")
+    def fixture_multiline_tokens() -> (
+        Generator[tokenize.TokenInfo, None, None]
+    ):
+        code = "x = '''\nstring\n'''"
+        reader = io.StringIO(code).readline
+        return tokenize.generate_tokens(reader)
+
+    @staticmethod
+    @pytest.fixture(name="explicitly_continued_line_tokens")
+    def fixture_explicitly_continued_line_tokens() -> (
+        Generator[tokenize.TokenInfo, None, None]
+    ):
+        code = "x = x\\\n+1\n"
+        reader = io.StringIO(code).readline
+        return tokenize.generate_tokens(reader)
+
+    @staticmethod
+    @pytest.mark.parametrize("line_no", [1, 2])
+    def test_should_filter_error_within_multiline_string(
+        line_no: int,
+        multiline_tokens: Generator[tokenize.TokenInfo, None, None],
+    ) -> None:
+        error = MypyError("", line_no, 0, "", "")
+        filtered_errors = filter_by_silenceability(
+            errors=[error], comments=["", "", ""], tokens=multiline_tokens
+        )
+        assert error not in filtered_errors
+
+    @staticmethod
+    def test_should_include_error_at_end_of_multiline_string(
+        multiline_tokens: Generator[tokenize.TokenInfo, None, None],
+    ) -> None:
+        error = MypyError("", 3, 0, "", "")
+        filtered_errors = filter_by_silenceability(
+            errors=[error], comments=["", "", ""], tokens=multiline_tokens
+        )
+        assert error in filtered_errors
+
+    @staticmethod
+    def test_should_filter_error_on_explicitly_continued_line(
+        explicitly_continued_line_tokens: Generator[
+            tokenize.TokenInfo, None, None
+        ],
+    ) -> None:
+        error = MypyError("", 1, 0, "", "")
+        filtered_errors = filter_by_silenceability(
+            errors=[error],
+            comments=["", "", ""],
+            tokens=explicitly_continued_line_tokens,
+        )
+        assert error not in filtered_errors
+
+    @staticmethod
+    def test_should_not_change_line_number_for_single_line_errors(
+        single_line_tokens: Generator[tokenize.TokenInfo, None, None]
+    ) -> None:
+        error = MypyError("", 1, 0, "", "")
+        filtered_errors = filter_by_silenceability(
+            errors=[error],
+            comments=["", "", ""],
+            tokens=single_line_tokens,
+        )
+        assert error in filtered_errors
