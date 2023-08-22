@@ -121,13 +121,14 @@ def silence_errors_in_file(
     """Silence errors in a given file.
 
     Args:
-        file: A TextIO instance that must be opened for both reading and
-            writing.
+        file: A `TextIO` instance opened for both reading and writing.
         errors: an iterable of `MypyError`s.
         description_style:  a string specifying the style of error descriptions
             appended to the end of error suppression comments.
+
                 - A value of "full" appends the complete error message.
                 - A value of "none" does not append anything.
+
         fix_me: a string specifying the 'Fix Me' message in type error
             suppresion comments. Pass "" to omit a 'Fix Me' message
             altogether. All trailing whitespace will be trimmed.
