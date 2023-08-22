@@ -117,10 +117,10 @@ def _writelines(file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
     to_write = []
     for line in lines:
         if line.comment:
-            to_write.append(f"{line.code}  {line.comment}")
+            to_write.append(f"{line.code}  {line.comment}\n")
         else:
-            to_write.append(f"{line.code}")
-    return file.write("\n".join(to_write))
+            to_write.append(f"{line.code}\n")
+    return file.write("".join(to_write))
 
 
 def silence_errors_in_file(
