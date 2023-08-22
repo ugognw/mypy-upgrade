@@ -85,18 +85,6 @@ def fixture_suffix(request: pytest.FixtureRequest) -> str:
     return suffix
 
 
-@pytest.fixture(name="description_style", params=("full", "none"))
-def fixture_description_style(request: pytest.FixtureRequest) -> str:
-    description_style: str = request.param
-    return description_style
-
-
-@pytest.fixture(name="fix_me", params=("FIX ME", ""))
-def fixture_fix_me(request: pytest.FixtureRequest) -> str:
-    fix_me: str = request.param
-    return fix_me
-
-
 class TestAddErrorCodes:
     @staticmethod
     @pytest.fixture(name="index", params=range(len(SAMPLE_CODE)))
