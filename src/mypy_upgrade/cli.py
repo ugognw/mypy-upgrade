@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import pathlib
 import shutil
+import sys
 import textwrap
 
 from mypy_upgrade.__about__ import __version__
@@ -67,7 +68,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         type=pathlib.Path,
         help="""
         The path to a text file containing a mypy type checking report. If not
-        specified, input is read from standard input. Defaults to stdin.
+        specified, input is read from standard input.
         """,
     )
     parser.add_argument(
@@ -200,14 +201,26 @@ def main() -> None:
         print(f"mypy-upgrade {__version__}")  # noqa: T201
         return None
 
-    results = silence_errors_in_report(
-        args.report,
-        args.packages,
-        args.modules,
-        args.files,
-        args.description_style,
-        args.fix_me.rstrip(),
-    )
+    if args.report is None:
+        results = silence_errors_in_report(
+            sys.stdin,
+            args.packages,
+            args.modules,
+            args.files,
+            args.description_style,
+            args.fix_me.rstrip(),
+        )
+    else:
+        report: pathlib.Path = args.report
+        with report.open(mode="r", encoding="utf-8") as file:
+            results = silence_errors_in_report(
+                file,
+                args.packages,
+                args.modules,
+                args.files,
+                args.description_style,
+                args.fix_me.rstrip(),
+            )
 
     options = {
         "verbosity": args.verbosity,

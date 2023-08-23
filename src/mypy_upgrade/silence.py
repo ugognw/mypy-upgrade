@@ -174,7 +174,7 @@ def silence_errors_in_file(
 
 
 def silence_errors_in_report(
-    report: pathlib.Path | None,
+    report: TextIO,
     packages: list[str],
     modules: list[str],
     files: list[str],
@@ -187,8 +187,8 @@ def silence_errors_in_report(
     the report will be silenced.
 
     Args:
-        report: an optional `pathlib.Path` pointing to the the mypy error
-            report. If `None`, the report is read from the standard input.
+        report: a text I/O opened for reading which contains the `mypy`
+            error report text.
         packages: a list of strings representing the packages in which to
             silence errors.
         modules: a list of strings representing the modules in which to
@@ -211,11 +211,7 @@ def silence_errors_in_report(
         which an error is to be silenced or `mypy-upgrade`-related warnings
         are raised during execution are stored in the `messages` attribute.
     """
-    if report is None:
-        errors = parse_mypy_report(sys.stdin)
-    else:
-        with report.open(encoding="utf-8") as file:
-            errors = parse_mypy_report(file)
+    errors = parse_mypy_report(report)
     source_filtered_errors = filter_by_source(
         errors=errors, packages=packages, modules=modules, files=files
     )
