@@ -37,7 +37,7 @@ def split_into_code_and_comment(
             code_lines[line] = code_lines[line][: token.start[1]]
 
     lines = [
-        CommentSplitLine(code.rstrip(), comment)
+        CommentSplitLine(code, comment)
         for code, comment in zip(code_lines, comments)
     ]
 

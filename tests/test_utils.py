@@ -24,10 +24,10 @@ CODE_AND_COMMENTS = [
     ("if x == '4':", ""),
     ("", ""),
     ("This has an empty comment", "#"),
-    ("This has an empty comment", "#"),
+    ("This has an empty comment ", "#"),
     ("This has a comment", "# here"),
-    ("This has a comment", "# here"),
-    ("This has one comment that looks like two", "# here # and here"),
+    ("This has a comment ", "# here"),
+    ("This has one comment that looks like two ", "# here # and here"),
     ("This has a 'comment' in a string '# fake comment'", ""),
 ]
 
