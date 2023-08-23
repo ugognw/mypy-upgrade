@@ -74,6 +74,7 @@ def fixture_mypy_args(
     else:
         return [
             "--show-absolute-path",
+            "--hide-error-codes",
             "-p",
             mypy_upgrade_target,
         ]
