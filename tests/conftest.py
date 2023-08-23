@@ -134,9 +134,23 @@ def fixture_mypy_report_pre(
 ) -> Generator[TextIO, None, None]:
     with mypy_report_pre_filename.open("x+") as file:
         subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mypy",
+                "--install-types",
+                "--non-interactive",
+                *mypy_args,
+            ],
+            env=os.environ,
+            encoding="utf-8",
+            stdout=subprocess.DEVNULL,
+        )
+        subprocess.run(
             [sys.executable, "-m", "mypy", *mypy_args],
             env=os.environ,
             encoding="utf-8",
             stdout=file,
         )
+        file.seek(0)
         yield file
