@@ -119,14 +119,20 @@ def fixture_fix_me(request: pytest.FixtureRequest) -> str:
     return fix_me
 
 
+@pytest.fixture(name="mypy_report_pre_filename", scope="class")
+def fixture_mypy_report_pre_filename(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> pathlib.Path:
+    return tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
+
+
 @pytest.fixture(name="mypy_report_pre", scope="class")
 def fixture_mypy_report_pre(
     python_path: pathlib.Path,  # noqa: ARG001
-    tmp_path_factory: pytest.TempPathFactory,
+    mypy_report_pre_filename: pathlib.Path,
     mypy_args: list[str],
 ) -> Generator[TextIO, None, None]:
-    filename = tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
-    with filename.open("r+") as file:
+    with mypy_report_pre_filename.open("r+") as file:
         subprocess.run(
             [sys.executable, "-m", "mypy", *mypy_args],
             env=os.environ,

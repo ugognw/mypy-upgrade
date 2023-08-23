@@ -6,6 +6,7 @@ import pathlib
 import subprocess
 import sys
 from collections.abc import Generator
+from typing import TextIO
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -200,7 +201,7 @@ class TestCLI:
     @staticmethod
     @pytest.fixture(name="args", scope="class")
     def fixture_args(
-        mypy_report_pre: pathlib.Path,
+        mypy_report_pre_filename: pathlib.Path,
         description_style: Literal["full", "none"],
         fix_me: str,
         verbosity: int,
@@ -224,7 +225,7 @@ class TestCLI:
             args.append("-V")
 
         if report_input_method != "pipe":
-            args.extend(["-r", str(mypy_report_pre)])
+            args.extend(["-r", str(mypy_report_pre_filename)])
 
         return args
 
@@ -238,17 +239,16 @@ class TestCLI:
         request: pytest.FixtureRequest,
         args: list[str],
         report_input_method: str,
-        mypy_report_pre: pathlib.Path,
+        mypy_report_pre: TextIO,
     ) -> Generator[subprocess.CompletedProcess, None, None]:
         executable: list[str] = request.param
         if report_input_method == "pipe":
-            with mypy_report_pre.open(mode="r", encoding="utf-8") as report:
-                yield subprocess.run(
-                    [*executable, *args],
-                    capture_output=True,
-                    encoding="utf-8",
-                    stdin=report,
-                )
+            yield subprocess.run(
+                [*executable, *args],
+                capture_output=True,
+                encoding="utf-8",
+                stdin=mypy_report_pre,
+            )
         else:
             yield subprocess.run(
                 [*executable, *args], capture_output=True, encoding="utf-8"
