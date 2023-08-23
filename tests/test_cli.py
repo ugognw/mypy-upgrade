@@ -234,7 +234,7 @@ class TestCLI:
     @pytest.fixture(
         name="run_mypy_upgrade",
         scope="class",
-        params=(["mypy-upgrade"], [sys.executable, "-m", "mypy-upgrade"]),
+        params=(["mypy-upgrade"], [sys.executable, "-m", "mypy_upgrade"]),
     )
     def fixture_run_mypy_upgrade(
         request: pytest.FixtureRequest,
@@ -256,7 +256,11 @@ class TestCLI:
             yield subprocess.run(  # noqa: PLW1510
                 [*executable, *args], capture_output=True, encoding="utf-8"
             )
-        shutil.copytree(install_dir, python_path)
+        if sys.version_info < (3, 8):
+            shutil.rmtree(python_path)
+            shutil.copytree(install_dir, python_path)
+        else:
+            shutil.copytree(install_dir, python_path, dirs_exist_ok=True)
 
     @staticmethod
     def test_should_exit_with_zero(
@@ -279,5 +283,7 @@ class TestCLI:
     @staticmethod
     def test_should_print_version(
         run_mypy_upgrade: subprocess.CompletedProcess[str],
+        version: bool,  # noqa: FBT001
     ) -> None:
-        assert __version__ in run_mypy_upgrade.stdout
+        if version:
+            assert __version__ in run_mypy_upgrade.stdout
