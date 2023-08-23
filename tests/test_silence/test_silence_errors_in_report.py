@@ -41,7 +41,7 @@ def fixture_mypy_report_post(
     mypy_upgrade_result: MypyUpgradeResult,  # noqa: ARG001
 ) -> Generator[TextIO, None, None]:
     filename = tmp_path_factory.mktemp("reports") / "mypy_report_post.txt"
-    with filename.open("wb") as file:
+    with filename.open("r+") as file:
         subprocess.run(
             [sys.executable, "-m", "mypy", *mypy_args],
             env=os.environ,

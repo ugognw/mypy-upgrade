@@ -240,7 +240,7 @@ class TestCLI:
         args: list[str],
         report_input_method: str,
         mypy_report_pre: TextIO,
-    ) -> Generator[subprocess.CompletedProcess, None, None]:
+    ) -> Generator[subprocess.CompletedProcess[str], None, None]:
         executable: list[str] = request.param
         if report_input_method == "pipe":
             yield subprocess.run(
@@ -256,24 +256,24 @@ class TestCLI:
 
     @staticmethod
     def test_should_exit_with_zero(
-        run_mypy_upgrade: subprocess.CompletedProcess,
+        run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
         assert run_mypy_upgrade.returncode == 0
 
     @staticmethod
     def test_should_respect_verbosity(
-        run_mypy_upgrade: subprocess.CompletedProcess,
+        run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
         ...
 
     @staticmethod
     def test_should_supress_warnings(
-        run_mypy_upgrade: subprocess.CompletedProcess,
+        run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
         ...
 
     @staticmethod
     def test_should_print_version(
-        run_mypy_upgrade: subprocess.CompletedProcess,
+        run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
         assert __version__ in run_mypy_upgrade.stdout
