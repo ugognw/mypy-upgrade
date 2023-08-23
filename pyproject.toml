@@ -102,7 +102,12 @@ dependencies = [
 python = "3.11"
 
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --strict --install-types --non-interactive {args:src/mypy_upgrade tests}"
+_typing = "mypy --strict --install-types --non-interactive"
+typing = [
+  "_typing --exclude /test_editing/conftest --exclude /test_silence/conftest src/mypy_upgrade tests",
+  "_typing src/mypy_upgrade tests/test_editing/conftest.py",
+  "_typing src/mypy_upgrade tests/test_silence/conftest.py"
+]
 style = [
   "ruff {args:.}",
   "black --check --diff {args:.}",
