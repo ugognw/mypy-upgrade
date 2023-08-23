@@ -119,10 +119,7 @@ class TestAddErrorCodes:
         description_style: str,
         expected_silenced_errors: list[MypyError],
     ) -> str:
-        spacer = " " if "#" in EXPECTED_OUTPUT_CODE[index] else "  "
-        expected_output = (
-            f"{EXPECTED_OUTPUT_CODE[index]}{spacer}{suffix}".rstrip()
-        )
+        expected_output = f"{EXPECTED_OUTPUT_CODE[index]} {suffix}".rstrip()
 
         if expected_silenced_errors:
             if fix_me:
@@ -131,7 +128,7 @@ class TestAddErrorCodes:
             descriptions = [e.message for e in expected_silenced_errors]
             if description_style == "full" and descriptions:
                 expected_output += f" # {', '.join(descriptions)}"
-        return f"{expected_output}\n"
+        return f"{expected_output}"
 
     @staticmethod
     @pytest.fixture(name="file")
@@ -161,9 +158,9 @@ class TestAddErrorCodes:
     ) -> None:
         start = file.tell()
         file.seek(0)
-        contents = file.read()
+        output = file.read()
         file.seek(start)
-        assert contents == expected_output
+        assert output == expected_output
 
     @staticmethod
     def test_should_return_silenced_errors(
