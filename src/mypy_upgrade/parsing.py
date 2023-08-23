@@ -47,6 +47,7 @@ def parse_mypy_report(
             >> errors = parse_report(report)
             >> module, col_offset, line_no, message , error_code= errors[0]
     """
+    start = report.tell()
     info = re.compile(
         r"^(?P<filename>[^:]+):(?P<line_no>\d+)(:(?P<col_offset>\d+))?"
         r"(:\d+:\d+)?: error: (?P<message>.+)\s+(\[(?P<error_code>.+)\])?"
@@ -73,7 +74,7 @@ def parse_mypy_report(
                     error_code,
                 )
             )
-
+    report.seek(start)
     return sorted(errors, key=MypyError.filename_and_line_number)
 
 
