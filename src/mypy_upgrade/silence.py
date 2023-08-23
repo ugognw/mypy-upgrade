@@ -122,9 +122,9 @@ def _writelines(file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
             else:
                 to_write.append(f"{line.code.rstrip()}  {line.comment}")
         elif line.code:
-            to_write.append(f"{line.code}")
+            to_write.append(line.code)
         else:
-            to_write.append(f"{line.code}")
+            to_write.append(line.comment)
     return file.write("\n".join(to_write))
 
 
@@ -173,8 +173,8 @@ def silence_errors_in_file(
         lines[i] = CommentSplitLine(lines[i].code, new_comment)
 
     file.seek(start)
-    size = start + _writelines(file, lines)
-    _ = file.truncate(size)
+    _ = _writelines(file, lines)
+    _ = file.truncate()
     return safe_to_silence
 
 
