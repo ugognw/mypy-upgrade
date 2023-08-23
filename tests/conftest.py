@@ -119,7 +119,7 @@ def fixture_fix_me(request: pytest.FixtureRequest) -> str:
     return fix_me
 
 
-@pytest.fixture(name="mypy_report_pre_filename", scope="class")
+@pytest.fixture(name="mypy_report_pre_filename", scope="session")
 def fixture_mypy_report_pre_filename(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
@@ -132,7 +132,7 @@ def fixture_mypy_report_pre(
     mypy_report_pre_filename: pathlib.Path,
     mypy_args: list[str],
 ) -> Generator[TextIO, None, None]:
-    with mypy_report_pre_filename.open("r+") as file:
+    with mypy_report_pre_filename.open("x+") as file:
         subprocess.run(
             [sys.executable, "-m", "mypy", *mypy_args],
             env=os.environ,
