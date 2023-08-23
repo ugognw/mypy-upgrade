@@ -5,17 +5,10 @@ from __future__ import annotations
 import argparse
 import pathlib
 import shutil
-import sys
 import textwrap
 
-from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
-
-if sys.version_info < (3, 8):
-    pass
-else:
-    pass
-
 from mypy_upgrade.__about__ import __version__
+from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
 from mypy_upgrade.warnings import (
     create_not_silenced_errors_warning,
 )
