@@ -9,6 +9,145 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
+## [Unreleased]
+
+### Added
+
+* API logic added to `mypy_upgrade.silence`
+
+* `mypy_upgrade.utils.CommentSplitLine`: represents a line split into code
+and comment
+
+* `mypy_upgrade.silence.silence_errors_in_file`: silences errors in a given
+file
+
+* `mypy_upgrade.silence.create_suppression_comment`: creates error suppression
+comment
+
+* new unit tests for `mypy_upgrade.editing.remove_unused_type_ignore_comments`
+
+### Changed
+
+* `mypy_upgrade.cli.main`
+
+    * `FileNotFoundError` due to missing report file no longer caught
+
+* `mypy_upgrade.editing.add_type_ignore_comment` no longer removes
+`type: ignore` comments without codes
+
+* `mypy_upgrade.editing.format_type_ignore_comment`
+
+    * no longer remove bare `type: ignore` comments
+
+* `mypy_upgrade.editing.remove_unused_type_ignore_comments`
+
+    * accepts collections of strings for `codes_to_remove` argument
+
+    * no longer remove all codes if `codes_to_remove` "falsey"
+
+    * removes all codes in comment if `"*"` in `codes_to_remove` or all codes
+    in comment in `codes_to_remove`
+
+    * does not touch comment if no "truthy" elements in `codes_to_remove`
+    or no codes in `type: ignore` part of comment
+
+    * only removes codes in `type: ignore` part of comment
+
+* `mypy_upgrade.filter.get_module_paths` is now a private function
+(i.e., `_get_module_paths`)
+
+* `mypy_upgrade.filter.filter_mypy_errors`
+
+    * rename to `mypy_upgrade.filter.filter_by_source`
+
+    * accepts keyword-only arguments
+
+* `mypy_upgrade.main.mypy_upgrade`
+
+    * moved to `mypy_upgrade.silence` along with related logic (e.g.,
+    `MypyUpgradeResult`)
+
+    * renamed to `silence_errors_in_report`
+
+    * refactored by splitting into smaller functions (i.e.,
+    `silence_errors_in_file`, `create_suppression_comment`)
+
+    * accepts a `TextIO` instance for the `report` argument
+
+    * respect existing whitespace in code lines
+
+* `mypy_upgrade.parsing.string_to_error_codes`
+
+    * return unique error codes
+
+* `mypy_upgrade.parsing.parse_mypy_report`
+
+    * resets input stream position after reading
+
+* `mypy_upgrade.silence._extract_error_details` returns a 3-tuple of lists of
+strings
+
+    * the third element is a list of codes to remove
+
+* `mypy_upgrade.utils.divide_errors`
+
+    * moved to `mypy_upgrade.filter` module
+
+    * renamed to `filter_by_silenceability`
+
+    * accepts iterable of `MypyError` instances, sequence of strings,
+    and an iterable of `TokenInfo` instances as arguments
+
+    * returns a list of `MypyError` instances
+
+    * accepts keyword-only arguments
+
+* `mypy_upgrade.utils.find_safe_end_line`
+
+    * moved to `mypy_upgrade.filter`
+
+    * renamed to `_is_safe_to_silence`
+
+    * returns boolean
+
+    * indicates that an error on any non-terminal line of an
+    `UnsilenceableRegion` is not safe to silence
+
+    * accepts keyword-only arguments
+
+* `mypy_upgrade.utils.find_unsilenceable_regions`
+
+    * moved to `mypy_upgrade.filter`
+
+    * made private (e.g., `_find_unsilenceable_regions`)
+
+    * accepts `comments` as a sequence of strings
+
+    * accepts keyword-only arguments
+
+* `mypy_upgrade.utils.split_into_code_and_comment` now splits all lines of
+source into code and comment
+
+    * accepts string and iterable of `TokenInfo` instances as arguments
+
+    * returns list of `CommentSplitLine` instances
+
+* `mypy_upgrade.utils.UnsilenceableRegion`
+
+    * moved to `mypy_upgrade.filter`
+
+    * `start` and `end` implemented as integers instead of tuples of integers
+
+### Fixed
+
+* `mypy_upgrade.utils.find_unsilenceable_regions`
+
+    * recognize f-strings as unique tokens in Python 3.12+
+
+### Removed
+
+* `mypy_upgrade.utils.get_lines_and_tokens`
+
 ## [0.0.1-beta.4] - 2023-08-16
 
 ### Added
@@ -22,11 +161,14 @@ This project implements a version of
 * `mypy_upgrade.silence.silence_errors` accepts `python_code` and `comment`
 arguments instead of `line` argument
 
-* `mypy_upgrade.utils.find_unsilenceable_regions` accepts `tokens` and `comments` arguments instead of `TextIO` argument
+* `mypy_upgrade.utils.find_unsilenceable_regions` accepts `tokens` and
+`comments` arguments instead of `TextIO` argument
 
-* `mypy_upgrade.utils.correct_line_numbers` accepts `unsilenceable_regions` instead of `TextIO` argument
+* `mypy_upgrade.utils.correct_line_numbers` accepts `unsilenceable_regions`
+instead of `TextIO` argument
 
-* Rename `mypy_upgrade.utils.correct_line_numbers` to `mypy_upgrade.utils.divide_errors`
+* Rename `mypy_upgrade.utils.correct_line_numbers` to
+`mypy_upgrade.utils.divide_errors`
 
 * `mypy_upgrade.filter.get_module_paths` raises a `NotImplementedError` for
 built-in modules
@@ -35,14 +177,16 @@ built-in modules
 
 ### Fixed
 
-* Unable to identify comment within implicitly continued line [(see Issue #10)](https://github.com/ugognw/mypy-upgrade/issues/10)
+* Unable to identify comment within implicitly continued line
+[(see Issue #10)](https://github.com/ugognw/mypy-upgrade/issues/10)
 
 ### Removed
 
 * Support for silencing errors preceding same line multiline string
     (`mypy_upgrade.utils.find_safe_end_line` changed accordingly)
 
-    * also fixes [(see Issue #9)](https://github.com/ugognw/mypy-upgrade/issues/9)
+    * also fixes
+    [(see Issue #9)](https://github.com/ugognw/mypy-upgrade/issues/9)
 
 * `mypy_upgrade.utils.split_code_and_comment`
 
@@ -70,7 +214,8 @@ to the comment
 
 ### Added
 
-* `mypy_upgrade.filter.get_module_paths` now handles built-in and frozen modules/packages explicitly
+* `mypy_upgrade.filter.get_module_paths` now handles built-in and frozen
+modules/packages explicitly
 
 ### Changed
 
@@ -81,7 +226,8 @@ to the comment
 
 * Refactored CI-only functional tests
 
-    * CI must define `MYPY_UPGRADE_TARGET` and `MYPY_UPGRADE_TARGET_INSTALL_DIR`; no need to define `MYPY_REPORT`
+    * CI must define `MYPY_UPGRADE_TARGET` and `MYPY_UPGRADE_TARGET_INSTALL_DIR`;
+    no need to define `MYPY_REPORT`
 
     * tests run `mypy` using pytest fixtures
 
@@ -138,18 +284,21 @@ to the comment
 
 ### Changed
 
-* The order of `MypyError.line_no` and `MypyError.col_offset` has been switched
+* The order of `MypyError.line_no` and `MypyError.col_offset` has been
+switched
 
 * `mypy_upgrade.cli.mypy_upgrade` returns `MypyUpgradeResult`
 
 ### Fixed
 
 * Addition of duplicate error codes if there are duplicate error codes in the
-mypy type checking report [(see Issue #4)](https://github.com/ugognw/mypy-upgrade/issues/4)
+mypy type checking report
+[(see Issue #4)](https://github.com/ugognw/mypy-upgrade/issues/4)
 
 ### Removed
 
-* `mypy_upgrade.utils.UnsilenceableRegion.surrounds` and corresponding unit tests
+* `mypy_upgrade.utils.UnsilenceableRegion.surrounds` and corresponding unit
+tests
 
 ## [0.0.1-alpha.4] - 2023-08-06
 
@@ -157,18 +306,18 @@ mypy type checking report [(see Issue #4)](https://github.com/ugognw/mypy-upgrad
 
 * Recommended `mypy` flags in README
 
-* `--fix-me` options for CLI and corresponding positional argument in `mypy_upgrade.cli.mypy_upgrade`
-and `mypy_upgrade.silence.silence_errors`
+* `--fix-me` options for CLI and corresponding positional argument in
+`mypy_upgrade.cli.mypy_upgrade` and `mypy_upgrade.silence.silence_errors`
 
-* `mypy_upgrade.parsing.parse_report` optionally supports parsing the start column and end
-lines/columns in mypy type checking reports
+* `mypy_upgrade.parsing.parse_report` optionally supports parsing the start
+column and end lines/columns in mypy type checking reports
 
 * Sample mypy type checking reoprts for functional tests with column numbers
 
 * `MypyError` has `col_offset` as an additional field
 
-* `mypy_upgrade.utils.UnsilenceableRegion`: named tuple to represent line with line continuation
-characters or lines encapsulated by multline strings.
+* `mypy_upgrade.utils.UnsilenceableRegion`: named tuple to represent line with
+line continuation characters or lines encapsulated by multline strings.
 
 * Functions
 
@@ -184,21 +333,23 @@ characters or lines encapsulated by multline strings.
 
     * `mypy_upgrade.utils.UnsilenceableRegion.surrounds`
 
-* `mypy_upgrade.parsing.parse_mypy_report` optionally parses error line/column number start/end locations
+* `mypy_upgrade.parsing.parse_mypy_report` optionally parses error line/column
+number start/end locations
 
 ### Changed
 
-* `--with-descriptions` flag changed to `--description-style` option which accepts `full` or `none`
-as values
+* `--with-descriptions` flag changed to `--description-style` option which
+accepts `full` or `none` as values
 
-* `suffix` parameter renamed to `description_style` in `mypy_upgrade.cli.mypy_upgrade` and
-`mypy_upgrade.silence.silence_errors`
+* `suffix` parameter renamed to `description_style` in
+`mypy_upgrade.cli.mypy_upgrade` and `mypy_upgrade.silence.silence_errors`
 
 * `MypyError.description` renamed to `MypyError.message`
 
-* `mypy_upgrade.utils.correct_line_numbers` returns `tuple[list[MypyError], list[MypyError]]` whose
-first entry represents errors that can be safely silenced and whose second entry
-represents those errors that cannot be safely silenced
+* `mypy_upgrade.utils.correct_line_numbers` returns
+`tuple[list[MypyError], list[MypyError]]` whose first entry represents errors
+that can be safely silenced and whose second entry represents those errors
+that cannot be safely silenced
 
 * Unit tests
 
@@ -217,7 +368,8 @@ represents those errors that cannot be safely silenced
 
 * `typing-extensions` dependency for Python <3.8
 
-* `mypy_upgrade.cli.mypy_upgrade` function which encapsulates application logic
+* `mypy_upgrade.cli.mypy_upgrade` function which encapsulates application
+logic
 
 * README
 
@@ -235,7 +387,8 @@ represents those errors that cannot be safely silenced
 
     * `mypy_upgrade.filter`: error filtering functions
 
-    * `mypy_upgrade.parsing`: defines the `MypyError` named tuple and report parsing logic
+    * `mypy_upgrade.parsing`: defines the `MypyError` named tuple and report
+    parsing logic
 
     * `mypy_upgrade.silence`: suppress errors by add/removing comments
 
@@ -245,7 +398,8 @@ represents those errors that cannot be safely silenced
 
     * Group common data to fixtures in `conftest.py`
 
-    * Functional tests on ASE codebase (with corresponding test data and test environment dependency)
+    * Functional tests on ASE codebase (with corresponding test data and test
+    environment dependency)
 
     * Unit tests for:
 
@@ -281,13 +435,15 @@ represents those errors that cannot be safely silenced
 
     * `.get_module_paths` function moved to `mypy_upgrade.filter` module
 
-    * `.select_errors` renamed to `filter_mypy_errors` and moved to `mypy_upgrade.filter` module
+    * `.select_errors` renamed to `filter_mypy_errors` and moved to
+    `mypy_upgrade.filter` module
 
     * `.silence_error`
 
         * renamed to `silence_errors` moved to `mypy_upgrade.silence` module
 
-        * now accepts `str`, `Iterable[MypyError]`, `Literal["description"] | None` as parameters
+        * now accepts `str`, `Iterable[MypyError]`,
+        `Literal["description"] | None` as parameters
 
         * removes unused type error suppression comments
 
@@ -313,18 +469,21 @@ represents those errors that cannot be safely silenced
 
 ### Fixed
 
-* Support for placing suppression errors on the end of multiline statements [(see Issue #3)](https://github.com/ugognw/mypy-upgrade/issues/3)
+* Support for placing suppression errors on the end of multiline statements
+[(see Issue #3)](https://github.com/ugognw/mypy-upgrade/issues/3)
 
 ## [0.0.1-alpha.2] - 2023-07-31
 
 ### Fixed
 
-* `importlib.abc error` [(see Issue #2)](https://github.com/ugognw/mypy-upgrade/issues/2)
+* `importlib.abc error`
+[(see Issue #2)](https://github.com/ugognw/mypy-upgrade/issues/2)
 
 ## [0.0.1-alpha.1] - 2023-07-31
 
 * First release
 
+[Unreleased]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.4...development
 [0.0.1-beta.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.3...release-0.0.1-beta.4
 [0.0.1-beta.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.2...release-0.0.1-beta.3
 [0.0.1-beta.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.1...release-0.0.1-beta.2
