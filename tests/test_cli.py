@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 from collections.abc import Generator
@@ -240,6 +241,8 @@ class TestCLI:
         args: list[str],
         report_input_method: str,
         mypy_report_pre: TextIO,
+        python_path: pathlib.Path,
+        install_dir: pathlib.Path,
     ) -> Generator[subprocess.CompletedProcess[str], None, None]:
         executable: list[str] = request.param
         if report_input_method == "pipe":
@@ -253,6 +256,7 @@ class TestCLI:
             yield subprocess.run(
                 [*executable, *args], capture_output=True, encoding="utf-8"
             )
+        shutil.copytree(install_dir, python_path)
 
     @staticmethod
     def test_should_exit_with_zero(

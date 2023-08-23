@@ -79,17 +79,17 @@ def fixture_mypy_args(
         ]
 
 
-@pytest.fixture(name="python_path", scope="class")
+@pytest.fixture(name="python_path", scope="session")
 def fixture_python_path(
     install_dir: str,
     tmp_path_factory: pytest.TempPathFactory,
-) -> Generator[None, None, None]:
+) -> Generator[pathlib.Path, None, None]:
     tmp_dir = tmp_path_factory.mktemp("base", numbered=True)
     python_path = tmp_dir.joinpath("__pypackages__").resolve()
     shutil.copytree(install_dir, python_path)
     old_python_path = os.environ.get("PYTHONPATH", "")
     os.environ["PYTHONPATH"] = f"{python_path}:{old_python_path}"
-    yield None
+    yield python_path
     os.environ["PYTHONPATH"].replace(f"{python_path}:", "")
 
 
@@ -122,11 +122,16 @@ def fixture_fix_me(request: pytest.FixtureRequest) -> str:
 @pytest.fixture(name="mypy_report_pre_filename", scope="session")
 def fixture_mypy_report_pre_filename(
     tmp_path_factory: pytest.TempPathFactory,
+    mypy_args: list[str],
 ) -> pathlib.Path:
-    return tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
+    if "--strict" in mypy_args:
+        return tmp_path_factory.mktemp("reports").joinpath(
+            "mypy_report_pre_strict.txt"
+        )
+    return tmp_path_factory.mktemp("reports").joinpath("mypy_report_pre.txt")
 
 
-@pytest.fixture(name="mypy_report_pre", scope="class")
+@pytest.fixture(name="mypy_report_pre", scope="session")
 def fixture_mypy_report_pre(
     python_path: pathlib.Path,  # noqa: ARG001
     mypy_report_pre_filename: pathlib.Path,

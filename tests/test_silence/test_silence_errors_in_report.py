@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import os
+import pathlib
+import shutil
 import subprocess
 import sys
 from collections.abc import Generator
@@ -23,8 +25,10 @@ def fixture_mypy_upgrade_result(
     mypy_report_pre: TextIO,
     description_style: Literal["full", "none"],
     fix_me: str,
-) -> MypyUpgradeResult:
-    return silence_errors_in_report(
+    python_path: pathlib.Path,
+    install_dir: pathlib.Path,
+) -> Generator[MypyUpgradeResult, None, None]:
+    yield silence_errors_in_report(
         report=mypy_report_pre,
         packages=[],
         modules=[],
@@ -32,6 +36,11 @@ def fixture_mypy_upgrade_result(
         description_style=description_style,
         fix_me=fix_me,
     )
+    if sys.version_info < (3, 8):
+        shutil.rmtree(python_path)
+        shutil.copytree(install_dir, python_path)
+    else:
+        shutil.copytree(install_dir, python_path, dirs_exist_ok=True)
 
 
 @pytest.fixture(name="mypy_report_post", scope="class")
