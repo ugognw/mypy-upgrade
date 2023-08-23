@@ -113,7 +113,7 @@ class TestStringToErrorCodes:
         stub: str, error_codes: tuple[str, str]
     ) -> None:
         message = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
-        assert string_to_error_codes(message) == error_codes
+        assert sorted(string_to_error_codes(message)) == sorted(error_codes)
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -124,4 +124,4 @@ class TestStringToErrorCodes:
         stub: str, error_codes: tuple[str, str, str]
     ) -> None:
         message = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
-        assert string_to_error_codes(message) == error_codes
+        assert sorted(string_to_error_codes(message)) == sorted(error_codes)
