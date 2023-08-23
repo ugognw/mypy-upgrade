@@ -51,7 +51,7 @@ def fixture_mypy_report_post(
 ) -> Generator[TextIO, None, None]:
     filename = tmp_path_factory.mktemp("reports") / "mypy_report_post.txt"
     with filename.open("x+") as file:
-        subprocess.run(
+        subprocess.run(  # noqa: PLW1510
             [sys.executable, "-m", "mypy", *mypy_args],
             env=os.environ,
             stdout=file,

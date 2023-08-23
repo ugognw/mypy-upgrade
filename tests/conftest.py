@@ -138,7 +138,7 @@ def fixture_mypy_report_pre(
     mypy_args: list[str],
 ) -> Generator[TextIO, None, None]:
     with mypy_report_pre_filename.open("x+") as file:
-        subprocess.run(
+        subprocess.run(  # noqa: PLW1510
             [
                 sys.executable,
                 "-m",
@@ -151,7 +151,7 @@ def fixture_mypy_report_pre(
             encoding="utf-8",
             stdout=subprocess.DEVNULL,
         )
-        subprocess.run(
+        subprocess.run(  # noqa: PLW1510
             [sys.executable, "-m", "mypy", *mypy_args],
             env=os.environ,
             encoding="utf-8",

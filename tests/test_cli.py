@@ -246,14 +246,14 @@ class TestCLI:
     ) -> Generator[subprocess.CompletedProcess[str], None, None]:
         executable: list[str] = request.param
         if report_input_method == "pipe":
-            yield subprocess.run(
+            yield subprocess.run(  # noqa: PLW1510
                 [*executable, *args],
                 capture_output=True,
                 encoding="utf-8",
                 stdin=mypy_report_pre,
             )
         else:
-            yield subprocess.run(
+            yield subprocess.run(  # noqa: PLW1510
                 [*executable, *args], capture_output=True, encoding="utf-8"
             )
         shutil.copytree(install_dir, python_path)
