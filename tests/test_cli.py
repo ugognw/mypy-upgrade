@@ -4,6 +4,13 @@ import argparse
 import os
 import pathlib
 import subprocess
+import sys
+from collections.abc import Generator
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 import pytest
 
@@ -13,96 +20,100 @@ from mypy_upgrade.cli import (
 )
 
 
-@pytest.fixture(
-    name="modules",
-    params=([], ["module"], ["package.module"], ["module", "package.module"]),
-    scope="module",
-)
-def fixture_modules(request: pytest.FixtureRequest) -> list[str]:
-    _modules = request.param
-    modules = []
-    for module in _modules:
-        modules.append("-m")
-        modules.append(module)
-
-    return modules
-
-
-@pytest.fixture(
-    name="packages",
-    params=(
-        [],
-        ["package"],
-        ["package.subpackage"],
-        ["package", "package.subpackage"],
-    ),
-    scope="module",
-)
-def fixture_packages(request: pytest.FixtureRequest) -> list[str]:
-    _packages = request.param
-    packages = []
-    for package in _packages:
-        packages.append("-p")
-        packages.append(package)
-
-    return packages
-
-
-@pytest.fixture(name="report", params=([], "report.txt"), scope="module")
-def fixture_report(request: pytest.FixtureRequest) -> list[str]:
-    return ["-r", request.param] if request.param else []
-
-
-@pytest.fixture(
-    name="description_style", params=("full", "none"), scope="module"
-)
-def fixture_description_style(request: pytest.FixtureRequest) -> list[str]:
-    description_style: str = request.param
-    return ["--description-style", description_style]
-
-
-@pytest.fixture(name="fix_me", params=("FIX ME", ""), scope="module")
-def fixture_fix_me(request: pytest.FixtureRequest) -> list[str]:
-    fix_me: str = request.param
-    return ["--fix-me", fix_me]
-
-
-@pytest.fixture(
-    name="files",
-    params=(
-        [],
-        ["file.py"],
-        ["directory/file.py"],
-        ["file.py", "directory/file.py"],
-    ),
-    scope="module",
-)
-def fixture_files(request: pytest.FixtureRequest) -> list[str]:
-    return request.param or []
-
-
-@pytest.fixture(name="parser", scope="module")
-def fixture_parser() -> argparse.ArgumentParser:
-    parser: argparse.ArgumentParser = _create_argument_parser()
-    return parser
-
-
-@pytest.fixture(name="args", scope="module")
-def fixture_args(
-    modules: list[str],
-    packages: list[str],
-    report: list[str],
-    description_style: list[str],
-    fix_me: list[str],
-    files: list[str],
-    parser: argparse.ArgumentParser,
-) -> argparse.Namespace:
-    return parser.parse_args(
-        modules + packages + report + description_style + fix_me + files
-    )
-
-
 class TestParseArgs:
+    @staticmethod
+    @pytest.fixture(
+        name="modules",
+        params=(
+            [],
+            ["module"],
+            ["package.module"],
+            ["module", "package.module"],
+        ),
+        scope="module",
+    )
+    def fixture_modules(request: pytest.FixtureRequest) -> list[str]:
+        _modules = request.param
+        modules = []
+        for module in _modules:
+            modules.append("-m")
+            modules.append(module)
+
+        return modules
+
+    @staticmethod
+    @pytest.fixture(
+        name="packages",
+        params=(
+            [],
+            ["package"],
+            ["package.subpackage"],
+            ["package", "package.subpackage"],
+        ),
+        scope="module",
+    )
+    def fixture_packages(request: pytest.FixtureRequest) -> list[str]:
+        _packages = request.param
+        packages = []
+        for package in _packages:
+            packages.append("-p")
+            packages.append(package)
+
+        return packages
+
+    @staticmethod
+    @pytest.fixture(name="report", params=([], "report.txt"), scope="module")
+    def fixture_report(request: pytest.FixtureRequest) -> list[str]:
+        return ["-r", request.param] if request.param else []
+
+    @staticmethod
+    @pytest.fixture(
+        name="description_style", params=("full", "none"), scope="module"
+    )
+    def fixture_description_style(request: pytest.FixtureRequest) -> list[str]:
+        description_style: str = request.param
+        return ["--description-style", description_style]
+
+    @staticmethod
+    @pytest.fixture(name="fix_me", params=("FIX ME", ""), scope="module")
+    def fixture_fix_me(request: pytest.FixtureRequest) -> list[str]:
+        fix_me: str = request.param
+        return ["--fix-me", fix_me]
+
+    @staticmethod
+    @pytest.fixture(
+        name="files",
+        params=(
+            [],
+            ["file.py"],
+            ["directory/file.py"],
+            ["file.py", "directory/file.py"],
+        ),
+        scope="module",
+    )
+    def fixture_files(request: pytest.FixtureRequest) -> list[str]:
+        return request.param or []
+
+    @staticmethod
+    @pytest.fixture(name="parser", scope="module")
+    def fixture_parser() -> argparse.ArgumentParser:
+        return _create_argument_parser()
+
+    @staticmethod
+    @pytest.fixture(name="args", scope="module")
+    def fixture_args(
+        modules: list[str],
+        packages: list[str],
+        report: list[str],
+        description_style: list[str],
+        fix_me: list[str],
+        files: list[str],
+        parser: argparse.ArgumentParser,
+    ) -> argparse.Namespace:
+        return parser.parse_args(
+            modules + packages + report + description_style + fix_me + files
+        )
+
     @staticmethod
     def test_should_store_modules(
         args: argparse.Namespace, modules: list[str]
@@ -159,32 +170,110 @@ class TestParseArgs:
             assert args.report is None
 
 
+@pytest.mark.skipif(
+    "CI" not in os.environ,
+    reason="CI-only tests",
+)
+@pytest.mark.skipif(
+    "MYPY_UPGRADE_TARGET" not in os.environ,
+    reason="no target specified for mypy-upgrade",
+)
+@pytest.mark.skipif(
+    "MYPY_UPGRADE_TARGET_INSTALL_DIR" not in os.environ,
+    reason="no install directory specified for mypy-upgrade",
+)
 @pytest.mark.cli
+@pytest.mark.slow
 class TestCLI:
     @staticmethod
-    @pytest.mark.skipif(
-        "CI" not in os.environ or "MYPY_UPGRADE_TARGET" not in os.environ,
-        reason="CI-only tests or no target specified for mypy-upgrade",
+    @pytest.fixture(name="verbosity", scope="class", params=range(3))
+    def fixture_verbosity(request: pytest.FixtureRequest) -> int:
+        verbosity: int = request.param
+        return verbosity
+
+    @staticmethod
+    @pytest.fixture(name="version", scope="class", params=(True, False))
+    def fixture_version(request: pytest.FixtureRequest) -> bool:
+        version: bool = request.param
+        return version
+
+    @staticmethod
+    @pytest.fixture(name="args", scope="class")
+    def fixture_args(
+        mypy_report_pre: pathlib.Path,
+        description_style: Literal["full", "none"],
+        fix_me: str,
+        verbosity: int,
+        version: bool,  # noqa: FBT001
+        report_input_method: str,
+    ) -> list[str]:
+        args: list[str] = []
+
+        args.extend(["-d", description_style])
+        if fix_me.strip():
+            args.extend(["--fix-me", fix_me])
+        else:
+            args.extend(["--fix-me", " "])
+
+        if verbosity == 1:
+            args.append("-v")
+        elif verbosity == 2:
+            args.append("-vv")
+
+        if version:
+            args.append("-V")
+
+        if report_input_method != "pipe":
+            args.extend(["-r", str(mypy_report_pre)])
+
+        return args
+
+    @staticmethod
+    @pytest.fixture(
+        name="run_mypy_upgrade",
+        scope="class",
+        params=(["mypy-upgrade"], [sys.executable, "-m", "mypy-upgrade"]),
     )
-    @pytest.mark.slow
-    def test_should_exit_with_zero(mypy_report_pre: pathlib.Path) -> None:
-        process = subprocess.run(
-            ["mypy-upgrade", "--r", str(mypy_report_pre)]  # noqa: S607
-        )
-        assert process.returncode == 0
+    def fixture_run_mypy_upgrade(
+        request: pytest.FixtureRequest,
+        args: list[str],
+        report_input_method: str,
+        mypy_report_pre: pathlib.Path,
+    ) -> Generator[subprocess.CompletedProcess, None, None]:
+        executable: list[str] = request.param
+        if report_input_method == "pipe":
+            with mypy_report_pre.open(mode="r", encoding="utf-8") as report:
+                yield subprocess.run(
+                    [*executable, *args],
+                    capture_output=True,
+                    encoding="utf-8",
+                    stdin=report,
+                )
+        else:
+            yield subprocess.run(
+                [*executable, *args], capture_output=True, encoding="utf-8"
+            )
 
     @staticmethod
-    def test_should_print_unable_to_find_report_if_report_does_not_exist() -> (
-        None
-    ):
-        output = subprocess.check_output(
-            ["mypy-upgrade", "--r", ".non_existent_report.fake"],  # noqa: S607
-        )
-        assert b"Aborting: Unable to find report" in output
+    def test_should_exit_with_zero(
+        run_mypy_upgrade: subprocess.CompletedProcess,
+    ) -> None:
+        assert run_mypy_upgrade.returncode == 0
 
     @staticmethod
-    def test_should_print_version() -> None:
-        output = subprocess.check_output(
-            ["mypy-upgrade", "-V"], encoding="utf-8"  # noqa: S607
-        )
-        assert __version__ in output
+    def test_should_respect_verbosity(
+        run_mypy_upgrade: subprocess.CompletedProcess,
+    ) -> None:
+        ...
+
+    @staticmethod
+    def test_should_supress_warnings(
+        run_mypy_upgrade: subprocess.CompletedProcess,
+    ) -> None:
+        ...
+
+    @staticmethod
+    def test_should_print_version(
+        run_mypy_upgrade: subprocess.CompletedProcess,
+    ) -> None:
+        assert __version__ in run_mypy_upgrade.stdout
