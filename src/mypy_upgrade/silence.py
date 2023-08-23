@@ -117,7 +117,9 @@ def _writelines(file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
     to_write = []
     for line in lines:
         if line.code and line.comment:
-            if line.code.endswith(" "):
+            if line.code.endswith(" ") and not line.comment.startswith(
+                "# type: ignore"
+            ):
                 to_write.append(f"{line.code}{line.comment}")
             else:
                 to_write.append(f"{line.code.rstrip()}  {line.comment}")
