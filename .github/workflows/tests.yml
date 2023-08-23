@@ -123,7 +123,7 @@ jobs:
           pipx --version
           pipx install $HATCH_SPECIFIER
 
-      - name: Run Mypy with Hatch
+      - name: Run Black and Ruff with Hatch
         run: hatch run style
 
   finish:
