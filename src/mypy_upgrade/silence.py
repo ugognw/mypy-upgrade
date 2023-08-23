@@ -239,9 +239,11 @@ def silence_errors_in_report(
                 )
             silenced.extend(safe_to_silence)
         except FileNotFoundError:
-            messages += TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
+            messages.append(
+                TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
+            )
         except tokenize.TokenError:
-            messages += f"Unable to tokenize file: {filename}"
+            messages.append(f"Unable to tokenize file: {filename}")
 
     if any(error.error_code is None for error in source_filtered_errors):
         messages += MISSING_ERROR_CODES
