@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import os
-import pathlib
 import subprocess
 import sys
 from collections.abc import Generator
+from typing import TextIO
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -20,35 +20,18 @@ from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
 
 @pytest.fixture(name="mypy_upgrade_result", scope="class")
 def fixture_mypy_upgrade_result(
-    report_input_method: Literal["pipe", ""],
-    mypy_report_pre: pathlib.Path,
+    mypy_report_pre: TextIO,
     description_style: Literal["full", "none"],
     fix_me: str,
-) -> Generator[MypyUpgradeResult, None, None]:
-    if report_input_method == "pipe":
-        with mypy_report_pre.open(mode="r", encoding="utf-8") as file:
-            start = file.tell()
-            report = file.read()
-            sys.argv.append(report)
-            file.seek(start)
-            yield silence_errors_in_report(
-                report=None,
-                packages=[],
-                modules=[],
-                files=[],
-                description_style=description_style,
-                fix_me=fix_me,
-            )
-            sys.argv.remove(report)
-    else:
-        yield silence_errors_in_report(
-            report=mypy_report_pre,
-            packages=[],
-            modules=[],
-            files=[],
-            description_style=description_style,
-            fix_me=fix_me,
-        )
+) -> MypyUpgradeResult:
+    return silence_errors_in_report(
+        report=mypy_report_pre,
+        packages=[],
+        modules=[],
+        files=[],
+        description_style=description_style,
+        fix_me=fix_me,
+    )
 
 
 @pytest.fixture(name="mypy_report_post", scope="class")
@@ -56,7 +39,7 @@ def fixture_mypy_report_post(
     tmp_path_factory: pytest.TempPathFactory,
     mypy_args: list[str],
     mypy_upgrade_result: MypyUpgradeResult,  # noqa: ARG001
-) -> pathlib.Path:
+) -> Generator[TextIO, None, None]:
     filename = tmp_path_factory.mktemp("reports") / "mypy_report_post.txt"
     with filename.open("wb") as file:
         subprocess.run(
@@ -64,7 +47,7 @@ def fixture_mypy_report_post(
             env=os.environ,
             stdout=file,
         )
-    return filename
+        yield file
 
 
 @pytest.mark.skipif(
@@ -83,10 +66,9 @@ def fixture_mypy_report_post(
 class TestSilenceErrorsInReport:
     @staticmethod
     def test_should_silence_all_silenceable_errors_but_allow_unused_ignore(
-        mypy_report_post: pathlib.Path, mypy_upgrade_result: MypyUpgradeResult
+        mypy_report_post: TextIO, mypy_upgrade_result: MypyUpgradeResult
     ) -> None:
-        with mypy_report_post.open(encoding="utf-8") as file:
-            errors = parse_mypy_report(file)
+        errors = parse_mypy_report(mypy_report_post)
 
         missed_errors = [
             error
@@ -98,10 +80,8 @@ class TestSilenceErrorsInReport:
 
     @staticmethod
     def test_should_not_increase_number_of_errors(
-        mypy_report_pre: pathlib.Path, mypy_report_post: pathlib.Path
+        mypy_report_pre: TextIO, mypy_report_post: TextIO
     ) -> None:
-        with mypy_report_pre.open(encoding="utf-8") as file:
-            errors_pre = parse_mypy_report(file)
-        with mypy_report_post.open(encoding="utf-8") as file:
-            errors_post = parse_mypy_report(file)
+        errors_pre = parse_mypy_report(mypy_report_pre)
+        errors_post = parse_mypy_report(mypy_report_post)
         assert len(errors_pre) >= len(errors_post)

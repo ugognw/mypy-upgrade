@@ -7,6 +7,7 @@ import subprocess
 import sys
 import typing
 from collections.abc import Generator
+from typing import TextIO
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -123,12 +124,13 @@ def fixture_mypy_report_pre(
     python_path: pathlib.Path,  # noqa: ARG001
     tmp_path_factory: pytest.TempPathFactory,
     mypy_args: list[str],
-) -> pathlib.Path:
+) -> Generator[TextIO, None, None]:
     filename = tmp_path_factory.mktemp("reports") / "mypy_report_pre.txt"
-    with filename.open("wb") as file:
+    with filename.open("r+") as file:
         subprocess.run(
             [sys.executable, "-m", "mypy", *mypy_args],
             env=os.environ,
+            encoding="utf-8",
             stdout=file,
         )
-    return filename
+        yield file
