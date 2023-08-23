@@ -1,3 +1,6 @@
+# remove when dropping Python 3.7-3.9 support
+from __future__ import annotations
+
 import pytest
 
 from mypy_upgrade.parsing import MypyError, string_to_error_codes
