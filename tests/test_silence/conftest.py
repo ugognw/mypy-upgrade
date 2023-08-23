@@ -87,15 +87,3 @@ def fixture_errors(
     unused_ignore_error: MypyError,
 ) -> list[MypyError]:
     return [*errors_to_add, ignore_without_code_error, unused_ignore_error]
-
-
-@pytest.fixture(name="description_style", params=("full", "none"))
-def fixture_description_style(request: pytest.FixtureRequest) -> str:
-    description_style: str = request.param
-    return description_style
-
-
-@pytest.fixture(name="fix_me", params=("FIX ME", ""))
-def fixture_fix_me(request: pytest.FixtureRequest) -> str:
-    fix_me: str = request.param
-    return fix_me
