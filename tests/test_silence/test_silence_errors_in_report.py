@@ -55,7 +55,7 @@ def fixture_mypy_upgrade_result(
 def fixture_mypy_report_post(
     tmp_path_factory: pytest.TempPathFactory,
     mypy_args: list[str],
-    mypy_upgrade_results: MypyUpgradeResult,  # noqa: ARG001
+    mypy_upgrade_result: MypyUpgradeResult,  # noqa: ARG001
 ) -> pathlib.Path:
     filename = tmp_path_factory.mktemp("reports") / "mypy_report_post.txt"
     with filename.open("wb") as file:
