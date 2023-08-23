@@ -1,6 +1,7 @@
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
+import io
 import os
 import pathlib
 import shutil
@@ -8,6 +9,8 @@ import subprocess
 import sys
 from collections.abc import Generator
 from typing import TextIO
+
+from mypy_upgrade.warnings import TRY_SHOW_ABSOLUTE_PATH
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -94,3 +97,66 @@ class TestSilenceErrorsInReport:
         errors_pre = parse_mypy_report(mypy_report_pre)
         errors_post = parse_mypy_report(mypy_report_post)
         assert len(errors_pre) >= len(errors_post)
+
+
+class TestCatchFileNotFoundError:
+    @staticmethod
+    @pytest.fixture(name="report")
+    def fixture_report() -> TextIO:
+        lines = [
+            "/nonexistent/path/to/nonexistent/module.py:1:1: error: "
+            "Function is missing a return type annotation  [no-untyped-def]",
+            "Found 1 error in 1 file (checked 1 source file)",
+        ]
+        return io.StringIO("\n".join(lines))
+
+    @staticmethod
+    def test_should_catch_file_not_found_error(report: TextIO) -> None:
+        result = silence_errors_in_report(
+            report=report,
+            packages=[],
+            modules=[],
+            files=[],
+            description_style="full",
+            fix_me="",
+        )
+        filename = result.not_silenced[0].filename
+        message = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
+        assert message in result.messages
+
+
+class TestCatchTokenError:
+    @staticmethod
+    @pytest.fixture(name="source_file", params=("x +\\\n", "(", "'''"))
+    def fixture_source_file(
+        request: pytest.FixtureRequest, tmp_path: pathlib.Path
+    ) -> pathlib.Path:
+        source_file = tmp_path.joinpath("module.py")
+        code: str = request.param
+        with source_file.open(mode="x", encoding="utf=8") as file:
+            file.write(code)
+        return source_file
+
+    @staticmethod
+    @pytest.fixture(name="report")
+    def fixture_report(source_file: pathlib.Path) -> TextIO:
+        lines = [
+            f"{source_file!s}:1:1: error: "
+            "Function is missing a return type annotation  [no-untyped-def]",
+            "Found 1 error in 1 file (checked 1 source file)",
+        ]
+        return io.StringIO("\n".join(lines))
+
+    @staticmethod
+    def test_should_catch_token_error(report: TextIO) -> None:
+        result = silence_errors_in_report(
+            report=report,
+            packages=[],
+            modules=[],
+            files=[],
+            description_style="full",
+            fix_me="",
+        )
+        filename = result.not_silenced[0].filename
+        message = f"Unable to tokenize file: {filename}"
+        assert message in result.messages
