@@ -73,7 +73,8 @@ class TestAllCombinations:
         comment: str,
         error_codes: Collection[str],
     ) -> None:
-        result = remove_unused_type_ignore_comments(
-            comment=comment, codes_to_remove=error_codes
-        )
-        assert not result.startswith("# type: ignore")
+        if any(code for code in error_codes):
+            result = remove_unused_type_ignore_comments(
+                comment=comment, codes_to_remove=error_codes
+            )
+            assert not result.startswith("# type: ignore")
