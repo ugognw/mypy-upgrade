@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.abc
 import pathlib
+import sys
 import tokenize
 from collections.abc import Iterable, Sequence
 from importlib import util
@@ -130,9 +131,12 @@ def _find_unsilenceable_regions(
     """
     unsilenceable_regions: set[UnsilenceableRegion] = set()
     for token in tokens:
-        if (
-            token.start[0] != token.end[0]
-            and token.exact_type == tokenize.STRING
+        if token.start[0] != token.end[0] and (
+            token.exact_type == tokenize.STRING
+            or (
+                sys.version_info >= (3, 12)
+                and token.exact_type == tokenize.FSTRING_MIDDLE
+            )
         ):
             region = UnsilenceableRegion(token.start[0], token.end[0])
             unsilenceable_regions.add(region)
