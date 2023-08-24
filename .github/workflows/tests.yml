@@ -21,9 +21,9 @@ jobs:
       fail-fast: false
       matrix:
         pytest:
-          - {markers: "'not (cli or api)'", tests-category: "Unit Tests"}
-          - {markers: "cli", tests-category: "CLI Functional Tests"}
-          - {markers: "api", tests-category: "API Functional Tests"}
+          - {command: "test-cov-unit", tests-category: "Unit Tests"}
+          - {command: "test-cov-cli", tests-category: "CLI Functional Tests"}
+          - {command: "test-cov-api", tests-category: "API Functional Tests"}
         python-version:
           - "3.7"
           - "3.8"
@@ -64,7 +64,7 @@ jobs:
       - name: Test with Hatch (+ Coverage)
         run: |
           hatch run pytest -V
-          hatch run test-cov -m ${{ matrix.pytest.markers }}
+          hatch run ${{ matrix.pytest.command }}
         env:
           MYPY_UPGRADE_TARGET: ${{ matrix.package.name }}
 
