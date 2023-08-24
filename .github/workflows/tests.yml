@@ -11,7 +11,7 @@ env:
 
 jobs:
   test:
-    name: Testing and Coverage - ${{ matrix.package.name }} (Python ${{ matrix.python-version }})
+    name: Testing and Coverage - ${{ matrix.package.name }} - ${{ matrix.pytest.tests-category }} (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -20,6 +20,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        pytest:
+          - {markers: "'not (cli or api)'", tests-category: "Unit Tests"}
+          - {markers: "cli", tests-category: "CLI Functional Tests"}
+          - {markers: "api", tests-category: "API Functional Tests"}
         python-version:
           - "3.7"
           - "3.8"
@@ -60,7 +64,7 @@ jobs:
       - name: Test with Hatch (+ Coverage)
         run: |
           hatch run pytest -V
-          hatch run test-cov
+          hatch run test-cov -m ${{ matrix.pytest.markers}}
         env:
           MYPY_UPGRADE_TARGET: ${{ matrix.package.name }}
 
@@ -74,7 +78,7 @@ jobs:
         uses: coverallsapp/github-action@v2
         continue-on-error: true
         with:
-          flag-name: ${{ matrix.python-version }}
+          flag-name: ${{ matrix.python-version }}-${{ matrix.package.name }}-${{ matrix.pytest.tests-category }}
           parallel: true
 
   typing:
