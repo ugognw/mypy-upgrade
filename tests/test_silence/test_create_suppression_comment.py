@@ -90,8 +90,6 @@ class TestCreateSuppressionComment:
         comment_start = suppression_comment.find("#")
         if comment_start > -1:
             assert suppression_comment.startswith("# type: ignore")
-        else:
-            pytest.skip("no type ignore comment")
 
     @staticmethod
     def test_should_trim_whitespace(

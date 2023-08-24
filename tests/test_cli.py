@@ -193,12 +193,6 @@ class TestCLI:
         return verbosity
 
     @staticmethod
-    @pytest.fixture(name="version", scope="class", params=(True, False))
-    def fixture_version(request: pytest.FixtureRequest) -> bool:
-        version: bool = request.param
-        return version
-
-    @staticmethod
     @pytest.fixture(name="args", scope="class")
     def fixture_args(
         mypy_report_pre_filename: pathlib.Path,

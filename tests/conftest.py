@@ -42,19 +42,14 @@ def fixture_parsed_errors(report: typing.TextIO) -> list[MypyError]:
     return parsed_errors
 
 
-@pytest.fixture(name="mypy_upgrade_target", scope="session", params=["ase"])
-def fixture_mypy_upgrade_target(request: pytest.FixtureRequest) -> str:
-    if "CI" in os.environ:
-        return os.environ["MYPY_UPGRADE_TARGET"]
-    target: str = request.param
-    return target
+@pytest.fixture(name="mypy_upgrade_target", scope="session")
+def fixture_mypy_upgrade_target() -> str:
+    return os.environ["MYPY_UPGRADE_TARGET"]
 
 
 @pytest.fixture(name="install_dir", scope="session")
 def fixture_install_dir() -> str:
-    if "CI" in os.environ:
-        return os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"]
-    return "/Users/ugo/Projects/nwt/mypy-upgrade/downloads"
+    return os.environ["MYPY_UPGRADE_TARGET_INSTALL_DIR"]
 
 
 @pytest.fixture(name="mypy_config_file", scope="session")

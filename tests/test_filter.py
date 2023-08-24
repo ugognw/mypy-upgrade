@@ -205,12 +205,10 @@ class TestFilterBySource:
             packages_to_include + modules_to_include + files_to_include
         )
         if to_include:
-            supposed_to_be_included = []
-            for error in filtered_errors:
-                supposed_to_be_included.append(
-                    any(path in error.filename for path in to_include)
-                )
-            assert all(supposed_to_be_included)
+            assert all(
+                any(path in error.filename for path in to_include)
+                for error in filtered_errors
+            )
         else:
             assert filtered_errors == parsed_errors
 
