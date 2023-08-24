@@ -111,6 +111,22 @@ def fixture_files_to_include(request: pytest.FixtureRequest) -> list[str]:
 
 class TestFilterBySource:
     @staticmethod
+    @pytest.fixture(
+        name="mypy_upgrade_module",
+        params=[
+            str(p.relative_to(pathlib.Path(__file__).parents[1]))
+            for p in pathlib.Path(__file__)
+            .parents[1]
+            .joinpath("src", "mypy_upgrade")
+            .iterdir()
+            if p.suffix == ".py"
+        ],
+    )
+    def fixture_mypy_upgrade_module(request: pytest.FixtureRequest) -> str:
+        mypy_upgrade_module: str = request.param
+        return mypy_upgrade_module
+
+    @staticmethod
     @pytest.mark.slow
     def test_should_only_include_selected_packages(
         parsed_errors: list[MypyError], packages_to_include: list[str]
@@ -197,6 +213,40 @@ class TestFilterBySource:
             assert all(supposed_to_be_included)
         else:
             assert filtered_errors == parsed_errors
+
+    @staticmethod
+    def test_should_include_selected_package(mypy_upgrade_module: str) -> None:
+        error = MypyError(mypy_upgrade_module, 1, 0, "", "")
+        filtered_errors = filter_by_source(
+            errors=[error],
+            packages=["mypy_upgrade"],
+            modules=[],
+            files=[],
+        )
+        assert filtered_errors == [error]
+
+    @staticmethod
+    def test_should_include_selected_module(mypy_upgrade_module: str) -> None:
+        error = MypyError(mypy_upgrade_module, 1, 0, "", "")
+        module = ".".join(mypy_upgrade_module.split("/")[-2:]).rstrip(".py")
+        filtered_errors = filter_by_source(
+            errors=[error],
+            packages=[],
+            modules=[module],
+            files=[],
+        )
+        assert filtered_errors == [error]
+
+    @staticmethod
+    def test_should_include_selected_file(mypy_upgrade_module: str) -> None:
+        error = MypyError(mypy_upgrade_module, 1, 0, "", "")
+        filtered_errors = filter_by_source(
+            errors=[error],
+            packages=[],
+            modules=[],
+            files=[mypy_upgrade_module],
+        )
+        assert filtered_errors == [error]
 
 
 class TestFindUnsilenceableRegions:
