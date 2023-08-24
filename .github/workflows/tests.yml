@@ -64,7 +64,7 @@ jobs:
       - name: Test with Hatch (+ Coverage)
         run: |
           hatch run pytest -V
-          hatch run test-cov -m ${{ matrix.pytest.markers}}
+          hatch run test-cov -m ${{ matrix.pytest.markers }}
         env:
           MYPY_UPGRADE_TARGET: ${{ matrix.package.name }}
 
