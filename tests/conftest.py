@@ -57,15 +57,27 @@ def fixture_install_dir() -> str:
     return "/Users/ugo/Projects/nwt/mypy-upgrade/downloads"
 
 
+@pytest.fixture(name="mypy_config_file", scope="session")
+def fixture_mypy_config_file(tmp_path_factory: pytest.TempPathFactory) -> str:
+    mypy_config_file = tmp_path_factory.getbasetemp().joinpath("mypy.ini")
+    with mypy_config_file.open(mode="x", encoding="utf-8") as file:
+        file.write("[mypy]")
+    return str(mypy_config_file)
+
+
 @pytest.fixture(
     name="mypy_args", scope="session", params=("strict", "non-strict")
 )
 def fixture_mypy_args(
-    mypy_upgrade_target: str, request: pytest.FixtureRequest
+    mypy_config_file: str,
+    mypy_upgrade_target: str,
+    request: pytest.FixtureRequest,
 ) -> list[str]:
     if request.param == "strict":
         return [
             "--strict",
+            "--config-file",
+            mypy_config_file,
             "--show-error-codes",
             "--show-absolute-path",
             "-p",
@@ -73,6 +85,8 @@ def fixture_mypy_args(
         ]
     else:
         return [
+            "--config-file",
+            mypy_config_file,
             "--show-absolute-path",
             "--hide-error-codes",
             "-p",
