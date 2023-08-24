@@ -89,6 +89,7 @@ python = "3.11"
 
 [tool.hatch.envs.default.env-vars]
 PYTHONPATH="src"
+COVERAGE_PROCESS_START="pyproject.toml"
 
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
