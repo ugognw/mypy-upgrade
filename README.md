@@ -137,23 +137,25 @@ API. In addition, one obtains detailed information on the results of running
 `mypy-upgrade`.  Assuming the `mypy` type checking report is saved as
 `mypy_report.txt`
 
-    import pathlib
+```python
+import pathlib
 
-    from mypy_upgrade.silence import silence_errors_in_report
+from mypy_upgrade.silence import silence_errors_in_report
 
-    mypy_report = pathlib.Path("mypy_report.txt")
+mypy_report = pathlib.Path("mypy_report.txt")
 
-    with mypy_report.open(mode="r", encoding="utf-8") as report:
-        result = silence_errors_in_report(
-            report=report
-            packages=["package1", "package2"],
-            modules=["package1.module1", "package2.module2"],
-            files=["path/to/a/package/", "path/to/a/module.py"],
-            description_style="full",
-            fix_me="FIX THIS",
-        )
+with mypy_report.open(mode="r", encoding="utf-8") as report:
+    result = silence_errors_in_report(
+        report=report
+        packages=["package1", "package2"],
+        modules=["package1.module1", "package2.module2"],
+        files=["path/to/a/package/", "path/to/a/module.py"],
+        description_style="full",
+        fix_me="FIX THIS",
+    )
 
-    silenced_errors, not_silenced_errors, messages = result
+silenced_errors, not_silenced_errors, messages = result
+```
 
 ## Recommended Mypy Flags
 
