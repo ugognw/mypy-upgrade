@@ -20,6 +20,7 @@
 - [Features](#features)
 - [Basic Usage](#basic-usage)
 - [Recommended Mypy Flags](#recommended-mypy-flags)
+- [Using the API](#using-the-api)
 - [Command-Line Options](#command-line-options)
 - [Quick Start](#quick-start)
 - [Known Limitations](#known-limitations)
@@ -27,10 +28,11 @@
 
 ## What is `mypy-upgrade`?
 
-`mypy-upgrade` is a command-line utility that provides automatic error
-suppression for [`mypy`](http://mypy.readthedocs.io/) (analogous to
+`mypy-upgrade` is primarily a command-line utility that provides automatic
+error suppression for [`mypy`](http://mypy.readthedocs.io/) (analogous to
 [`pyre-upgrade`](https://pyre-check.org/docs/types-in-python/#upgrade) and
-[`pylint-silent`](https://github.com/udifuchs/pylint-silent/)).
+[`pylint-silent`](https://github.com/udifuchs/pylint-silent/)). In addition,
+`mypy-upgrade` exposes an API with the same functionality.
 
 Given a type checking report from `mypy`, `mypy-upgrade` will silence
 the listed errors using error suppression comments. For example, with
@@ -96,11 +98,62 @@ module/package name, respectively:
 Similarly, to selectively silence errors in files and directories,
 pass them in as positional arguments:
 
-    mypy-upgrade --report mypy_report.txt path/to/my_package/ path/to/a/module.py
+    mypy-upgrade --report mypy_report.txt path/to/a/package/ path/to/a/module.py
 
 For a full list of all options and their descriptions, run
 
     mypy-upgrade --help
+
+    usage: mypy-upgrade [-h] [-m MODULE] [-p PACKAGE] [-r REPORT] [-d {full,none}] [--fix-me FIX_ME] [-v] [-V] [--suppress-warnings] [files ...]
+
+    Place in-line comments into files to silence mypy errors.
+
+
+    positional arguments:
+    files                 Silence errors from the provided files/directories.
+
+    options:
+    -h, --help            show this help message and exit
+    -m MODULE, --module MODULE
+                            Silence errors from the provided (importable) module. This flag may be repeated multiple times.
+    -p PACKAGE, --package PACKAGE
+                            Silence errors from the provided (importable) package. This flag may be repeated multiple times.
+    -r REPORT, --report REPORT
+                            The path to a text file containing a mypy type checking report. If not specified, input is read from standard input.
+    -d {full,none}, --description-style {full,none}
+                            Specify the style in which mypy error descriptions are expressed in the error suppression comment. Defaults to "none".
+    --fix-me FIX_ME       Specify a custom 'Fix Me' message to be placed after the error suppression comment. Pass " " to omit a 'Fix Me' message altogether. Defaults to
+                            "FIX ME".
+    -v, --verbose         Control the verbosity. 0: Only warnings are printed. 1: Print detailed warnings, a short summary of silenced errors, and a detailed list of errors
+                            that were not silenced. 2: Print detailed warnings, a detailed list of silenced errors, and a detailed list of errors that were not silenced.
+                            Defaults to 0. This flag may be repeated multiple times.
+    -V, --version         Print the version.
+    --suppress-warnings   Suppress all warnings. Disabled by default.
+
+## Using the API
+
+Identical functionality to the command-line utility can be obtained using the
+API. In addition, one obtains detailed information on the results of running
+`mypy-upgrade`.  Assuming the `mypy` type checking report is saved as
+`mypy_report.txt`
+
+    import pathlib
+
+    from mypy_upgrade.silence import silence_errors_in_report
+
+    mypy_report = pathlib.Path("mypy_report.txt")
+
+    with mypy_report.open(mode="r", encoding="utf-8") as report:
+        result = silence_errors_in_report(
+            report=report
+            packages=["package1", "package2"],
+            modules=["package1.module1", "package2.module2"],
+            files=["path/to/a/package/", "path/to/a/module.py"],
+            description_style="full",
+            fix_me="FIX THIS",
+        )
+
+    silenced_errors, not_silenced_errors, messages = result
 
 ## Recommended Mypy Flags
 
@@ -172,9 +225,9 @@ error suppression.
     negate the effectiveness of the `# type: set` commment and eliminate the
     need for the `# type: ignore[type-arg]` comment
 
-* mypy `syntax` errors are not silenced
+* `mypy` `"syntax"` errors are not silenced
 
-    * it is recommended that you fix your code such that it is syntactically valid prior to using `mypy-upgrade`
+    * It is recommended that you fix your code such that it is syntactically valid prior to using `mypy-upgrade`
 
 ## Similar Projects
 

@@ -13,7 +13,7 @@ This project implements a version of
 
 ### Added
 
-* API logic added to `mypy_upgrade.silence`
+* API logic added to `mypy_upgrade.silence` through `silence_errors_in_report`
 
 * `mypy_upgrade.utils.CommentSplitLine`: represents a line split into code
 and comment
