@@ -13,7 +13,7 @@ jobs:
   test:
     name: Testing and Coverage - ${{ matrix.package.name }} (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       HATCH_ENV: test.py${{ matrix.python-version }}
       MYPY_UPGRADE_TARGET_INSTALL_DIR: "${{ github.workspace }}/downloads"
