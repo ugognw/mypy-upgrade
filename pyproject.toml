@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "automatic error suppression for mypy"
 readme = "README.md"
 requires-python = ">=3.7"
-license = "MIT"
+license = {file = "LICENSE.txt"}
 keywords = ["type checking"]
 authors = [
   { name = "Ugochukwu Nwosu", email = "ugognw@gmail.com" },
