@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import io
 import os
 import pathlib
 import shutil
@@ -288,15 +287,17 @@ class TestCLI:
         args: list[str],
         executable: list[str],
         report_input_method: str,
+        tmp_path: pathlib.Path,
     ) -> None:
         if report_input_method == "pipe":
-            mypy_report_pre = io.StringIO()
-            process = subprocess.run(  # noqa: PLW1510
-                [*executable, *args, "-V"],
-                capture_output=True,
-                encoding="utf-8",
-                stdin=mypy_report_pre,
-            )
+            mypy_report_pre = tmp_path.joinpath("report.txt")
+            with mypy_report_pre.open(mode="r", encoding="utf-8") as report:
+                process = subprocess.run(  # noqa: PLW1510
+                    [*executable, *args, "-V"],
+                    capture_output=True,
+                    encoding="utf-8",
+                    stdin=report,
+                )
         else:
             process = subprocess.run(  # noqa: PLW1510
                 [*executable, *args, "-V"],
