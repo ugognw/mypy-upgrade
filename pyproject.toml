@@ -35,6 +35,7 @@ dependencies = [
 mypy-upgrade = "mypy_upgrade.cli:main"
 
 [project.urls]
+Changelog = "https://github.com/ugognw/mypy-upgrade/blob/main/CHANGELOG.md"
 Documentation = "https://github.com/ugognw/mypy-upgrade#readme"
 Issues = "https://github.com/ugognw/mypy-upgrade/issues"
 Source = "https://github.com/ugognw/mypy-upgrade"
