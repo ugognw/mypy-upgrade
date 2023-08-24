@@ -78,7 +78,7 @@ def fixture_mypy_report_post(
 @pytest.mark.slow
 class TestSilenceErrorsInReport:
     @staticmethod
-    def test_should_silence_all_silenceable_errors(
+    def test_should_silence_all_silenceable_errors_but_unused_ignore_errors(
         mypy_report_post: TextIO, mypy_upgrade_result: MypyUpgradeResult
     ) -> None:
         errors = parse_mypy_report(mypy_report_post)
@@ -87,6 +87,7 @@ class TestSilenceErrorsInReport:
             error
             for error in errors
             if error not in mypy_upgrade_result.not_silenced
+            and error.error_code != "unused-ignore"
         ]
         assert not missed_errors
 
