@@ -147,7 +147,7 @@ testpaths = "tests"
 markers = [
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
   "cli: marks tests for the command-line interface (deselect with '-m \"not cli\"')",
-  "mypy_upgrade: marks functional tests for mypy_upgrade (deselect with '-m \"not mypy_upgrade\"')"
+  "api: marks functional tests for mypy-upgrade's API (deselect with '-m \"not api\"')"
 ]
 
 [tool.ruff]
