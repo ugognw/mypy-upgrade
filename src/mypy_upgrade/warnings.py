@@ -33,13 +33,6 @@ def create_not_silenced_errors_warning(
     Returns:
         A string containing the warning.
     """
-    if len(not_silenced) == 0:
-        with_column_numbers = False
-    else:
-        with_column_numbers = all(
-            err.col_offset is not None for err in not_silenced
-        )
-
     num_not_silenced = len(not_silenced)
     verb = "error was not" if num_not_silenced == 1 else "errors were not"
 
@@ -47,28 +40,22 @@ def create_not_silenced_errors_warning(
         f"{num_not_silenced} {verb} not silenced due to syntax "
         "limitations.\n\n"
     )
-    if not with_column_numbers:
-        warning_suffix = (
-            "Consider using the --show-column-numbers flag when "
-            "generating the mypy type checking report."
+    if verbosity < 1:
+        verbose_suggestion = (
+            "\n\nRun mypy-upgrade in verbose mode (option -v) to get a "
+            "full print out of affected type checking errors."
         )
     else:
-        if verbosity < 1:
-            verbose_suggestion = (
-                "\n\nRun mypy-upgrade in verbose mode (option -v) to get a "
-                "full print out of affected type checking errors."
-            )
-        else:
-            verbose_suggestion = ""
+        verbose_suggestion = ""
 
-        warning_suffix = (
-            "Line continuation characters and multiline (f-strings) are "
-            "common culprits. Possible resolutions include: 1) "
-            "formatting the affected code with a PEP 8-compliant "
-            "formatter (e.g., black), 2) refactoring the affected code "
-            "to avoid line continutation characters or multiline "
-            "f-strings, and 3) resolving the errors."
-            f"{verbose_suggestion}"
-        )
+    warning_suffix = (
+        "Line continuation characters and multiline (f-strings) are "
+        "common culprits. Possible resolutions include: 1) "
+        "formatting the affected code with a PEP 8-compliant "
+        "formatter (e.g., black), 2) refactoring the affected code "
+        "to avoid line continutation characters or multiline "
+        "f-strings, and 3) resolving the errors."
+        f"{verbose_suggestion}"
+    )
 
     return warning_stem + warning_suffix
