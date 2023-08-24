@@ -60,3 +60,7 @@ class TestAllCombinations:
         assert all(
             final_comment.count(error_code) for error_code in ERROR_CODES
         )
+
+    @staticmethod
+    def test_should_not_add_empty_error_codes(final_comment: str) -> None:
+        assert "# type: ignore[]" not in final_comment

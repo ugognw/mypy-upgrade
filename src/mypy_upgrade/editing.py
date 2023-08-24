@@ -24,6 +24,7 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
     match = type_ignore.match(comment)
     existing_codes = string_to_error_codes(match.string if match else "")
     error_codes.extend(existing_codes)
+    error_codes = [e for e in error_codes if e]
     codes = f'[{", ".join(sorted({*error_codes}))}]' if error_codes else ""
     if match:
         return type_ignore.sub(f"# type: ignore{codes}", comment).rstrip()
