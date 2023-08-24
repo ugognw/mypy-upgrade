@@ -75,8 +75,8 @@ def fixture_mypy_report_post(
     "MYPY_UPGRADE_TARGET_INSTALL_DIR" not in os.environ,
     reason="no install directory specified for mypy-upgrade",
 )
-@pytest.mark.slow
 @pytest.mark.api
+@pytest.mark.slow
 class TestSilenceErrorsInReport:
     @staticmethod
     def test_should_silence_all_silenceable_errors_but_unused_ignore_errors(

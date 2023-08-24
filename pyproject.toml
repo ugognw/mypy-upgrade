@@ -90,7 +90,7 @@ PYTHONPATH="src"
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
 test-cov = "pytest -n auto --cov=tests/ --cov=src/mypy_upgrade --cov-report=html --cov-report=lcov --cov-report=xml --cov-report=term-missing {args:tests/}"
-test-cov-unit = "test-cov -m 'not (api or cli)' tests/"
+test-cov-unit = "test-cov -m 'not (slow and (api or cli))' tests/"
 test-cov-api = "test-cov -m 'api' tests/"
 test-cov-cli = "test-cov -m 'cli' tests/"
 

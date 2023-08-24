@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import io
 import os
 import pathlib
 import shutil
@@ -185,7 +186,6 @@ class TestParseArgs:
     reason="no install directory specified for mypy-upgrade",
 )
 @pytest.mark.cli
-@pytest.mark.slow
 class TestCLI:
     @staticmethod
     @pytest.fixture(name="verbosity", scope="class", params=range(3))
@@ -206,7 +206,6 @@ class TestCLI:
         description_style: Literal["full", "none"],
         fix_me: str,
         verbosity: int,
-        version: bool,  # noqa: FBT001
         report_input_method: str,
     ) -> list[str]:
         args: list[str] = []
@@ -221,9 +220,6 @@ class TestCLI:
             args.append("-v")
         elif verbosity == 2:
             args.append("-vv")
-
-        if version:
-            args.append("-V")
 
         if report_input_method != "pipe":
             args.extend(["-r", str(mypy_report_pre_filename)])
@@ -263,27 +259,49 @@ class TestCLI:
             shutil.copytree(install_dir, python_path, dirs_exist_ok=True)
 
     @staticmethod
+    @pytest.mark.slow
     def test_should_exit_with_zero(
         run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
         assert run_mypy_upgrade.returncode == 0
 
     @staticmethod
+    @pytest.mark.slow
     def test_should_respect_verbosity(
         run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
         ...
 
     @staticmethod
+    @pytest.mark.slow
     def test_should_supress_warnings(
         run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
         ...
 
     @staticmethod
+    @pytest.mark.parametrize(
+        "executable",
+        [["mypy-upgrade"], [sys.executable, "-m", "mypy_upgrade"]],
+    )
     def test_should_print_version(
-        run_mypy_upgrade: subprocess.CompletedProcess[str],
-        version: bool,  # noqa: FBT001
+        args: list[str],
+        executable: list[str],
+        report_input_method: str,
     ) -> None:
-        if version:
-            assert __version__ in run_mypy_upgrade.stdout
+        if report_input_method == "pipe":
+            mypy_report_pre = io.StringIO()
+            process = subprocess.run(  # noqa: PLW1510
+                [*executable, *args, "-V"],
+                capture_output=True,
+                encoding="utf-8",
+                stdin=mypy_report_pre,
+            )
+        else:
+            process = subprocess.run(  # noqa: PLW1510
+                [*executable, *args, "-V"],
+                capture_output=True,
+                encoding="utf-8",
+            )
+
+        assert __version__ in process.stdout
