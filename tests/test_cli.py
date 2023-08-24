@@ -232,7 +232,6 @@ class TestCLI:
         mypy_report_pre: TextIO,
         python_path: pathlib.Path,
         install_dir: pathlib.Path,
-        coverage_py_subprocess_setup: None,  # noqa: ARG004
     ) -> Generator[subprocess.CompletedProcess[str], None, None]:
         executable: list[str] = request.param
         if report_input_method == "pipe":
@@ -283,7 +282,6 @@ class TestCLI:
         executable: list[str],
         report_input_method: str,
         tmp_path: pathlib.Path,
-        coverage_py_subprocess_setup: None,  # noqa: ARG004
     ) -> None:
         if report_input_method == "pipe":
             mypy_report_pre = tmp_path.joinpath("report.txt")
