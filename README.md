@@ -135,7 +135,7 @@ For a full list of all options and their descriptions, run
 Identical functionality to the command-line utility can be obtained using the
 API. In addition, one obtains detailed information on the results of running
 `mypy-upgrade`.  Assuming the `mypy` type checking report is saved as
-`mypy_report.txt`
+`mypy_report.txt`, we have
 
 ```python
 import pathlib
