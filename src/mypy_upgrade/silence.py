@@ -245,7 +245,7 @@ def silence_errors_in_report(
         except tokenize.TokenError:
             messages.append(f"Unable to tokenize file: {filename}")
 
-    if any(error.error_code is None for error in source_filtered_errors):
+    if any(not error.error_code for error in source_filtered_errors):
         messages += MISSING_ERROR_CODES
 
     not_silenced = [e for e in source_filtered_errors if e not in silenced]
