@@ -291,6 +291,7 @@ class TestCLI:
     ) -> None:
         if report_input_method == "pipe":
             mypy_report_pre = tmp_path.joinpath("report.txt")
+            mypy_report_pre.touch()
             with mypy_report_pre.open(mode="r", encoding="utf-8") as report:
                 process = subprocess.run(  # noqa: PLW1510
                     [*executable, *args, "-V"],
