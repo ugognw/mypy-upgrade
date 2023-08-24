@@ -71,7 +71,7 @@ jobs:
       - name: Upload Coverage file
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-files
+          name: coverage-files-${{ matrix.python-version }}-${{ matrix.package.name }}-${{ matrix.pytest.coveralls-flag }}
           path: htmlcov/
 
       - name: Coveralls Parallel
