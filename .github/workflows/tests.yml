@@ -21,9 +21,9 @@ jobs:
       fail-fast: false
       matrix:
         pytest:
-          - {command: "test-cov-unit", tests-category: "Unit Tests"}
-          - {command: "test-cov-cli", tests-category: "CLI Functional Tests"}
-          - {command: "test-cov-api", tests-category: "API Functional Tests"}
+          - {command: "test-cov-unit", tests-category: "Unit Tests", coveralls-flag: unit}
+          - {command: "test-cov-cli", tests-category: "CLI Functional Tests", coveralls-flag: cli}
+          - {command: "test-cov-api", tests-category: "API Functional Tests", coveralls-flag: api}
         python-version:
           - "3.7"
           - "3.8"
@@ -78,7 +78,7 @@ jobs:
         uses: coverallsapp/github-action@v2
         continue-on-error: true
         with:
-          flag-name: ${{ matrix.python-version }}-${{ matrix.package.name }}-${{ matrix.pytest.tests-category }}
+          flag-name: ${{ matrix.python-version }}-${{ matrix.package.name }}-${{ matrix.pytest.coveralls-flag }}
           parallel: true
 
   typing:
@@ -140,4 +140,4 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         parallel-finished: true
-        carryforward: "3.7,3.8,3.9,3.10,3.11,3.12,3.13,pypy3.7,pypy3.8,pypy3.9,pypy3.10"
+        carryforward: "3.7-ase-unit,3.8-ase-unit,3.9-ase-unit,3.10-ase-unit,3.11-ase-unit,pypy3.7-ase-unit,pypy3.8-ase-unit,pypy3.9-ase-unit,pypy3.10-ase-unit,3.7-ase-cli,3.8-ase-cli,3.9-ase-cli,3.10-ase-cli,3.11-ase-cli,pypy3.7-ase-cli,pypy3.8-ase-cli,pypy3.9-ase-cli,pypy3.10-ase-cli,3.7-ase-api,3.8-ase-api,3.9-ase-api,3.10-ase-api,3.11-ase-api,pypy3.7-ase-api,pypy3.8-ase-api,pypy3.9-ase-api,pypy3.10-ase-api"
