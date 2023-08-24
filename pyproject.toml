@@ -75,7 +75,8 @@ python = [
 
 [tool.hatch.envs.default]
 dependencies = [
-  "mypy==1.4.1",
+  "mypy==1.4.1; python_version<'3.8'",
+  "mypy==1.5.1; python_version>='3.8'",
   "pytest==7.4.0",
   "pytest-cov==4.1.0",
   "pytest-datadir==1.4.1",
@@ -99,7 +100,8 @@ test-cov-cli = "test-cov -m 'cli' tests/"
 detached = true
 dependencies = [
   "black==23.7.0",
-  "mypy==1.4.1",
+  "mypy==1.4.1; python_version<'3.8'",
+  "mypy==1.5.1; python_version>='3.8'",
   "pytest==7.4.0",
   "ruff==0.0.285",
 ]
