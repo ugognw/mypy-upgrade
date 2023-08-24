@@ -140,4 +140,4 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         parallel-finished: true
-        carryforward: "3.7-ase-unit,3.8-ase-unit,3.9-ase-unit,3.10-ase-unit,3.11-ase-unit,pypy3.7-ase-unit,pypy3.8-ase-unit,pypy3.9-ase-unit,pypy3.10-ase-unit,3.7-ase-cli,3.8-ase-cli,3.9-ase-cli,3.10-ase-cli,3.11-ase-cli,pypy3.7-ase-cli,pypy3.8-ase-cli,pypy3.9-ase-cli,pypy3.10-ase-cli,3.7-ase-api,3.8-ase-api,3.9-ase-api,3.10-ase-api,3.11-ase-api,pypy3.7-ase-api,pypy3.8-ase-api,pypy3.9-ase-api,pypy3.10-ase-api"
+        carryforward: "3.7-ase-unit,3.8-ase-unit,3.9-ase-unit,3.10-ase-unit,3.11-ase-unit,3.7-ase-cli,3.8-ase-cli,3.9-ase-cli,3.10-ase-cli,3.11-ase-cli,3.7-ase-api,3.8-ase-api,3.9-ase-api,3.10-ase-api,3.11-ase-api"
