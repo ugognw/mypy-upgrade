@@ -303,6 +303,15 @@ class TestIsSafeToSilence:
         )
         assert not safe_to_silence
 
+    @staticmethod
+    def test_should_return_false_for_syntax_error() -> None:
+        error = MypyError("", 1, 0, "", "syntax")
+        region = UnsilenceableRegion(1, 3)
+        safe_to_silence = _is_safe_to_silence(
+            error=error, unsilenceable_regions=[region]
+        )
+        assert not safe_to_silence
+
 
 class TestFilterBySilenceability:
     @staticmethod
