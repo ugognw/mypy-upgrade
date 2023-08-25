@@ -100,9 +100,7 @@ pass them in as positional arguments:
 
     mypy-upgrade --report mypy_report.txt path/to/a/package/ path/to/a/module.py
 
-For a full list of all options and their descriptions, run
-
-    mypy-upgrade --help
+For a full list of all options and their descriptions, run `mypy-upgrade --help`
 
     usage: mypy-upgrade [-h] [-m MODULE] [-p PACKAGE] [-r REPORT] [-d {full,none}] [--fix-me FIX_ME] [-v] [-V] [--suppress-warnings] [files ...]
 
