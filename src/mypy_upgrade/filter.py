@@ -70,8 +70,12 @@ def filter_by_source(
     if len(packages + modules + files) == 0:
         return errors
 
-    package_paths = [p for p in _get_module_paths(packages) if p is not None]
-    module_paths = [m for m in _get_module_paths(modules) if m is not None]
+    package_paths = [
+        p for p in _get_module_paths(modules=packages) if p is not None
+    ]
+    module_paths = [
+        m for m in _get_module_paths(modules=modules) if m is not None
+    ]
     file_paths = [pathlib.Path(f).resolve() for f in files]
     paths = package_paths + module_paths + file_paths
     selected = []
