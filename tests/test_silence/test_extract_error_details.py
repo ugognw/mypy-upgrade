@@ -11,7 +11,7 @@ from mypy_upgrade.silence import _extract_error_details
 def fixture_error_details(
     errors: list[MypyError],
 ) -> tuple[list[str], list[str], list[str]]:
-    return _extract_error_details(errors)
+    return _extract_error_details(errors=errors)
 
 
 class TestExtractErrorDetails:

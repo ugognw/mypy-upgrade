@@ -8,7 +8,7 @@ class TestCreateNotSilencedErrorsWarning:
         None
     ):
         warning = create_not_silenced_errors_warning(
-            (MypyError("", 1, 0, "", ""),), verbosity=0
+            not_silenced=(MypyError("", 1, 0, "", ""),), verbosity=0
         )
         assert "(option -v)" in warning
 
@@ -17,6 +17,6 @@ class TestCreateNotSilencedErrorsWarning:
         None
     ):
         warning = create_not_silenced_errors_warning(
-            (MypyError("", 1, 0, "", ""),), verbosity=1
+            not_silenced=(MypyError("", 1, 0, "", ""),), verbosity=1
         )
         assert "(option -v)" not in warning

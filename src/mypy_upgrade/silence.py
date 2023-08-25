@@ -52,6 +52,7 @@ class MypyUpgradeResult(NamedTuple):
 
 
 def _extract_error_details(
+    *,
     errors: Iterable[MypyError],
 ) -> tuple[list[str], list[str], list[str]]:
     """Get error codes to add/remove and descriptions to add."""
@@ -99,12 +100,14 @@ def create_suppression_comment(
     Returns:
         A type error suppression comment.
     """
-    to_add, descriptions, to_remove = _extract_error_details(errors)
-    pruned_comment = remove_unused_type_ignore_comments(comment, to_remove)
-    formatted_comment = format_type_ignore_comment(pruned_comment)
+    to_add, descriptions, to_remove = _extract_error_details(errors=errors)
+    pruned_comment = remove_unused_type_ignore_comments(
+        comment=comment, codes_to_remove=to_remove
+    )
+    formatted_comment = format_type_ignore_comment(comment=pruned_comment)
     suppression_comment = add_type_ignore_comment(
-        formatted_comment,
-        to_add,
+        comment=formatted_comment,
+        error_codes=to_add,
     )
     if fix_me:
         suppression_comment += f" # {fix_me}"
@@ -223,7 +226,7 @@ def silence_errors_in_report(
         which an error is to be silenced or `mypy-upgrade`-related warnings
         are raised during execution are stored in the `messages` attribute.
     """
-    errors = parse_mypy_report(report)
+    errors = parse_mypy_report(report=report)
     source_filtered_errors = filter_by_source(
         errors=errors, packages=packages, modules=modules, files=files
     )

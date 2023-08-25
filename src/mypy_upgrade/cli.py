@@ -150,7 +150,7 @@ def print_results(
 
     if results.not_silenced and not options["suppress_warnings"]:
         not_silenced_warning = create_not_silenced_errors_warning(
-            not_silenced=results.not_silenced, options=options["verbosity"]
+            not_silenced=results.not_silenced, verbosity=options["verbosity"]
         )
         print(" WARNING ".center(width, "-"))  # noqa: T201
         print(fill_(not_silenced_warning))  # noqa: T201
