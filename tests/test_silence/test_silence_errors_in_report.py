@@ -82,7 +82,7 @@ class TestSilenceErrorsInReport:
     def test_should_silence_all_silenceable_errors_but_unused_ignore_errors(
         mypy_report_post: TextIO, mypy_upgrade_result: MypyUpgradeResult
     ) -> None:
-        errors = parse_mypy_report(mypy_report_post)
+        errors = parse_mypy_report(report=mypy_report_post)
 
         missed_errors = [
             error
@@ -96,8 +96,8 @@ class TestSilenceErrorsInReport:
     def test_should_not_increase_number_of_errors(
         mypy_report_pre: TextIO, mypy_report_post: TextIO
     ) -> None:
-        errors_pre = parse_mypy_report(mypy_report_pre)
-        errors_post = parse_mypy_report(mypy_report_post)
+        errors_pre = parse_mypy_report(report=mypy_report_pre)
+        errors_post = parse_mypy_report(report=mypy_report_post)
         assert len(errors_pre) >= len(errors_post)
 
 

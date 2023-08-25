@@ -13,7 +13,7 @@ from typing import NamedTuple
 from mypy_upgrade.parsing import MypyError
 
 
-def _get_module_paths(modules: list[str]) -> list[pathlib.Path | None]:
+def _get_module_paths(*, modules: list[str]) -> list[pathlib.Path | None]:
     """Determine file system paths of given modules/packages.
 
     Args:

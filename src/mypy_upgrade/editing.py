@@ -8,7 +8,7 @@ from collections.abc import Collection
 from mypy_upgrade.parsing import string_to_error_codes
 
 
-def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
+def add_type_ignore_comment(*, comment: str, error_codes: list[str]) -> str:
     """Add a `type: ignore` comment with error codes to in-line comment.
 
     Args:
@@ -22,7 +22,9 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
     """
     type_ignore = re.compile(r"# type\s*:\s*ignore(\[[a-z, \-]*\])?")
     match = type_ignore.match(comment)
-    existing_codes = string_to_error_codes(match.string if match else "")
+    existing_codes = string_to_error_codes(
+        string=match.string if match else ""
+    )
     error_codes.extend(existing_codes)
     error_codes = [e for e in error_codes if e]
     codes = f'[{", ".join(sorted({*error_codes}))}]' if error_codes else ""
@@ -32,7 +34,7 @@ def add_type_ignore_comment(comment: str, error_codes: list[str]) -> str:
     return f"# type: ignore{codes} {comment}".rstrip()
 
 
-def format_type_ignore_comment(comment: str) -> str:
+def format_type_ignore_comment(*, comment: str) -> str:
     """Remove excess whitespace and commas from a `"type: ignore"` comment."""
     type_ignore = re.compile(
         r"type\s*:\s*ignore(\[(?P<error_codes>[a-z, \-]*)\])?"
@@ -52,7 +54,7 @@ def format_type_ignore_comment(comment: str) -> str:
 
 
 def remove_unused_type_ignore_comments(
-    comment: str, codes_to_remove: Collection[str]
+    *, comment: str, codes_to_remove: Collection[str]
 ) -> str:
     """Remove specified error codes from a comment string.
 

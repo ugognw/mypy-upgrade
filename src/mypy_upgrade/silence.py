@@ -59,7 +59,9 @@ def _extract_error_details(
     descriptions_to_add: list[str] = []
     codes_to_remove: list[str] = []
     for error in errors:
-        codes_in_message = string_to_error_codes(error.message) or ("*",)
+        codes_in_message = string_to_error_codes(string=error.message) or (
+            "*",
+        )
         if error.error_code == "unused-ignore" or (
             # 0 error codes in error.message = unused `type: ignore`
             error.error_code == "ignore-without-code"
@@ -77,6 +79,7 @@ def _extract_error_details(
 
 
 def create_suppression_comment(
+    *,
     comment: str,
     errors: Iterable[MypyError],
     description_style: Literal["full", "none"],
@@ -112,7 +115,7 @@ def create_suppression_comment(
     return suppression_comment
 
 
-def _writelines(file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
+def _writelines(*, file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
     """Write an iterable of `CommentSplitLine`s to a file."""
     to_write = []
     for line in lines:
@@ -131,6 +134,7 @@ def _writelines(file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
 
 
 def silence_errors_in_file(
+    *,
     file: TextIO,
     errors: Iterable[MypyError],
     description_style: Literal["full", "none"],
@@ -157,7 +161,7 @@ def silence_errors_in_file(
     start = file.tell()
     raw_code = file.read()
     tokens = list(tokenize.generate_tokens(io.StringIO(raw_code).readline))
-    lines = split_into_code_and_comment(raw_code, tokens)
+    lines = split_into_code_and_comment(source=raw_code, tokens=tokens)
     safe_to_silence = filter_by_silenceability(
         errors=errors, comments=[line.comment for line in lines], tokens=tokens
     )
@@ -167,20 +171,21 @@ def silence_errors_in_file(
     ):
         i = line_number - 1
         new_comment = create_suppression_comment(
-            lines[i].comment,
-            line_grouped_errors,
-            description_style,
-            fix_me,
+            comment=lines[i].comment,
+            errors=line_grouped_errors,
+            description_style=description_style,
+            fix_me=fix_me,
         )
         lines[i] = CommentSplitLine(lines[i].code, new_comment)
 
     file.seek(start)
-    _ = _writelines(file, lines)
+    _ = _writelines(file=file, lines=lines)
     _ = file.truncate()
     return safe_to_silence
 
 
 def silence_errors_in_report(
+    *,
     report: TextIO,
     packages: list[str],
     modules: list[str],
@@ -232,10 +237,10 @@ def silence_errors_in_report(
                 mode="r+", encoding="utf-8"
             ) as file:
                 safe_to_silence = silence_errors_in_file(
-                    file,
-                    filename_grouped_errors,
-                    description_style,
-                    fix_me,
+                    file=file,
+                    errors=filename_grouped_errors,
+                    description_style=description_style,
+                    fix_me=fix_me,
                 )
             silenced.extend(safe_to_silence)
         except FileNotFoundError:

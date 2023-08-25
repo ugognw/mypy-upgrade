@@ -38,7 +38,7 @@ class TestSplitIntoCodeAndComment:
     def fixture_split_lines() -> list[CommentSplitLine]:
         code = "".join(CODE_LINES)
         tokens = tokenize.generate_tokens(io.StringIO(code).readline)
-        return split_into_code_and_comment(code, tokens)
+        return split_into_code_and_comment(source=code, tokens=tokens)
 
     @staticmethod
     def test_should_return_all_code(

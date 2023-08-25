@@ -60,7 +60,10 @@ def fixture_suppression_comment(
     fix_me: str,
 ) -> str:
     suppression_comment: str = create_suppression_comment(
-        comment, iter(errors), description_style, fix_me
+        comment=comment,
+        errors=iter(errors),
+        description_style=description_style,
+        fix_me=fix_me,
     )
     return suppression_comment
 
@@ -70,7 +73,7 @@ class TestCreateSuppressionComment:
     def test_should_not_add_duplicate_error_codes(
         suppression_comment: str, errors_to_add: list[MypyError]
     ) -> None:
-        added_errors = string_to_error_codes(suppression_comment)
+        added_errors = string_to_error_codes(string=suppression_comment)
         assert not any(
             added_errors.count(error.error_code) > 1 for error in errors_to_add
         )
@@ -142,7 +145,7 @@ class TestCreateSuppressionComment:
         suppression_comment: str, ignore_without_code_error: MypyError
     ) -> None:
         suggested_codes = string_to_error_codes(
-            ignore_without_code_error.message
+            string=ignore_without_code_error.message
         )
         if suggested_codes:
             assert all(code in suppression_comment for code in suggested_codes)

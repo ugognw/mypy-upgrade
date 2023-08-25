@@ -13,7 +13,7 @@ class CommentSplitLine(NamedTuple):
 
 
 def split_into_code_and_comment(
-    source: str, tokens: Iterable[tokenize.TokenInfo]
+    *, source: str, tokens: Iterable[tokenize.TokenInfo]
 ) -> list[CommentSplitLine]:
     """Split lines of source code into code and comments.
 

@@ -92,7 +92,7 @@ class TestStringToErrorCodes:
     @pytest.mark.parametrize("stub", MESSAGE_STUBS)
     def test_should_return_empty_tuple_with_no_error_code(stub: str) -> None:
         message = stub.replace("<placeholder>", "")
-        assert string_to_error_codes(message) == ()
+        assert string_to_error_codes(string=message) == ()
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -102,7 +102,7 @@ class TestStringToErrorCodes:
         stub: str, error_code: str
     ) -> None:
         message = stub.replace("<placeholder>", f"[{error_code}]")
-        assert string_to_error_codes(message) == (error_code,)
+        assert string_to_error_codes(string=message) == (error_code,)
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -113,7 +113,9 @@ class TestStringToErrorCodes:
         stub: str, error_codes: tuple[str, str]
     ) -> None:
         message = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
-        assert sorted(string_to_error_codes(message)) == sorted(error_codes)
+        assert sorted(string_to_error_codes(string=message)) == sorted(
+            error_codes
+        )
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -124,4 +126,6 @@ class TestStringToErrorCodes:
         stub: str, error_codes: tuple[str, str, str]
     ) -> None:
         message = stub.replace("<placeholder>", f"[{', '.join(error_codes)}]")
-        assert sorted(string_to_error_codes(message)) == sorted(error_codes)
+        assert sorted(string_to_error_codes(string=message)) == sorted(
+            error_codes
+        )

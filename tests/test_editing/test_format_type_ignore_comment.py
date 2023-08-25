@@ -52,7 +52,9 @@ def test_should_remove_dangling_commas1(
     type_ignore_stub: str, error_code: str
 ) -> None:
     type_ignore_comment = type_ignore_stub.replace("<error-code>", error_code)
-    formatted_type_ignore = format_type_ignore_comment(type_ignore_comment)
+    formatted_type_ignore = format_type_ignore_comment(
+        comment=type_ignore_comment
+    )
     assert TYPE_IGNORE_FORMAT_RE.match(formatted_type_ignore)
 
 
@@ -72,7 +74,9 @@ def test_should_remove_dangling_commas2(
     type_ignore_comment = type_ignore_comment.replace(
         "<error-code-2>", error_code2
     )
-    formatted_type_ignore = format_type_ignore_comment(type_ignore_comment)
+    formatted_type_ignore = format_type_ignore_comment(
+        comment=type_ignore_comment
+    )
     assert TYPE_IGNORE_FORMAT_RE.match(formatted_type_ignore)
 
 
@@ -80,14 +84,20 @@ def test_should_remove_dangling_commas2(
 def test_should_clean_type_ignore_without_error_codes(
     type_ignore_comment: str,
 ) -> None:
-    assert format_type_ignore_comment(type_ignore_comment) == "type: ignore"
+    assert (
+        format_type_ignore_comment(comment=type_ignore_comment)
+        == "type: ignore"
+    )
 
 
 @pytest.mark.parametrize("type_ignore_stub", NO_ERROR_CODE_TYPE_IGNORES)
 def test_should_remove_trailing_whitespace(
     type_ignore_stub: str,
 ) -> None:
-    assert format_type_ignore_comment(type_ignore_stub + " ") == "type: ignore"
+    assert (
+        format_type_ignore_comment(comment=type_ignore_stub + " ")
+        == "type: ignore"
+    )
 
 
 @pytest.mark.parametrize(
@@ -98,7 +108,7 @@ def test_should_preserve_existing_comment(
     type_ignore_stub: str, comment_suffix: str
 ) -> None:
     formatted_type_ignore_comment = format_type_ignore_comment(
-        type_ignore_stub + comment_suffix
+        comment=type_ignore_stub + comment_suffix
     )
     assert comment_suffix.strip() in formatted_type_ignore_comment
 
@@ -111,7 +121,7 @@ def test_should_preserve_existing_comment_without_surrounding_whitespace(
     type_ignore_stub: str, comment_suffix: str
 ) -> None:
     formatted_type_ignore_comment = format_type_ignore_comment(
-        type_ignore_stub + comment_suffix
+        comment=type_ignore_stub + comment_suffix
     )
     assert RESIDUAL_COMMENT_RE.match(formatted_type_ignore_comment)
 
@@ -124,6 +134,6 @@ def test_should_trim_repeating_comment_characters(
     type_ignore_stub: str, comment_suffix: str
 ) -> None:
     formatted_type_ignore_comment = format_type_ignore_comment(
-        type_ignore_stub + comment_suffix
+        comment=type_ignore_stub + comment_suffix
     )
     assert not formatted_type_ignore_comment.startswith("##")

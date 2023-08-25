@@ -17,7 +17,7 @@ class TestAllCombinations:
     @pytest.fixture(name="final_comment", scope="class")
     def fixture_final_comment(comment: str) -> str:
         type_ignore_comment: str = add_type_ignore_comment(
-            comment, ERROR_CODES
+            comment=comment, error_codes=ERROR_CODES
         )
         return type_ignore_comment
 

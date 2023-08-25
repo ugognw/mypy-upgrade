@@ -37,7 +37,7 @@ def fixture_report(
 
 @pytest.fixture(name="parsed_errors")
 def fixture_parsed_errors(report: typing.TextIO) -> list[MypyError]:
-    parsed_errors: list[MypyError] = parse_mypy_report(report)
+    parsed_errors: list[MypyError] = parse_mypy_report(report=report)
     report.seek(0)
     return parsed_errors
 

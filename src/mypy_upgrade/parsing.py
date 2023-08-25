@@ -31,6 +31,7 @@ class MypyError(NamedTuple):
 
 
 def parse_mypy_report(
+    *,
     report: TextIO,
 ) -> list[MypyError]:
     """Parse a mypy error report from stdin.
@@ -78,7 +79,7 @@ def parse_mypy_report(
     return sorted(errors, key=MypyError.filename_and_line_number)
 
 
-def string_to_error_codes(string: str) -> tuple[str, ...]:
+def string_to_error_codes(*, string: str) -> tuple[str, ...]:
     """Return the error codes in a string containin the phrase "type: ignore"
 
     Args:
@@ -96,7 +97,7 @@ def string_to_error_codes(string: str) -> tuple[str, ...]:
         ... '"type: ignore" comment without error code (consider '
         ... '"type: ignore[operator, type-var]" instead)'
         ... )
-        >>> string_to_error_codes(string)
+        >>> string_to_error_codes(string=string)
         ("operator", "type-var")
     """
     type_ignore_re = re.compile(

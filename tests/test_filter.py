@@ -50,25 +50,25 @@ class TestGetModulePaths:
 
     @staticmethod
     def test_should_return_path_of_testfile() -> None:
-        path = _get_module_paths(["mypy_upgrade.cli"])[0]
+        path = _get_module_paths(modules=["mypy_upgrade.cli"])[0]
         assert path == pathlib.Path("src/mypy_upgrade/cli.py").resolve()
 
     @staticmethod
     def test_should_return_path_of_testdir() -> None:
-        path = _get_module_paths(["mypy_upgrade"])[0]
+        path = _get_module_paths(modules=["mypy_upgrade"])[0]
         assert (
             path == pathlib.Path(__file__, "../../src/mypy_upgrade").resolve()
         )
 
     @staticmethod
     def test_should_return_none_for_nonexistent_module() -> None:
-        path = _get_module_paths(["fake_module"])[0]
+        path = _get_module_paths(modules=["fake_module"])[0]
         assert path is None
 
     @staticmethod
     def test_should_raise_error_for_built_in_module() -> None:
         with pytest.raises(NotImplementedError) as exc_info:
-            _ = _get_module_paths(["sys"])
+            _ = _get_module_paths(modules=["sys"])
         message = "Uncountered an unsupported module type."
         assert exc_info.value.args[0] == message
 

@@ -29,7 +29,7 @@ class TestExtractErrorDetails:
         unused_ignore_error: MypyError,
         error_details: tuple[list[str], list[str], list[str]],
     ) -> None:
-        to_remove = string_to_error_codes(unused_ignore_error.message)
+        to_remove = string_to_error_codes(string=unused_ignore_error.message)
         if to_remove:
             assert to_remove[0] in error_details[2]
         else:
@@ -40,7 +40,9 @@ class TestExtractErrorDetails:
         ignore_without_code_error: MypyError,
         error_details: tuple[list[str], list[str], list[str]],
     ) -> None:
-        to_add = string_to_error_codes(ignore_without_code_error.message)
+        to_add = string_to_error_codes(
+            string=ignore_without_code_error.message
+        )
         if not to_add:
             assert "*" in error_details[2]
 
@@ -57,7 +59,9 @@ class TestExtractErrorDetails:
         ignore_without_code_error: MypyError,
         error_details: tuple[list[str], list[str], list[str]],
     ) -> None:
-        to_add = string_to_error_codes(ignore_without_code_error.message)
+        to_add = string_to_error_codes(
+            string=ignore_without_code_error.message
+        )
         if to_add:
             assert all(code in error_details[0] for code in to_add)
 

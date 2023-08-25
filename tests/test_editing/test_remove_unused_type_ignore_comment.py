@@ -12,13 +12,17 @@ class TestAllCombinations:
     @staticmethod
     @pytest.fixture(name="remove_result", scope="class")
     def fixture_remove_result(comment: str, codes_to_remove: list[str]) -> str:
-        return remove_unused_type_ignore_comments(comment, codes_to_remove)
+        return remove_unused_type_ignore_comments(
+            comment=comment, codes_to_remove=codes_to_remove
+        )
 
     @staticmethod
     def test_should_remove_all_error_codes_if_asterisk_in_codes_to_remove(
         comment: str, error_codes: Collection[str]
     ) -> None:
-        result = remove_unused_type_ignore_comments(comment, error_codes)
+        result = remove_unused_type_ignore_comments(
+            comment=comment, codes_to_remove=error_codes
+        )
         assert not any(code in result for code in error_codes if code)
 
     @staticmethod
@@ -27,7 +31,9 @@ class TestAllCombinations:
         error_codes: Collection[str],
     ) -> None:
         comment = f"{stub} # don't remove {error_codes!s}"
-        result = remove_unused_type_ignore_comments(comment, error_codes)
+        result = remove_unused_type_ignore_comments(
+            comment=comment, codes_to_remove=error_codes
+        )
         stripped_result = re.sub(r"type: ignore\[[a-z, \-]\]", "", result)
         assert str(error_codes) in stripped_result
 
@@ -64,7 +70,7 @@ class TestAllCombinations:
         comment_suffix: str, codes_to_remove: list[str]
     ) -> None:
         result = remove_unused_type_ignore_comments(
-            comment_suffix, codes_to_remove
+            comment=comment_suffix, codes_to_remove=codes_to_remove
         )
         assert result == comment_suffix
 

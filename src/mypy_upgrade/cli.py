@@ -132,7 +132,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
 
 
 def print_results(
-    results: MypyUpgradeResult, options: dict[str, int | bool]
+    *, results: MypyUpgradeResult, options: dict[str, int | bool]
 ) -> None:
     """Print the results contained in a `MypyUpgradeResult` object.
 
@@ -150,7 +150,7 @@ def print_results(
 
     if results.not_silenced and not options["suppress_warnings"]:
         not_silenced_warning = create_not_silenced_errors_warning(
-            results.not_silenced, options["verbosity"]
+            not_silenced=results.not_silenced, options=options["verbosity"]
         )
         print(" WARNING ".center(width, "-"))  # noqa: T201
         print(fill_(not_silenced_warning))  # noqa: T201
@@ -203,27 +203,27 @@ def main() -> None:
 
     if args.report is None:
         results = silence_errors_in_report(
-            sys.stdin,
-            args.packages,
-            args.modules,
-            args.files,
-            args.description_style,
-            args.fix_me.rstrip(),
+            report=sys.stdin,
+            packages=args.packages,
+            modules=args.modules,
+            files=args.files,
+            description_style=args.description_style,
+            fix_me=args.fix_me.rstrip(),
         )
     else:
         report: pathlib.Path = args.report
         with report.open(mode="r", encoding="utf-8") as file:
             results = silence_errors_in_report(
-                file,
-                args.packages,
-                args.modules,
-                args.files,
-                args.description_style,
-                args.fix_me.rstrip(),
+                report=file,
+                packages=args.packages,
+                modules=args.modules,
+                files=args.files,
+                description_style=args.description_style,
+                fix_me=args.fix_me.rstrip(),
             )
 
     options = {
         "verbosity": args.verbosity,
         "suppress_warnings": args.suppress_warnings,
     }
-    print_results(results, options=options)
+    print_results(results=results, options=options)
