@@ -9,7 +9,7 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
-## [Unreleased]
+## [0.0.1-beta.5] - 2023-08-24
 
 ### Added
 
@@ -27,6 +27,8 @@ comment
 * new unit tests for `mypy_upgrade.editing.remove_unused_type_ignore_comments`
 
 ### Changed
+
+* All arguments are now keyword only
 
 * `mypy_upgrade.cli.main`
 
@@ -483,7 +485,7 @@ logic
 
 * First release
 
-[Unreleased]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.4...development
+[0.0.1-beta.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.4...release-0.0.1-beta.5
 [0.0.1-beta.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.3...release-0.0.1-beta.4
 [0.0.1-beta.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.2...release-0.0.1-beta.3
 [0.0.1-beta.2]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.1...release-0.0.1-beta.2
