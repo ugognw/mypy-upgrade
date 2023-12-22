@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import io
 import itertools
+import logging
 import pathlib
+import shutil
 import sys
 import tokenize
 from collections.abc import Iterable
 from operator import attrgetter
+from tempfile import TemporaryDirectory
 from typing import NamedTuple, TextIO
 
 if sys.version_info < (3, 8):
@@ -31,7 +34,14 @@ from mypy_upgrade.utils import (
     CommentSplitLine,
     split_into_code_and_comment,
 )
-from mypy_upgrade.warnings import MISSING_ERROR_CODES, TRY_SHOW_ABSOLUTE_PATH
+
+logger = logging.getLogger(__name__)
+
+TRY_SHOW_ABSOLUTE_PATH = (
+    "Unable to find file {filename}. This may be due to running"
+    "mypy in a different directory than mypy-upgrade. Please try "
+    "running mypy with the --show-absolute-path flag set."
+)
 
 
 class MypyUpgradeResult(NamedTuple):
@@ -42,13 +52,10 @@ class MypyUpgradeResult(NamedTuple):
             representing an error that was silenced
         non_silenced: a tuple of `MypyError` instances, each of which
             representing an error that was not silenced
-        messages: a tuple of strings representing messages produced during
-            execution of `mypy-upgrade`
     """
 
     silenced: tuple[MypyError, ...]
     not_silenced: tuple[MypyError, ...]
-    messages: tuple[str, ...]
 
 
 def _extract_error_details(
@@ -136,6 +143,24 @@ def _writelines(*, file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
     return file.write("\n".join(to_write))
 
 
+def _log_silencing_results(
+    *, errors: Iterable[MypyError], safe_to_silence: Iterable[MypyError]
+) -> None:
+    """Logs the results of a call to `silence_errors_in_file`"""
+    for error in errors:
+        line_no = "" if not error.line_no else f":{error.line_no}"
+        if error in safe_to_silence:
+            logger.info(
+                "Successfully silenced error: "
+                f"{error.filename}{line_no}:{error.error_code}"
+            )
+        else:
+            logger.info(
+                "Unable to silence error: "
+                f"{error.filename}{line_no}:{error.error_code}"
+            )
+
+
 def silence_errors_in_file(
     *,
     file: TextIO,
@@ -161,6 +186,7 @@ def silence_errors_in_file(
     Returns:
         A list of `MypyError`s which were silenced in the given file.
     """
+    logger.debug(f"Silencing mypy errors: {errors}")
     start = file.tell()
     raw_code = file.read()
     tokens = list(tokenize.generate_tokens(io.StringIO(raw_code).readline))
@@ -184,6 +210,7 @@ def silence_errors_in_file(
     file.seek(start)
     _ = _writelines(file=file, lines=lines)
     _ = file.truncate()
+    _log_silencing_results(errors=errors, safe_to_silence=safe_to_silence)
     return safe_to_silence
 
 
@@ -195,6 +222,7 @@ def silence_errors_in_report(
     files: list[str],
     description_style: Literal["full", "none"],
     fix_me: str,
+    dry_run: bool,
 ) -> MypyUpgradeResult:
     """Silence errors listed in a given mypy error report.
 
@@ -217,44 +245,44 @@ def silence_errors_in_report(
         fix_me: a string specifying the 'Fix Me' message in type error
             suppresion comments. Pass "" to omit a 'Fix Me' message
             altogether. All trailing whitespace will be trimmed.
+        dry_run: don't actually silence anything, just print what would be.
 
     Returns:
         A `MypyUpgradeResult` object. The errors that are silenced via type
         checking suppression comments are stored in the `silenced` attribute.
         Those that are unable to be silenced are stored in the `not_silenced`
-        attribute. If a `FileNotFoundError` is raised while reading a file in
-        which an error is to be silenced or `mypy-upgrade`-related warnings
-        are raised during execution are stored in the `messages` attribute.
+        attribute.
     """
     errors = parse_mypy_report(report=report)
     source_filtered_errors = filter_by_source(
         errors=errors, packages=packages, modules=modules, files=files
     )
-    messages: list[str] = []
     silenced: list[MypyError] = []
     for filename, filename_grouped_errors in itertools.groupby(
         errors, key=attrgetter("filename")
     ):
         try:
-            with pathlib.Path(filename).open(
-                mode="r+", encoding="utf-8"
-            ) as file:
-                safe_to_silence = silence_errors_in_file(
+            if dry_run:
+                to_open = shutil.copy(
+                    src=filename,
+                    dst=TemporaryDirectory().joinpath(filename.name),
+                )
+            else:
+                to_open = pathlib.Path(filename)
+            with to_open.open(mode="r+", encoding="utf-8") as file:
+                safely_silenced = silence_errors_in_file(
                     file=file,
                     errors=filename_grouped_errors,
                     description_style=description_style,
                     fix_me=fix_me,
                 )
-            silenced.extend(safe_to_silence)
+            silenced.extend(safely_silenced)
         except FileNotFoundError:
-            messages.append(
-                TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
-            )
+            msg = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
+            logger.warning(msg)
         except tokenize.TokenError:
-            messages.append(f"Unable to tokenize file: {filename}")
-
-    if any(not error.error_code for error in source_filtered_errors):
-        messages += MISSING_ERROR_CODES
+            msg = f"Unable to tokenize file: {filename}"
+            logger.warning(msg)
 
     not_silenced = [e for e in source_filtered_errors if e not in silenced]
-    return MypyUpgradeResult((*silenced,), (*not_silenced,), (*messages,))
+    return MypyUpgradeResult(silenced=silenced, not_silenced=not_silenced)
