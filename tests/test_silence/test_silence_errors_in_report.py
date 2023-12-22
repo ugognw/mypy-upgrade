@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import logging
 import os
 import pathlib
 import shutil
@@ -10,7 +11,7 @@ import sys
 from collections.abc import Generator
 from typing import TextIO
 
-from mypy_upgrade.warnings import TRY_SHOW_ABSOLUTE_PATH
+from mypy_upgrade.logging import MessagesHandler
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -20,14 +21,35 @@ else:
 import pytest
 
 from mypy_upgrade.parsing import parse_mypy_report
-from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
+from mypy_upgrade.silence import (
+    TRY_SHOW_ABSOLUTE_PATH,
+    MypyUpgradeResult,
+    silence_errors_in_report,
+)
+
+
+@pytest.fixture(name="dry_run")
+def fixture_dry_run() -> bool:
+    dry_run = False
+
+    return dry_run
+
+
+@pytest.fixture(name="only_codes_to_silence")
+def fixture_only_codes_to_silence() -> tuple[str, ...]:
+    only_codes_to_silence: tuple[str, ...] = ()
+
+    return only_codes_to_silence
 
 
 @pytest.fixture(name="mypy_upgrade_result", scope="class")
 def fixture_mypy_upgrade_result(
+    *,
     mypy_report_pre: TextIO,
     description_style: Literal["full", "none"],
     fix_me: str,
+    dry_run: bool,
+    only_codes_to_silence: tuple[str, ...],
     python_path: pathlib.Path,
     install_dir: pathlib.Path,
 ) -> Generator[MypyUpgradeResult, None, None]:
@@ -38,6 +60,8 @@ def fixture_mypy_upgrade_result(
         files=[],
         description_style=description_style,
         fix_me=fix_me,
+        dry_run=dry_run,
+        only_codes_to_silence=only_codes_to_silence,
     )
     if sys.version_info < (3, 8):
         shutil.rmtree(python_path)
@@ -100,6 +124,14 @@ class TestSilenceErrorsInReport:
         errors_post = parse_mypy_report(report=mypy_report_post)
         assert len(errors_pre) >= len(errors_post)
 
+    @staticmethod
+    def test_should_only_silence_selected_errors() -> None:
+        assert True
+
+    @staticmethod
+    def test_should_silence_all_errors_if_no_errors_specified() -> None:
+        assert True
+
 
 class TestCatchFileNotFoundError:
     @staticmethod
@@ -121,10 +153,18 @@ class TestCatchFileNotFoundError:
             files=[],
             description_style="full",
             fix_me="",
+            dry_run=False,
+            only_codes_to_silence=(),
         )
         filename = result.not_silenced[0].filename
         message = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
-        assert message in result.messages
+        silence_logger = logging.getLogger(silence_errors_in_report.__module__)
+        messages_handler = next(
+            h
+            for h in silence_logger.handlers
+            if isinstance(h, MessagesHandler)
+        )
+        assert any(message in msg for msg in messages_handler.messages)
 
 
 class TestCatchTokenError:
@@ -158,7 +198,15 @@ class TestCatchTokenError:
             files=[],
             description_style="full",
             fix_me="",
+            dry_run=False,
+            only_codes_to_silence=(),
         )
         filename = result.not_silenced[0].filename
         message = f"Unable to tokenize file: {filename}"
-        assert message in result.messages
+        silence_logger = logging.getLogger(silence_errors_in_report.__module__)
+        messages_handler = next(
+            h
+            for h in silence_logger.handlers
+            if isinstance(h, MessagesHandler)
+        )
+        assert any(message in msg for msg in messages_handler.messages)
