@@ -133,7 +133,9 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "-r",
         "--report",
         default=sys.stdin,
-        type=argparse.FileType(mode="r", encoding="utf-8"),
+        type=argparse.FileType(
+            mode="r", encoding="utf-8"
+        ),  # find safer way to open
         help="""
         The path to a text file containing a mypy type checking report. If not
         specified, input is read from standard input.
@@ -297,7 +299,7 @@ def _configure_printing(*, suppress_warnings: bool, verbosity: int) -> None:
 def main() -> None:
     """An interface to `mypy-upgrade` from the command-line."""
     parser = _create_argument_parser()
-    options: _Options = parser.parse_args()
+    options = _Options(**vars(parser.parse_args()))
     _configure_printing(
         suppress_warnings=options.suppress_warnings,
         verbosity=options.verbosity,
