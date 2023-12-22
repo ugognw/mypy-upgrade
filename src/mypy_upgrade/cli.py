@@ -3,16 +3,80 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import pathlib
 import shutil
 import sys
 import textwrap
+from collections.abc import Mapping
+from logging import _FormatStyle
+from typing import Any, NamedTuple, TextIO
 
 from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
 from mypy_upgrade.warnings import (
     create_not_silenced_errors_warning,
 )
+
+DEFAULT_COLOURS = {
+    logging.DEBUG: 36,
+    logging.INFO: 33,
+    logging.WARNING: 95,
+    logging.ERROR: 35,
+    logging.CRITICAL: 31,
+}
+
+
+logger = logging.getLogger(__name__)
+
+
+class ColouredFormatter(logging.Formatter):
+    def __init__(
+        self,
+        fmt: str | None = None,
+        datefmt: str | None = None,
+        style: _FormatStyle = "%",
+        validate: bool = True,  # noqa: FBT001, FBT002
+        *,
+        defaults: Mapping[str, Any] | None = None,
+        colours: dict[int, str] | None = None,
+    ) -> None:
+        self.colours = colours or DEFAULT_COLOURS
+        super().__init__(fmt, datefmt, style, validate, defaults=defaults)
+
+    def formatMessage(self, record: logging.LogRecord):  # noqa: N802
+        colour_code = self.colours[record.levelno]
+        return f"\033[1;{colour_code}m{self._style.format(record)}\033[0m"
+
+
+class _Options(NamedTuple):
+    modules: list[str]
+    packages: list[str]
+    report: TextIO
+    description_style: str
+    dry_run: bool
+    fix_me: str
+    verbosity: int
+    version: bool
+    suppress_warnings: bool
+    files: list[str]
+
+
+class FileAction(argparse.Action):
+    """Represents a file to be opened for reading"""
+
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        if nargs is not None:
+            msg = "nargs not allowed"
+            raise ValueError(msg)
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(
+        self, parser, namespace, values, option_string=None  # noqa: ARG002
+    ):
+        filename = pathlib.Path(values[0])
+        with filename.open(mode="r", encoding="utf-8") as file:
+            setattr(namespace, self.dest, file)
 
 
 def _create_argument_parser() -> argparse.ArgumentParser:
@@ -65,6 +129,8 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
     parser.add_argument(
         "-r",
         "--report",
+        action=FileAction,
+        default=sys.stdin,
         type=pathlib.Path,
         help="""
         The path to a text file containing a mypy type checking report. If not
@@ -111,16 +177,26 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "-V",
         "--version",
         default=False,
-        action="store_const",
-        const=True,
+        action="version",
+        version=f"%(prog)s {__version__}",
         help="Print the version.",
     )
     parser.add_argument(
+        "-q",
+        "--quiet",
         "--suppress-warnings",
         default=False,
+        dest="suppress_warnings",
         action="store_const",
         const=True,
         help="Suppress all warnings. Disabled by default.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        default=False,
+        action="store_const",
+        const=True,
+        help="Don't actually silence anything, just print what would be.",
     )
     parser.add_argument(
         "files",
@@ -131,8 +207,8 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
     return parser
 
 
-def print_results(
-    *, results: MypyUpgradeResult, options: dict[str, int | bool]
+def summarize_results(
+    *, results: MypyUpgradeResult, options: _Options
 ) -> None:
     """Print the results contained in a `MypyUpgradeResult` object.
 
@@ -148,21 +224,15 @@ def print_results(
     def fill_(text: str) -> str:
         return textwrap.fill(text, width=width)
 
-    if results.not_silenced and not options["suppress_warnings"]:
+    if results.not_silenced and not options.suppress_warnings:
         not_silenced_warning = create_not_silenced_errors_warning(
-            not_silenced=results.not_silenced, verbosity=options["verbosity"]
+            not_silenced=results.not_silenced, verbosity=options.verbosity
         )
         print(" WARNING ".center(width, "-"))  # noqa: T201
         print(fill_(not_silenced_warning))  # noqa: T201
         print()  # noqa: T201
 
-    if not options["suppress_warnings"]:
-        for message in results.messages:
-            print(" WARNING ".center(width, "-"))  # noqa: T201
-            print(fill_(message))  # noqa: T201
-            print()  # noqa: T201
-
-    if options["verbosity"] == 1:
+    if options.verbosity == 1:
         num_files = len({err.filename for err in results.silenced})
         num_silenced = len(results.silenced)
         text = fill_(
@@ -170,7 +240,7 @@ def print_results(
             f"silenced across {num_files} file{'' if num_files == 1 else 's'}."
         )
         print(text)  # noqa: T201
-    elif options["verbosity"] > 1:
+    elif options.verbosity > 1:
         if results.silenced:
             print(  # noqa: T201
                 f" ERRORS SILENCED ({len(results.silenced)}) ".center(
@@ -193,37 +263,44 @@ def print_results(
                 )
 
 
+def _configure_printing(*, suppress_warnings: bool, verbosity: int) -> None:
+    if suppress_warnings:
+        level = logging.ERROR
+    elif verbosity == 0:
+        level = logging.WARNING
+    elif verbosity == 1:
+        level = logging.INFO
+    elif verbosity > 1:
+        level = logging.DEBUG
+
+    logger.setLevel(level)
+
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+
+    formatter = ColouredFormatter("%(levelname)s:%(message)s")
+
+    ch.setFormatter(formatter)
+
+    logger.addHandler(ch)
+
+
 def main() -> None:
     """An interface to `mypy-upgrade` from the command-line."""
     parser = _create_argument_parser()
-    args = parser.parse_args()
-    if args.version:
-        print(f"mypy-upgrade {__version__}")  # noqa: T201
-        return None
+    options: _Options = parser.parse_args()
+    _configure_printing(
+        suppress_warnings=options.suppress_warnings,
+        verbosity=options.verbosity,
+    )
 
-    if args.report is None:
-        results = silence_errors_in_report(
-            report=sys.stdin,
-            packages=args.packages,
-            modules=args.modules,
-            files=args.files,
-            description_style=args.description_style,
-            fix_me=args.fix_me.rstrip(),
-        )
-    else:
-        report: pathlib.Path = args.report
-        with report.open(mode="r", encoding="utf-8") as file:
-            results = silence_errors_in_report(
-                report=file,
-                packages=args.packages,
-                modules=args.modules,
-                files=args.files,
-                description_style=args.description_style,
-                fix_me=args.fix_me.rstrip(),
-            )
-
-    options = {
-        "verbosity": args.verbosity,
-        "suppress_warnings": args.suppress_warnings,
-    }
-    print_results(results=results, options=options)
+    results = silence_errors_in_report(
+        report=options.report,
+        packages=options.packages,
+        modules=options.modules,
+        files=options.files,
+        description_style=options.description_style,
+        fix_me=options.fix_me.rstrip(),
+        dry_run=options.dry_run,
+    )
+    summarize_results(results=results, options=options)
