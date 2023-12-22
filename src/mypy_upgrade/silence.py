@@ -6,12 +6,10 @@ import io
 import itertools
 import logging
 import pathlib
-import shutil
 import sys
 import tokenize
 from collections.abc import Iterable
 from operator import attrgetter
-from tempfile import TemporaryDirectory
 from typing import NamedTuple, TextIO
 
 if sys.version_info < (3, 8):
@@ -38,9 +36,23 @@ from mypy_upgrade.utils import (
 logger = logging.getLogger(__name__)
 
 TRY_SHOW_ABSOLUTE_PATH = (
-    "Unable to find file {filename}. This may be due to running"
+    "Unable to find file {filename}. This may be due to running "
     "mypy in a different directory than mypy-upgrade. Please try "
     "running mypy with the --show-absolute-path flag set."
+)
+
+VERBOSITY_SUGGESTION = (
+    "Run mypy-upgrade in verbose mode (option -v) to get a "
+    "full print out of affected type checking errors."
+)
+
+NOT_SILENCED_WARNING = (
+    "Line continuation characters and multiline (f-strings) are "
+    "common culprits. Possible resolutions include: 1) "
+    "formatting the affected code with a PEP 8-compliant "
+    "formatter (e.g., black), 2) refactoring the affected code "
+    "to avoid line continutation characters or multiline "
+    "f-strings, and 3) resolving the errors."
 )
 
 
@@ -147,6 +159,7 @@ def _log_silencing_results(
     *, errors: Iterable[MypyError], safe_to_silence: Iterable[MypyError]
 ) -> None:
     """Logs the results of a call to `silence_errors_in_file`"""
+    warned = False
     for error in errors:
         line_no = "" if not error.line_no else f":{error.line_no}"
         if error in safe_to_silence:
@@ -155,9 +168,19 @@ def _log_silencing_results(
                 f"{error.filename}{line_no}:{error.error_code}"
             )
         else:
+            if warned:
+                suffix = ""
+            else:
+                suffix = (
+                    f"{NOT_SILENCED_WARNING} {VERBOSITY_SUGGESTION}"
+                    if logger.level < logging.WARNING
+                    else NOT_SILENCED_WARNING
+                )
+                warned = True
             logger.info(
                 "Unable to silence error: "
                 f"{error.filename}{line_no}:{error.error_code}"
+                f" {suffix}".strip()
             )
 
 
@@ -167,6 +190,7 @@ def silence_errors_in_file(
     errors: Iterable[MypyError],
     description_style: Literal["full", "none"],
     fix_me: str,
+    dry_run: bool,
 ) -> list[MypyError]:
     """Silence errors in a given file.
 
@@ -182,6 +206,7 @@ def silence_errors_in_file(
         fix_me: a string specifying the 'Fix Me' message in type error
             suppresion comments. Pass "" to omit a 'Fix Me' message
             altogether. All trailing whitespace will be trimmed.
+        dry_run: don't actually silence anything, just print what would be.
 
     Returns:
         A list of `MypyError`s which were silenced in the given file.
@@ -208,8 +233,9 @@ def silence_errors_in_file(
         lines[i] = CommentSplitLine(lines[i].code, new_comment)
 
     file.seek(start)
-    _ = _writelines(file=file, lines=lines)
-    _ = file.truncate()
+    if not dry_run:
+        _ = _writelines(file=file, lines=lines)
+        _ = file.truncate()
     _log_silencing_results(errors=errors, safe_to_silence=safe_to_silence)
     return safe_to_silence
 
@@ -271,19 +297,15 @@ def silence_errors_in_report(
         errors, key=attrgetter("filename")
     ):
         try:
-            if dry_run:
-                to_open = shutil.copy(
-                    src=filename,
-                    dst=TemporaryDirectory().joinpath(filename.name),
-                )
-            else:
-                to_open = pathlib.Path(filename)
-            with to_open.open(mode="r+", encoding="utf-8") as file:
+            with pathlib.Path(filename).open(
+                mode="r+", encoding="utf-8"
+            ) as file:
                 safely_silenced = silence_errors_in_file(
                     file=file,
                     errors=filename_grouped_errors,
                     description_style=description_style,
                     fix_me=fix_me,
+                    dry_run=dry_run,
                 )
             silenced.extend(safely_silenced)
         except FileNotFoundError:
