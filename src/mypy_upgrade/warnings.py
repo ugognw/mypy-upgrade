@@ -1,24 +1,10 @@
 """This module defines warnings strings and functions to create them."""
 from __future__ import annotations
 
-from mypy_upgrade.parsing import MypyError
+from typing import TYPE_CHECKING
 
-MISSING_ERROR_CODES = (
-    "Not all errors in the mypy type checking report have error "
-    "codes. As a result, mypy-upgrade can only suppress these errors "
-    "with non-code-specific # type: ignore comments (which will still "
-    "raise errors when running mypy with --strict enabled). If you "
-    "would like mypy-upgrade to silence errors with code-specific "
-    "comments, please run mypy with --show-error-codes enabled. "
-    "If you would like to suppress this warning, use the "
-    "--allow-no-error-codes flag for mypy-upgrade."
-)
-
-TRY_SHOW_ABSOLUTE_PATH = (
-    "Unable to find file {filename}. This may be due to running"
-    "mypy in a different directory than mypy-upgrade. Please try "
-    "running mypy with the --show-absolute-path flag set."
-)
+if TYPE_CHECKING:
+    from mypy_upgrade.parsing import MypyError
 
 
 def create_not_silenced_errors_warning(
