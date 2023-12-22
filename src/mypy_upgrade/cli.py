@@ -13,9 +13,6 @@ from typing import TYPE_CHECKING, Any, NamedTuple, TextIO
 
 from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
-from mypy_upgrade.warnings import (
-    create_not_silenced_errors_warning,
-)
 
 if TYPE_CHECKING:
     from logging import _FormatStyle
@@ -59,6 +56,7 @@ class _Options(NamedTuple):
     dry_run: bool
     fix_me: str
     verbosity: int
+    summarize: bool
     version: bool
     suppress_warnings: bool
     files: list[str]
@@ -178,14 +176,6 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         ),
     )
     parser.add_argument(
-        "-V",
-        "--version",
-        default=False,
-        action="version",
-        version=f"%(prog)s {__version__}",
-        help="Print the version.",
-    )
-    parser.add_argument(
         "-q",
         "--quiet",
         "--suppress-warnings",
@@ -194,6 +184,21 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         action="store_const",
         const=True,
         help="Suppress all warnings. Disabled by default.",
+    )
+    parser.add_argument(
+        "-V",
+        "--version",
+        default=False,
+        action="version",
+        version=f"%(prog)s {__version__}",
+        help="Print the version.",
+    )
+    parser.add_argument(
+        "-s",
+        "--summarize",
+        action="store_true",
+        default=False,
+        help="Print a summary after running.",
     )
     parser.add_argument(
         "--dry-run",
@@ -218,60 +223,36 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
     return parser
 
 
-def summarize_results(
-    *, results: MypyUpgradeResult, options: _Options
-) -> None:
+def summarize_results(*, results: MypyUpgradeResult) -> None:
     """Print the results contained in a `MypyUpgradeResult` object.
 
     Args:
         results: a `MypyUpgradeResult` object.
-        options: a dictionary containing the following keys:
-            verbosity: an integer specifying the verbosity
-            suppress_warnings: a boolean indicating whether to suppress
-                warnings
     """
     width = min(79, shutil.get_terminal_size(fallback=(79, 0)).columns)
 
     def fill_(text: str) -> str:
         return textwrap.fill(text, width=width)
 
-    if results.not_silenced and not options.suppress_warnings:
-        not_silenced_warning = create_not_silenced_errors_warning(
-            not_silenced=results.not_silenced, verbosity=options.verbosity
-        )
-        print(" WARNING ".center(width, "-"))  # noqa: T201
-        print(fill_(not_silenced_warning))  # noqa: T201
-        print()  # noqa: T201
+    def _to_verb(count: int) -> str:
+        if count == 1:
+            return "error was"
+        return "errors were"
 
-    if options.verbosity == 1:
-        num_files = len({err.filename for err in results.silenced})
-        num_silenced = len(results.silenced)
-        text = fill_(
-            f"{num_silenced} error{'' if num_silenced == 1 else 's'} "
-            f"silenced across {num_files} file{'' if num_files == 1 else 's'}."
-        )
-        print(text)  # noqa: T201
-    elif options.verbosity > 1:
-        if results.silenced:
-            print(  # noqa: T201
-                f" ERRORS SILENCED ({len(results.silenced)}) ".center(
-                    width, "-"
-                )
-            )
-            for error in results.silenced:
-                print(  # noqa: T201
-                    f"{error.error_code}: {error.filename} ({error.line_no})"
-                )
-        if results.not_silenced:
-            print(  # noqa: T201
-                f" ERRORS NOT SILENCED ({len(results.not_silenced)}) ".center(
-                    width, "-"
-                )
-            )
-            for error in results.not_silenced:
-                print(  # noqa: T201
-                    f"{error.error_code}: {error.filename} ({error.line_no})"
-                )
+    print(" SUMMARY ".center(width, "-"))  # noqa: T201
+
+    num_silenced = len(results.silenced)
+    not_silenced_warning = (
+        f"{num_silenced} {_to_verb(num_silenced)} silenced.\n\n"
+    )
+    print(fill_(not_silenced_warning))  # noqa: T201
+
+    num_not_silenced = len(results.not_silenced)
+    not_silenced_warning = (
+        f"{num_not_silenced} {_to_verb(num_not_silenced)} not silenced due "
+        "to syntax limitations."
+    )
+    print(fill_(not_silenced_warning))  # noqa: T201
 
 
 def _configure_printing(*, suppress_warnings: bool, verbosity: int) -> None:
@@ -286,7 +267,7 @@ def _configure_printing(*, suppress_warnings: bool, verbosity: int) -> None:
 
     logger.setLevel(level)
 
-    ch = logging.StreamHandler(sys.stdout)
+    ch = logging.StreamHandler()
     ch.setLevel(level)
 
     formatter = ColouredFormatter("%(levelname)s:%(message)s")
@@ -315,4 +296,5 @@ def main() -> None:
         fix_me=options.fix_me.rstrip(),
         dry_run=options.dry_run,
     )
-    summarize_results(results=results, options=options)
+    if options.summarize:
+        summarize_results(results=results)
