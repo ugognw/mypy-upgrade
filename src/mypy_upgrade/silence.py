@@ -223,6 +223,7 @@ def silence_errors_in_report(
     description_style: Literal["full", "none"],
     fix_me: str,
     dry_run: bool,
+    only_codes_to_silence: tuple[str, ...],
 ) -> MypyUpgradeResult:
     """Silence errors listed in a given mypy error report.
 
@@ -246,6 +247,8 @@ def silence_errors_in_report(
             suppresion comments. Pass "" to omit a 'Fix Me' message
             altogether. All trailing whitespace will be trimmed.
         dry_run: don't actually silence anything, just print what would be.
+        only_codes_to_silence: a list of strings indicating the only mypy
+            error codes to silence.
 
     Returns:
         A `MypyUpgradeResult` object. The errors that are silenced via type
@@ -257,6 +260,11 @@ def silence_errors_in_report(
     source_filtered_errors = filter_by_source(
         errors=errors, packages=packages, modules=modules, files=files
     )
+    source_filtered_errors = [
+        error
+        for error in source_filtered_errors
+        if error.error_code in only_codes_to_silence
+    ]
     silenced: list[MypyError] = []
     for filename, filename_grouped_errors in itertools.groupby(
         errors, key=attrgetter("filename")

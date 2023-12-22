@@ -9,14 +9,16 @@ import shutil
 import sys
 import textwrap
 from collections.abc import Mapping
-from logging import _FormatStyle
-from typing import Any, NamedTuple, TextIO
+from typing import TYPE_CHECKING, Any, NamedTuple, TextIO
 
 from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
 from mypy_upgrade.warnings import (
     create_not_silenced_errors_warning,
 )
+
+if TYPE_CHECKING:
+    from logging import _FormatStyle
 
 DEFAULT_COLOURS = {
     logging.DEBUG: 36,
@@ -60,6 +62,7 @@ class _Options(NamedTuple):
     version: bool
     suppress_warnings: bool
     files: list[str]
+    only_codes_to_silence: tuple[str]
 
 
 class FileAction(argparse.Action):
@@ -74,7 +77,7 @@ class FileAction(argparse.Action):
     def __call__(
         self, parser, namespace, values, option_string=None  # noqa: ARG002
     ):
-        filename = pathlib.Path(values[0])
+        filename = pathlib.Path(values)
         with filename.open(mode="r", encoding="utf-8") as file:
             setattr(namespace, self.dest, file)
 
@@ -129,9 +132,8 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
     parser.add_argument(
         "-r",
         "--report",
-        action=FileAction,
         default=sys.stdin,
-        type=pathlib.Path,
+        type=argparse.FileType(mode="r", encoding="utf-8"),
         help="""
         The path to a text file containing a mypy type checking report. If not
         specified, input is read from standard input.
@@ -197,6 +199,13 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         action="store_const",
         const=True,
         help="Don't actually silence anything, just print what would be.",
+    )
+    parser.add_argument(
+        "--silence-error-code",
+        action="append",
+        default=(),
+        dest="only_codes_to_silence",
+        help="Silence mypy errors by error code.",
     )
     parser.add_argument(
         "files",
@@ -299,6 +308,7 @@ def main() -> None:
         packages=options.packages,
         modules=options.modules,
         files=options.files,
+        only_codes_to_silence=options.only_codes_to_silence,
         description_style=options.description_style,
         fix_me=options.fix_me.rstrip(),
         dry_run=options.dry_run,
