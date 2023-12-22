@@ -212,6 +212,7 @@ def silence_errors_in_file(
         A list of `MypyError`s which were silenced in the given file.
     """
     logger.debug(f"Silencing mypy errors: {errors}")
+    errors = list(errors)
     start = file.tell()
     raw_code = file.read()
     tokens = list(tokenize.generate_tokens(io.StringIO(raw_code).readline))
@@ -233,6 +234,7 @@ def silence_errors_in_file(
         lines[i] = CommentSplitLine(lines[i].code, new_comment)
 
     file.seek(start)
+
     if not dry_run:
         _ = _writelines(file=file, lines=lines)
         _ = file.truncate()
