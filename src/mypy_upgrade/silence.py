@@ -260,11 +260,12 @@ def silence_errors_in_report(
     source_filtered_errors = filter_by_source(
         errors=errors, packages=packages, modules=modules, files=files
     )
-    source_filtered_errors = [
-        error
-        for error in source_filtered_errors
-        if error.error_code in only_codes_to_silence
-    ]
+    if only_codes_to_silence:
+        source_filtered_errors = [
+            error
+            for error in source_filtered_errors
+            if error.error_code in only_codes_to_silence
+        ]
     silenced: list[MypyError] = []
     for filename, filename_grouped_errors in itertools.groupby(
         errors, key=attrgetter("filename")
