@@ -2,8 +2,23 @@
 # remove when dropping Python 3.7-3.9 support
 from __future__ import annotations
 
+import logging
 import re
 from typing import NamedTuple, TextIO
+
+logger = logging.getLogger(__name__)
+
+
+MISSING_ERROR_CODES = (
+    "Not all errors in the mypy type checking report have error "
+    "codes. As a result, mypy-upgrade can only suppress these errors "
+    "with non-code-specific # type: ignore comments (which will still "
+    "raise errors when running mypy with --strict enabled). If you "
+    "would like mypy-upgrade to silence errors with code-specific "
+    "comments, please run mypy with --show-error-codes enabled. "
+    "If you would like to suppress this warning, use the "
+    "--allow-no-error-codes flag for mypy-upgrade."
+)
 
 
 class MypyError(NamedTuple):
@@ -76,6 +91,8 @@ def parse_mypy_report(
                 )
             )
     report.seek(start)
+    if any(not error.error_code for error in errors):
+        logger.warning(MISSING_ERROR_CODES)
     return sorted(errors, key=MypyError.filename_and_line_number)
 
 
