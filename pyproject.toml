@@ -101,10 +101,10 @@ test-cov-cli = "test-cov -m 'cli' tests/"
 [tool.hatch.envs.lint]
 detached = true
 dependencies = [
-  "black==23.7.0",
-  "mypy==1.5.1",
+  "black==23.12.0",
+  "mypy==1.8.0",
   "pytest==7.4.0",
-  "ruff==0.0.285",
+  "ruff==0.1.9",
 ]
 python = "3.11"
 
