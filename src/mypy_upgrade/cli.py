@@ -184,7 +184,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
     )
     parser.add_argument(
         "-s",
-        "--silence-error-code",
+        "--silence-error",
         action="append",
         default=[],
         dest="error_codes_to_silence",
