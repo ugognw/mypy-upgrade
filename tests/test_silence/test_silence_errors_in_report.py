@@ -43,14 +43,14 @@ def fixture_configure_logging(  # noqa: PT004
     root_logger.addHandler(fh)
 
 
-@pytest.fixture(name="dry_run")
+@pytest.fixture(name="dry_run", scope="class")
 def fixture_dry_run() -> bool:
     dry_run = False
 
     return dry_run
 
 
-@pytest.fixture(name="codes_to_silence")
+@pytest.fixture(name="codes_to_silence", scope="class")
 def fixture_codes_to_silence() -> list[str]:
     only_codes_to_silence: list[str] = []
     return only_codes_to_silence
