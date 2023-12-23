@@ -31,7 +31,7 @@ class Options(NamedTuple):
     version: bool
     suppress_warnings: bool
     files: list[str]
-    codes_to_silence: list[str]
+    codes_to_silence: list[str] | None
 
 
 @contextmanager
@@ -183,7 +183,6 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "-s",
         "--silence-error",
         action="append",
-        default=[],
         dest="codes_to_silence",
         help="Silence mypy errors by error code. This flag may be repeated "
         "multiple times.",
