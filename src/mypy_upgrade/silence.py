@@ -282,7 +282,8 @@ def silence_errors_in_report(
         A `MypyUpgradeResult` object. The errors that are silenced via type
         checking suppression comments are stored in the `silenced` attribute.
         Those that are unable to be silenced are stored in the `not_silenced`
-        attribute.
+        attribute. Note that the errors which are filtered out as a result of
+        packages, modules, files, or codes_to_silence will not be recorded.
     """
     errors = parse_mypy_report(report=report)
     source_filtered_errors = filter_by_source(
