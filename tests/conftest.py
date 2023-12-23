@@ -19,6 +19,12 @@ import pytest
 from mypy_upgrade.parsing import MypyError, parse_mypy_report
 
 
+@pytest.fixture(name="log_file")
+def fixture_log_file(tmp_path: pathlib.Path) -> pathlib.Path:
+    log_file = tmp_path.joinpath("mypy_upgrade.log")
+    return log_file
+
+
 @pytest.fixture(
     name="report",
     params=(
