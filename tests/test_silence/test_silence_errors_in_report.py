@@ -11,8 +11,6 @@ import sys
 from collections.abc import Generator
 from typing import TextIO
 
-from mypy_upgrade.logging import MessagesHandler
-
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
 else:
@@ -28,6 +26,23 @@ from mypy_upgrade.silence import (
 )
 
 
+@pytest.fixture(name="log_level")
+def fixture_log_level() -> int:
+    level = logging.DEBUG
+
+    return level
+
+
+@pytest.fixture(name="configure_logging")
+def fixture_configure_logging(  # noqa: PT004
+    log_level: int, log_file: pathlib.Path
+) -> None:
+    root_logger = logging.getLogger()
+    fh = logging.FileHandler(filename=log_file)
+    fh.setLevel(level=log_level)
+    root_logger.addHandler(fh)
+
+
 @pytest.fixture(name="dry_run")
 def fixture_dry_run() -> bool:
     dry_run = False
@@ -38,7 +53,6 @@ def fixture_dry_run() -> bool:
 @pytest.fixture(name="codes_to_silence")
 def fixture_codes_to_silence() -> list[str]:
     only_codes_to_silence: list[str] = []
-
     return only_codes_to_silence
 
 
@@ -133,6 +147,7 @@ class TestSilenceErrorsInReport:
         assert True
 
 
+@pytest.mark.usefixtures("configure_logging")
 class TestCatchFileNotFoundError:
     @staticmethod
     @pytest.fixture(name="report")
@@ -145,7 +160,9 @@ class TestCatchFileNotFoundError:
         return io.StringIO("\n".join(lines))
 
     @staticmethod
-    def test_should_catch_file_not_found_error(report: TextIO) -> None:
+    def test_should_catch_file_not_found_error(
+        report: TextIO, log_file: pathlib.Path
+    ) -> None:
         result = silence_errors_in_report(
             report=report,
             packages=[],
@@ -154,19 +171,14 @@ class TestCatchFileNotFoundError:
             description_style="full",
             fix_me="",
             dry_run=False,
-            codes_to_silence=[],
         )
         filename = result.not_silenced[0].filename
         message = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
-        silence_logger = logging.getLogger(silence_errors_in_report.__module__)
-        messages_handler = next(
-            h
-            for h in silence_logger.handlers
-            if isinstance(h, MessagesHandler)
-        )
-        assert any(message in msg for msg in messages_handler.messages)
+        with log_file.open(mode="r", encoding="utf-8") as file:
+            assert any(message in msg for msg in file.readlines())
 
 
+@pytest.mark.usefixtures("configure_logging")
 class TestCatchTokenError:
     @staticmethod
     @pytest.fixture(name="source_file", params=("x +\\\n", "(", "'''"))
@@ -190,7 +202,9 @@ class TestCatchTokenError:
         return io.StringIO("\n".join(lines))
 
     @staticmethod
-    def test_should_catch_token_error(report: TextIO) -> None:
+    def test_should_catch_token_error(
+        report: TextIO, log_file: pathlib.Path
+    ) -> None:
         result = silence_errors_in_report(
             report=report,
             packages=[],
@@ -199,14 +213,8 @@ class TestCatchTokenError:
             description_style="full",
             fix_me="",
             dry_run=False,
-            codes_to_silence=[],
         )
         filename = result.not_silenced[0].filename
         message = f"Unable to tokenize file: {filename}"
-        silence_logger = logging.getLogger(silence_errors_in_report.__module__)
-        messages_handler = next(
-            h
-            for h in silence_logger.handlers
-            if isinstance(h, MessagesHandler)
-        )
-        assert any(message in msg for msg in messages_handler.messages)
+        with log_file.open(mode="r", encoding="utf-8") as file:
+            assert any(message in msg for msg in file.readlines())
