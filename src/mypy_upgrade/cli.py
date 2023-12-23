@@ -171,7 +171,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
     )
     parser.add_argument(
         "-c",
-        "--colors",
+        "--colours",
         action="store_true",
         default=False,
         help="Enable coloured output.",
