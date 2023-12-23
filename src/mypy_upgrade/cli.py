@@ -163,7 +163,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         help="Print the version.",
     )
     parser.add_argument(
-        "-s",
+        "-S",
         "--summarize",
         action="store_true",
         default=False,
@@ -183,6 +183,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         help="Don't actually silence anything, just print what would be.",
     )
     parser.add_argument(
+        "-s",
         "--silence-error-code",
         action="append",
         default=(),
