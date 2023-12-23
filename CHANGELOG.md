@@ -9,7 +9,7 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
-## [0.0.1-beta.6] - 2023-12-22
+## [0.0.1-beta.6] - 2024-01-01
 
 ### Added
 
