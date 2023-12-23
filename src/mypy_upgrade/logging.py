@@ -29,6 +29,6 @@ class ColouredFormatter(logging.Formatter):
         self.colours = colours or DEFAULT_COLOURS
         super().__init__(fmt, datefmt, style, validate, defaults=defaults)
 
-    def formatMessage(self, record: logging.LogRecord):  # noqa: N802
+    def formatMessage(self, record: logging.LogRecord) -> str:  # noqa: N802
         colour_code = self.colours[record.levelno]
         return f"\033[1;{colour_code}m{self._style.format(record)}\033[0m"
