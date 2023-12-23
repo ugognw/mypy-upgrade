@@ -26,7 +26,7 @@ DEFAULT_COLOURS = {
 }
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class ColouredFormatter(logging.Formatter):
@@ -181,8 +181,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "--suppress-warnings",
         default=False,
         dest="suppress_warnings",
-        action="store_const",
-        const=True,
+        action="store_true",
         help="Suppress all warnings. Disabled by default.",
     )
     parser.add_argument(
@@ -202,9 +201,8 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
     )
     parser.add_argument(
         "--dry-run",
+        action="store_true",
         default=False,
-        action="store_const",
-        const=True,
         help="Don't actually silence anything, just print what would be.",
     )
     parser.add_argument(
@@ -212,7 +210,8 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         action="append",
         default=(),
         dest="only_codes_to_silence",
-        help="Silence mypy errors by error code.",
+        help="Silence mypy errors by error code. This flag may be repeated "
+        "multiple times.",
     )
     parser.add_argument(
         "files",
