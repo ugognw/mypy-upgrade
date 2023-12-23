@@ -13,13 +13,13 @@ This project implements a version of
 
 ### Added
 
-* `mypy_upgrade.logging`
+* `mypy_upgrade.logging`: logging/printing facilities
 
 * `dry_run` keyword argument added to `mypy_upgrade.silence.silence_errors_in_file`
 and `mypy_upgrade.silence.silence_errors_in_report`
 
-* `-s/--silence-error-code` CLI option and
-`error_codes_to_silence` keyword argument added to
+* `-s/--silence-error` CLI option and
+`codes_to_silence` keyword argument added to
 `mypy_upgrade.silence.silence_errors_in_file`
 and `mypy_upgrade.silence.silence_errors_in_report`
 
