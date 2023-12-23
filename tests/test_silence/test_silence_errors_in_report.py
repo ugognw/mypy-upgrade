@@ -61,7 +61,7 @@ def fixture_mypy_upgrade_result(
         description_style=description_style,
         fix_me=fix_me,
         dry_run=dry_run,
-        only_codes_to_silence=only_codes_to_silence,
+        error_codes_to_silence=only_codes_to_silence,
     )
     if sys.version_info < (3, 8):
         shutil.rmtree(python_path)
@@ -154,7 +154,7 @@ class TestCatchFileNotFoundError:
             description_style="full",
             fix_me="",
             dry_run=False,
-            only_codes_to_silence=(),
+            error_codes_to_silence=(),
         )
         filename = result.not_silenced[0].filename
         message = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
@@ -199,7 +199,7 @@ class TestCatchTokenError:
             description_style="full",
             fix_me="",
             dry_run=False,
-            only_codes_to_silence=(),
+            error_codes_to_silence=(),
         )
         filename = result.not_silenced[0].filename
         message = f"Unable to tokenize file: {filename}"
