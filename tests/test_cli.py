@@ -167,9 +167,9 @@ class TestParseArgs:
         args: argparse.Namespace, report: list[str]
     ) -> None:
         if report:
-            assert pathlib.Path(report[1]) == args.report
+            assert report[1] == args.report
         else:
-            assert args.report is None
+            assert args.report is sys.stdin
 
 
 @pytest.mark.skipif(
