@@ -7,9 +7,15 @@ import logging
 import shutil
 import sys
 import textwrap
+from collections.abc import Generator
 from contextlib import contextmanager
 from io import TextIOWrapper
 from typing import NamedTuple, TextIO
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.logging import ColouredFormatter
@@ -21,8 +27,8 @@ logger = logging.getLogger()
 class Options(NamedTuple):
     modules: list[str]
     packages: list[str]
-    report: str | TextIO
-    description_style: str
+    report: str | TextIOWrapper
+    description_style: Literal["full", "none"]
     dry_run: bool
     fix_me: str
     verbosity: int
@@ -35,9 +41,10 @@ class Options(NamedTuple):
 
 
 @contextmanager
-def _open(file: str | TextIO, **kwargs) -> TextIOWrapper:
-    # Code to acquire resource, e.g.:
-    if file is sys.stdin:
+def _open(  # type: ignore[no-untyped-def]
+    file: str | TextIO, **kwargs
+) -> Generator[TextIO, None, None]:
+    if isinstance(file, TextIO):
         resource = file
     elif file == "-":
         resource = sys.stdin

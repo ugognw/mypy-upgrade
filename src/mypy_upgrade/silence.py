@@ -318,4 +318,6 @@ def silence_errors_in_report(
             logger.warning(msg)
 
     not_silenced = [e for e in source_filtered_errors if e not in silenced]
-    return MypyUpgradeResult(silenced=silenced, not_silenced=not_silenced)
+    return MypyUpgradeResult(
+        silenced=(*silenced,), not_silenced=(*not_silenced,)
+    )
