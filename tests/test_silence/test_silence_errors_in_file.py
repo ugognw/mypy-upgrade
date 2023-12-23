@@ -148,6 +148,7 @@ class TestAddErrorCodes:
             errors=iter(errors),
             description_style=description_style,
             fix_me=fix_me,
+            dry_run=False,
         )
 
     @staticmethod
@@ -234,6 +235,7 @@ class TestRemoveErrorCodes:
             errors=iter([unused_ignore]),
             description_style=description_style,
             fix_me=fix_me,
+            dry_run=False,
         )
 
     @staticmethod
