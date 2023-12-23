@@ -9,6 +9,27 @@ This project implements a version of
 [here]((https://iscinumpy.dev/post/bound-version-constraints/#semver)) called
 "Realistic" Semantic Versioning.
 
+## [0.0.1-beta.6] - 2023-12-22
+
+### Added
+
+* `mypy_upgrade.logging`
+
+* `dry_run` keyword argument added to `mypy_upgrade.silence.silence_errors_in_file`
+and `mypy_upgrade.silence.silence_errors_in_report`
+
+* `-s/--silence-error-code` CLI option and
+`error_codes_to_silence` keyword argument added to
+`mypy_upgrade.silence.silence_errors_in_file`
+and `mypy_upgrade.silence.silence_errors_in_report`
+
+* `-S/--summarize` CLI option
+
+### Removed
+
+* `mypy_upgrade.warnings`
+
+
 ## [0.0.1-beta.5] - 2023-08-24
 
 ### Added
