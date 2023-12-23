@@ -24,7 +24,7 @@ class ColouredFormatter(logging.Formatter):
         validate: bool = True,  # noqa: FBT001, FBT002
         *,
         defaults: Mapping[str, Any] | None = None,
-        colours: dict[int, str] | None = None,
+        colours: Mapping[int, str] | None = None,
     ) -> None:
         self.colours = colours or DEFAULT_COLOURS
         super().__init__(fmt, datefmt, style, validate, defaults=defaults)
