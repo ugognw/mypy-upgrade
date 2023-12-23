@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import argparse
 import logging
-import pathlib
 import shutil
 import sys
 import textwrap
+from contextlib import contextmanager
+from io import TextIOWrapper
 from typing import NamedTuple, TextIO
 
 from mypy_upgrade.__about__ import __version__
@@ -20,7 +21,7 @@ logger = logging.getLogger()
 class Options(NamedTuple):
     modules: list[str]
     packages: list[str]
-    report: TextIO
+    report: str | TextIO
     description_style: str
     dry_run: bool
     fix_me: str
@@ -30,24 +31,23 @@ class Options(NamedTuple):
     version: bool
     suppress_warnings: bool
     files: list[str]
-    error_codes_to_silence: tuple[str]
+    codes_to_silence: list[str]
 
 
-class FileAction(argparse.Action):
-    """Represents a file to be opened for reading"""
+@contextmanager
+def _open(file: str | TextIO, **kwargs) -> TextIOWrapper:
+    # Code to acquire resource, e.g.:
+    if file is sys.stdin:
+        resource = file
+    elif file == "-":
+        resource = sys.stdin
+    else:
+        resource = open(file, **kwargs)  # noqa: SIM115, PTH123
 
-    def __init__(self, option_strings, dest, nargs=None, **kwargs):
-        if nargs is not None:
-            msg = "nargs not allowed"
-            raise ValueError(msg)
-        super().__init__(option_strings, dest, **kwargs)
-
-    def __call__(
-        self, parser, namespace, values, option_string=None  # noqa: ARG002
-    ):
-        filename = pathlib.Path(values)
-        with filename.open(mode="r", encoding="utf-8") as file:
-            setattr(namespace, self.dest, file)
+    try:
+        yield resource
+    finally:
+        resource.close()
 
 
 def _create_argument_parser() -> argparse.ArgumentParser:
@@ -101,9 +101,6 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "-r",
         "--report",
         default=sys.stdin,
-        type=argparse.FileType(
-            mode="r", encoding="utf-8"
-        ),  # find safer way to open
         help="""
         The path to a text file containing a mypy type checking report. If not
         specified, input is read from standard input.
@@ -187,7 +184,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "--silence-error",
         action="append",
         default=[],
-        dest="error_codes_to_silence",
+        dest="codes_to_silence",
         help="Silence mypy errors by error code. This flag may be repeated "
         "multiple times.",
     )
@@ -267,15 +264,16 @@ def main() -> None:
         colours=options.colours,
     )
 
-    results = silence_errors_in_report(
-        report=options.report,
-        packages=options.packages,
-        modules=options.modules,
-        files=options.files,
-        error_codes_to_silence=options.error_codes_to_silence,
-        description_style=options.description_style,
-        fix_me=options.fix_me.rstrip(),
-        dry_run=options.dry_run,
-    )
+    with _open(file=options.report, mode="r", encoding="utf-8") as report:
+        results = silence_errors_in_report(
+            report=report,
+            packages=options.packages,
+            modules=options.modules,
+            files=options.files,
+            codes_to_silence=options.codes_to_silence,
+            description_style=options.description_style,
+            fix_me=options.fix_me.rstrip(),
+            dry_run=options.dry_run,
+        )
     if options.summarize:
         summarize_results(results=results)
