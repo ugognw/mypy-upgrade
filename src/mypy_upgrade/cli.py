@@ -245,7 +245,7 @@ def _configure_printing(
     ch = logging.StreamHandler()
     ch.setLevel(level)
 
-    fmt = "%(levelname)s:%(message)s"
+    fmt = "%(message)s"
     formatter = ColouredFormatter(fmt) if colours else logging.Formatter(fmt)
 
     ch.setFormatter(formatter)
