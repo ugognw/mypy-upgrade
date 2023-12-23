@@ -177,7 +177,7 @@ def _log_silencing_results(
                     else NOT_SILENCED_WARNING
                 )
                 warned = True
-            logger.info(
+            logger.warning(
                 "Unable to silence error: "
                 f"{error.filename}{line_no}:{error.error_code}"
                 f" {suffix}".strip()
@@ -211,7 +211,6 @@ def silence_errors_in_file(
     Returns:
         A list of `MypyError`s which were silenced in the given file.
     """
-    logger.debug(f"Silencing mypy errors: {errors}")
     errors = list(errors)
     start = file.tell()
     raw_code = file.read()
