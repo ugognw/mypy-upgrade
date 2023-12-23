@@ -35,9 +35,9 @@ def fixture_dry_run() -> bool:
     return dry_run
 
 
-@pytest.fixture(name="only_codes_to_silence")
-def fixture_only_codes_to_silence() -> tuple[str, ...]:
-    only_codes_to_silence: tuple[str, ...] = ()
+@pytest.fixture(name="codes_to_silence")
+def fixture_codes_to_silence() -> list[str]:
+    only_codes_to_silence: list[str] = []
 
     return only_codes_to_silence
 
@@ -49,7 +49,7 @@ def fixture_mypy_upgrade_result(
     description_style: Literal["full", "none"],
     fix_me: str,
     dry_run: bool,
-    only_codes_to_silence: tuple[str, ...],
+    codes_to_silence: list[str],
     python_path: pathlib.Path,
     install_dir: pathlib.Path,
 ) -> Generator[MypyUpgradeResult, None, None]:
@@ -61,7 +61,7 @@ def fixture_mypy_upgrade_result(
         description_style=description_style,
         fix_me=fix_me,
         dry_run=dry_run,
-        error_codes_to_silence=only_codes_to_silence,
+        codes_to_silence=codes_to_silence,
     )
     if sys.version_info < (3, 8):
         shutil.rmtree(python_path)
@@ -154,7 +154,7 @@ class TestCatchFileNotFoundError:
             description_style="full",
             fix_me="",
             dry_run=False,
-            error_codes_to_silence=(),
+            codes_to_silence=[],
         )
         filename = result.not_silenced[0].filename
         message = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
@@ -199,7 +199,7 @@ class TestCatchTokenError:
             description_style="full",
             fix_me="",
             dry_run=False,
-            error_codes_to_silence=(),
+            codes_to_silence=[],
         )
         filename = result.not_silenced[0].filename
         message = f"Unable to tokenize file: {filename}"
