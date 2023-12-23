@@ -51,8 +51,8 @@ def fixture_dry_run() -> bool:
 
 
 @pytest.fixture(name="codes_to_silence", scope="class")
-def fixture_codes_to_silence() -> list[str]:
-    only_codes_to_silence: list[str] = []
+def fixture_codes_to_silence() -> list[str] | None:
+    only_codes_to_silence: list[str] | None = None
     return only_codes_to_silence
 
 
@@ -129,6 +129,16 @@ class TestSilenceErrorsInReport:
             and error.error_code != "unused-ignore"
         ]
         assert not missed_errors
+
+    @staticmethod
+    @pytest.mark.parametrize("codes_to_silence", [[], ["arg-type"]])
+    def test_should_only_silence_errors_in_errors_to_silence(
+        mypy_upgrade_result: MypyUpgradeResult,
+        codes_to_silence: list[str],
+    ) -> None:
+        assert all(
+            error in codes_to_silence for error in mypy_upgrade_result.silenced
+        )
 
     @staticmethod
     def test_should_not_increase_number_of_errors(
