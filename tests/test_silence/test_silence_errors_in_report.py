@@ -136,9 +136,8 @@ class TestSilenceErrorsInReport:
         mypy_upgrade_result: MypyUpgradeResult,
         codes_to_silence: list[str],
     ) -> None:
-        assert all(
-            error in codes_to_silence for error in mypy_upgrade_result.silenced
-        )
+        silenced = [e.error_code for e in mypy_upgrade_result.silenced]
+        assert all(error in codes_to_silence for error in silenced)
 
     @staticmethod
     def test_should_not_increase_number_of_errors(
