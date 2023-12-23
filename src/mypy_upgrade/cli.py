@@ -30,7 +30,7 @@ class Options(NamedTuple):
     version: bool
     suppress_warnings: bool
     files: list[str]
-    only_codes_to_silence: tuple[str]
+    error_codes_to_silence: tuple[str]
 
 
 class FileAction(argparse.Action):
@@ -186,7 +186,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "--silence-error-code",
         action="append",
         default=(),
-        dest="only_codes_to_silence",
+        dest="error_codes_to_silence",
         help="Silence mypy errors by error code. This flag may be repeated "
         "multiple times.",
     )
@@ -271,7 +271,7 @@ def main() -> None:
         packages=options.packages,
         modules=options.modules,
         files=options.files,
-        only_codes_to_silence=options.only_codes_to_silence,
+        error_codes_to_silence=options.error_codes_to_silence,
         description_style=options.description_style,
         fix_me=options.fix_me.rstrip(),
         dry_run=options.dry_run,
