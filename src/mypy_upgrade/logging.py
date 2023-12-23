@@ -3,7 +3,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from logging import _FormatStyle, _Level
+    from logging import _FormatStyle
 
 
 DEFAULT_COLOURS = {
@@ -13,15 +13,6 @@ DEFAULT_COLOURS = {
     logging.ERROR: 35,
     logging.CRITICAL: 31,
 }
-
-
-class MessagesHandler(logging.Handler):
-    def __init__(self, level: "_Level" = 0) -> None:
-        self.messages = []
-        super().__init__(level)
-
-    def emit(self, record):
-        self.messages.append(self.format(record))
 
 
 class ColouredFormatter(logging.Formatter):
