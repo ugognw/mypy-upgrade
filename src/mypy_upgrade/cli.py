@@ -8,47 +8,16 @@ import pathlib
 import shutil
 import sys
 import textwrap
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, NamedTuple, TextIO
+from typing import NamedTuple, TextIO
 
 from mypy_upgrade.__about__ import __version__
+from mypy_upgrade.logging import ColouredFormatter
 from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
-
-if TYPE_CHECKING:
-    from logging import _FormatStyle
-
-DEFAULT_COLOURS = {
-    logging.DEBUG: 36,
-    logging.INFO: 33,
-    logging.WARNING: 95,
-    logging.ERROR: 35,
-    logging.CRITICAL: 31,
-}
-
 
 logger = logging.getLogger()
 
 
-class ColouredFormatter(logging.Formatter):
-    def __init__(
-        self,
-        fmt: str | None = None,
-        datefmt: str | None = None,
-        style: _FormatStyle = "%",
-        validate: bool = True,  # noqa: FBT001, FBT002
-        *,
-        defaults: Mapping[str, Any] | None = None,
-        colours: dict[int, str] | None = None,
-    ) -> None:
-        self.colours = colours or DEFAULT_COLOURS
-        super().__init__(fmt, datefmt, style, validate, defaults=defaults)
-
-    def formatMessage(self, record: logging.LogRecord):  # noqa: N802
-        colour_code = self.colours[record.levelno]
-        return f"\033[1;{colour_code}m{self._style.format(record)}\033[0m"
-
-
-class _Options(NamedTuple):
+class Options(NamedTuple):
     modules: list[str]
     packages: list[str]
     report: TextIO
@@ -57,6 +26,7 @@ class _Options(NamedTuple):
     fix_me: str
     verbosity: int
     summarize: bool
+    colours: bool
     version: bool
     suppress_warnings: bool
     files: list[str]
@@ -200,6 +170,13 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         help="Print a summary after running.",
     )
     parser.add_argument(
+        "-c",
+        "--colors",
+        action="store_true",
+        default=False,
+        help="Enable coloured output.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         default=False,
@@ -254,7 +231,9 @@ def summarize_results(*, results: MypyUpgradeResult) -> None:
     print(fill_(not_silenced_warning))  # noqa: T201
 
 
-def _configure_printing(*, suppress_warnings: bool, verbosity: int) -> None:
+def _configure_printing(
+    *, suppress_warnings: bool, verbosity: int, colours: bool
+) -> None:
     if suppress_warnings:
         level = logging.ERROR
     elif verbosity == 0:
@@ -269,7 +248,8 @@ def _configure_printing(*, suppress_warnings: bool, verbosity: int) -> None:
     ch = logging.StreamHandler()
     ch.setLevel(level)
 
-    formatter = ColouredFormatter("%(levelname)s:%(message)s")
+    fmt = "%(levelname)s:%(message)s"
+    formatter = ColouredFormatter(fmt) if colours else logging.Formatter(fmt)
 
     ch.setFormatter(formatter)
 
@@ -279,10 +259,11 @@ def _configure_printing(*, suppress_warnings: bool, verbosity: int) -> None:
 def main() -> None:
     """An interface to `mypy-upgrade` from the command-line."""
     parser = _create_argument_parser()
-    options = _Options(**vars(parser.parse_args()))
+    options = Options(**vars(parser.parse_args()))
     _configure_printing(
         suppress_warnings=options.suppress_warnings,
         verbosity=options.verbosity,
+        colours=options.colours,
     )
 
     results = silence_errors_in_report(
