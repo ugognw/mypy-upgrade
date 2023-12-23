@@ -295,7 +295,7 @@ def silence_errors_in_report(
         ]
     silenced: list[MypyError] = []
     for filename, filename_grouped_errors in itertools.groupby(
-        errors, key=attrgetter("filename")
+        source_filtered_errors, key=attrgetter("filename")
     ):
         try:
             with pathlib.Path(filename).open(
