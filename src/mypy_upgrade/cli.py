@@ -186,7 +186,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "-s",
         "--silence-error-code",
         action="append",
-        default=(),
+        default=[],
         dest="error_codes_to_silence",
         help="Silence mypy errors by error code. This flag may be repeated "
         "multiple times.",
