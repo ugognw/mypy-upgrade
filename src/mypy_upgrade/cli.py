@@ -44,9 +44,15 @@ class Options(NamedTuple):
 
 @contextmanager
 def _open(  # type: ignore[no-untyped-def]
-    file: str | TextIO, **kwargs
+    file: str | TextIO | TextIOWrapper, **kwargs
 ) -> Generator[TextIO, None, None]:
-    if isinstance(file, TextIO):
+    if isinstance(file, TextIO | TextIOWrapper):
+        if file is not sys.stdin and isinstance(file, TextIO):
+            msg = (
+                "If not a filename or sys.stdin, file must be "
+                "a io.TextIOWrapper"
+            )
+            raise ValueError(msg)
         resource = file
     elif file == "-":
         resource = sys.stdin
