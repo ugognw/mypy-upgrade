@@ -44,6 +44,10 @@ and `mypy_upgrade.silence.silence_errors_in_report`
 * Warning messages (e.g., `mypy_upgrade.warnings.MISSING_ERROR_CODES`)
 have been moved to the module in which they are emitted
 
+* `mypy_upgrade.silence.MypyUpgradeResult` is now a 2-tuple (`silenced`,
+`not_silenced`); messages can be retrieved by adding a `logging.Handler`
+to the appropriate logger (e.g., `mypy_upgrade.cli.logger`)
+
 ### Removed
 
 * `mypy_upgrade.warnings`
