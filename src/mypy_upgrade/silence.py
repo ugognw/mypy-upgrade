@@ -190,7 +190,7 @@ def silence_errors_in_file(
     errors: Iterable[MypyError],
     description_style: Literal["full", "none"],
     fix_me: str,
-    dry_run: bool,
+    dry_run: bool = False,
 ) -> list[MypyError]:
     """Silence errors in a given file.
 
@@ -207,6 +207,7 @@ def silence_errors_in_file(
             suppresion comments. Pass "" to omit a 'Fix Me' message
             altogether. All trailing whitespace will be trimmed.
         dry_run: don't actually silence anything, just print what would be.
+            Defaults to False.
 
     Returns:
         A list of `MypyError`s which were silenced in the given file.
@@ -249,7 +250,7 @@ def silence_errors_in_report(
     files: list[str],
     description_style: Literal["full", "none"],
     fix_me: str,
-    dry_run: bool,
+    dry_run: bool = False,
     codes_to_silence: list[str] | None = None,
 ) -> MypyUpgradeResult:
     """Silence errors listed in a given mypy error report.
@@ -274,6 +275,7 @@ def silence_errors_in_report(
             suppresion comments. Pass "" to omit a 'Fix Me' message
             altogether. All trailing whitespace will be trimmed.
         dry_run: don't actually silence anything, just print what would be.
+            Defaults to False.
         codes_to_silence: an optional list of strings indicating the only mypy
             error codes to silence. If not supplied, all errors will be
             suppressed. Defaults to None.

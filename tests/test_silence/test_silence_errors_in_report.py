@@ -181,7 +181,6 @@ class TestCatchFileNotFoundError:
             files=[],
             description_style="full",
             fix_me="",
-            dry_run=False,
         )
         filename = result.not_silenced[0].filename
         message = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
@@ -223,7 +222,6 @@ class TestCatchTokenError:
             files=[],
             description_style="full",
             fix_me="",
-            dry_run=False,
         )
         filename = result.not_silenced[0].filename
         message = f"Unable to tokenize file: {filename}"
