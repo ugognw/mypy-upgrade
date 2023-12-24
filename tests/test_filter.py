@@ -246,6 +246,32 @@ class TestFilterBySource:
         )
         assert filtered_errors == [error]
 
+    @staticmethod
+    def test_should_include_all_errors_when_modules_not_in_python_path(
+        mypy_upgrade_module: str,
+    ) -> None:
+        error = MypyError(mypy_upgrade_module, 1, 0, "", "")
+        filtered_errors = filter_by_source(
+            errors=[error],
+            packages=[],
+            modules=["fake_module"],
+            files=[mypy_upgrade_module],
+        )
+        assert filtered_errors == [error]
+
+    @staticmethod
+    def test_should_include_all_errors_when_packages_not_in_python_path(
+        mypy_upgrade_module: str,
+    ) -> None:
+        error = MypyError(mypy_upgrade_module, 1, 0, "", "")
+        filtered_errors = filter_by_source(
+            errors=[error],
+            packages=["fake_package"],
+            modules=[],
+            files=[mypy_upgrade_module],
+        )
+        assert filtered_errors == [error]
+
 
 class TestFindUnsilenceableRegions:
     @staticmethod
