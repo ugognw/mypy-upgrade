@@ -1,5 +1,4 @@
 import logging
-from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -18,13 +17,13 @@ DEFAULT_COLOURS = {
 class ColouredFormatter(logging.Formatter):
     def __init__(
         self,
-        fmt: str | None = None,
-        datefmt: str | None = None,
+        fmt: "str | None" = None,
+        datefmt: "str | None" = None,
         style: "_FormatStyle" = "%",
         validate: bool = True,  # noqa: FBT001, FBT002
         *,
-        defaults: Mapping[str, Any] | None = None,
-        colours: Mapping[int, str] | None = None,
+        defaults: "dict[str, Any] | None" = None,
+        colours: "dict[int, int] | None" = None,
     ) -> None:
         self.colours = colours or DEFAULT_COLOURS
         super().__init__(fmt, datefmt, style, validate, defaults=defaults)
