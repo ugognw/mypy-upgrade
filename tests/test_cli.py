@@ -193,17 +193,47 @@ class TestCLI:
         return verbosity
 
     @staticmethod
+    @pytest.fixture(name="colours", scope="class", params=[True, False])
+    def fixture_colours(request: pytest.FixtureRequest) -> int:
+        colours: int = request.param
+        return colours
+
+    @staticmethod
+    @pytest.fixture(
+        name="suppress_warnings", scope="class", params=[True, False]
+    )
+    def fixture_suppress_warnings(request: pytest.FixtureRequest) -> int:
+        suppress_warnings: int = request.param
+        return suppress_warnings
+
+    @staticmethod
+    @pytest.fixture(name="summarize", scope="class", params=[True, False])
+    def fixture_summarize(request: pytest.FixtureRequest) -> int:
+        summarize: int = request.param
+        return summarize
+
+    @staticmethod
     @pytest.fixture(name="args", scope="class")
     def fixture_args(
+        *,
         mypy_report_pre_filename: pathlib.Path,
         description_style: Literal["full", "none"],
         fix_me: str,
         verbosity: int,
         report_input_method: str,
+        colours: bool,
+        suppress_warnings: bool,
+        summarize: bool,
     ) -> list[str]:
         args: list[str] = []
 
         args.extend(["-d", description_style])
+        if colours:
+            args.append("--colours")
+        if suppress_warnings:
+            args.append("--suppress-warnings")
+        if summarize:
+            args.append("--summarize")
         if fix_me.strip():
             args.extend(["--fix-me", fix_me])
         else:
