@@ -44,6 +44,12 @@ class MypyError(NamedTuple):
     def filename_and_line_number(error: MypyError) -> tuple[str, int]:
         return error.filename, error.line_no
 
+    def __str__(self) -> str:
+        col_offset = (
+            "" if self.col_offset is not None else f":{self.col_offset}"
+        )
+        return f"{self.filename}:{self.line_no}{col_offset}:{self.error_code}"
+
 
 def parse_mypy_report(
     *,
