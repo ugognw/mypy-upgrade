@@ -221,7 +221,7 @@ def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
     """
     width = min(79, shutil.get_terminal_size(fallback=(79, 0)).columns)
 
-    def fill_(text: str) -> str:
+    def _fill(text: str) -> str:
         return textwrap.fill(text, width=width)
 
     def _to_verb(count: int) -> str:
@@ -235,14 +235,14 @@ def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
     not_silenced_warning = (
         f"{num_silenced} {_to_verb(num_silenced)} silenced.\n\n"
     )
-    print(fill_(not_silenced_warning))  # noqa: T201
+    print(_fill(not_silenced_warning))  # noqa: T201
 
     num_not_silenced = len(results.not_silenced)
     not_silenced_warning = (
         f"{num_not_silenced} {_to_verb(num_not_silenced)} not silenced due "
         "to syntax limitations."
     )
-    print(fill_(not_silenced_warning))  # noqa: T201
+    print(_fill(not_silenced_warning))  # noqa: T201
 
     if verbosity > 0:
         print(" SILENCED ".center(width, "-"))  # noqa: T201
