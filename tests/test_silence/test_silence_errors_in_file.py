@@ -136,19 +136,26 @@ class TestAddErrorCodes:
         return io.StringIO(f"{code} {suffix}\n".rstrip())
 
     @staticmethod
+    @pytest.fixture(name="dry_run")
+    def fixture_dry_run() -> bool:
+        return False
+
+    @staticmethod
     @pytest.fixture(name="silenced_errors")
     def fixture_silenced_errors(
+        *,
         file: TextIO,
         errors: list[MypyError],
         description_style: Literal["full", "none"],
         fix_me: str,
+        dry_run: bool,
     ) -> list[MypyError]:
         return silence_errors_in_file(
             file=file,
             errors=iter(errors),
             description_style=description_style,
             fix_me=fix_me,
-            dry_run=False,
+            dry_run=dry_run,
         )
 
     @staticmethod
@@ -171,6 +178,20 @@ class TestAddErrorCodes:
         assert all(
             error in silenced_errors for error in expected_silenced_errors
         )
+
+    @staticmethod
+    @pytest.mark.parametrize("dry_run", [True])
+    def test_should_not_change_file_on_dry_run(
+        silenced_errors: list[MypyError],  # noqa: ARG004
+        file: TextIO,
+        code: str,
+        suffix: str,
+        dry_run: bool,  # noqa: FBT001, ARG004
+    ) -> None:
+        content = f"{code} {suffix}".rstrip()
+        start = file.tell()
+        assert content == file.read()
+        file.seek(start)
 
 
 ERROR_CODES = ["assignment", "arg-type", "used-before-def"]
@@ -235,7 +256,6 @@ class TestRemoveErrorCodes:
             errors=iter([unused_ignore]),
             description_style=description_style,
             fix_me=fix_me,
-            dry_run=False,
         )
 
     @staticmethod
