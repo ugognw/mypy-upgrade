@@ -31,6 +31,7 @@ def fixture_log_file(tmp_path: pathlib.Path) -> pathlib.Path:
         "35af5282d/with_columns/baseline_report_47a422c16.txt",
         "35af5282d/without_columns/baseline_report_47a422c16.txt",
         "stdlib_report.txt",
+        "stdlib_report_no_codes.txt",
     ),
 )
 def fixture_report(
