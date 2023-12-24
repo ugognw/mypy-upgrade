@@ -187,33 +187,31 @@ class TestParseArgs:
 @pytest.mark.cli
 class TestCLI:
     @staticmethod
-    @pytest.fixture(name="verbosity", scope="class", params=range(3))
+    @pytest.fixture(name="verbosity", params=range(3))
     def fixture_verbosity(request: pytest.FixtureRequest) -> int:
         verbosity: int = request.param
         return verbosity
 
     @staticmethod
-    @pytest.fixture(name="colours", scope="class", params=[True, False])
+    @pytest.fixture(name="colours", params=[False])
     def fixture_colours(request: pytest.FixtureRequest) -> int:
         colours: int = request.param
         return colours
 
     @staticmethod
-    @pytest.fixture(
-        name="suppress_warnings", scope="class", params=[True, False]
-    )
+    @pytest.fixture(name="suppress_warnings", params=[False])
     def fixture_suppress_warnings(request: pytest.FixtureRequest) -> int:
         suppress_warnings: int = request.param
         return suppress_warnings
 
     @staticmethod
-    @pytest.fixture(name="summarize", scope="class", params=[True, False])
+    @pytest.fixture(name="summarize", params=[False])
     def fixture_summarize(request: pytest.FixtureRequest) -> int:
         summarize: int = request.param
         return summarize
 
     @staticmethod
-    @pytest.fixture(name="args", scope="class")
+    @pytest.fixture(name="args")
     def fixture_args(
         *,
         mypy_report_pre_filename: pathlib.Path,
@@ -252,7 +250,6 @@ class TestCLI:
     @staticmethod
     @pytest.fixture(
         name="run_mypy_upgrade",
-        scope="class",
         params=(["mypy-upgrade"], [sys.executable, "-m", "mypy_upgrade"]),
     )
     def fixture_run_mypy_upgrade(
@@ -291,15 +288,28 @@ class TestCLI:
 
     @staticmethod
     @pytest.mark.slow
-    def test_should_respect_verbosity(
+    @pytest.mark.parametrize("colours", [True])
+    def test_should_run_with_colours(
         run_mypy_upgrade: subprocess.CompletedProcess[str],
+        colours: bool,  # noqa: FBT001
     ) -> None:
         ...
 
     @staticmethod
     @pytest.mark.slow
+    @pytest.mark.parametrize("supress_warnings", [True])
     def test_should_supress_warnings(
         run_mypy_upgrade: subprocess.CompletedProcess[str],
+        supress_warnings: bool,  # noqa: FBT001
+    ) -> None:
+        ...
+
+    @staticmethod
+    @pytest.mark.slow
+    @pytest.mark.parametrize("summarize", [True])
+    def test_should_summarize(
+        run_mypy_upgrade: subprocess.CompletedProcess[str],
+        summarize: bool,  # noqa: FBT001
     ) -> None:
         ...
 
