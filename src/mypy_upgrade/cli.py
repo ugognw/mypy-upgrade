@@ -12,6 +12,8 @@ from contextlib import contextmanager
 from io import TextIOWrapper
 from typing import NamedTuple, TextIO
 
+from mypy_upgrade.parsing import MypyError
+
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
 else:
@@ -82,6 +84,10 @@ mypy-upgrade -p package.subpackage -m package.module --report mypy_report.txt
 # Only silence errors in file/directory
 mypy --strict -p package > mypy_report.txt
 mypy-upgrade --report mypy_report.txt package/module.py package/
+
+# Only silence "arg-type" errors
+mypy --strict -p package > mypy_report.txt
+mypy-upgrade --report mypy_report.txt  --silence-error arg-type
 """,
     )
     parser.add_argument(
@@ -139,14 +145,10 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         default=0,
         dest="verbosity",
         help=(
-            "Control the verbosity. "
-            "0: Only warnings are printed. "
-            "1: Print detailed warnings, a short summary of silenced errors, "
-            "and a detailed list of errors that were not silenced. "
-            "2: Print detailed warnings, a detailed list of silenced errors, "
-            "and a detailed list of errors that were not silenced. Defaults "
-            "to 0. "
-            "This flag may be repeated multiple times."
+            "Control the verbosity. Defaults to 0. "
+            "0: Print warnings and messages for each unsilenced error. "
+            "1: Also print messages for each silenced error."
+            "2: Used for debugging."
         ),
     )
     parser.add_argument(
@@ -171,7 +173,8 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
         "--summarize",
         action="store_true",
         default=False,
-        help="Print a summary after running.",
+        help="Print a summary after running. If the verbosity>0, a detailed "
+        "summary will also be printed.",
     )
     parser.add_argument(
         "-c",
@@ -203,11 +206,12 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
     return parser
 
 
-def summarize_results(*, results: MypyUpgradeResult) -> None:
+def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
     """Print the results contained in a `MypyUpgradeResult` object.
 
     Args:
         results: a `MypyUpgradeResult` object.
+        verbosity: an integer specifying the verbosity of the summary.
     """
     width = min(79, shutil.get_terminal_size(fallback=(79, 0)).columns)
 
@@ -233,6 +237,19 @@ def summarize_results(*, results: MypyUpgradeResult) -> None:
         "to syntax limitations."
     )
     print(fill_(not_silenced_warning))  # noqa: T201
+
+    if verbosity > 0:
+        print(" SILENCED ".center(width, "-"))  # noqa: T201
+        for error in sorted(
+            results.silenced, key=MypyError.filename_and_line_number
+        ):
+            print(str(error))  # noqa: T201
+
+        print(" NOT SILENCED ".center(width, "-"))  # noqa: T201
+        for error in sorted(
+            results.not_silenced, key=MypyError.filename_and_line_number
+        ):
+            print(str(error))  # noqa: T201
 
 
 def _configure_printing(
@@ -282,4 +299,4 @@ def main() -> None:
             dry_run=options.dry_run,
         )
     if options.summarize:
-        summarize_results(results=results)
+        summarize_results(results=results, verbosity=options.verbosity)
