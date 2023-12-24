@@ -161,12 +161,8 @@ def _log_silencing_results(
     """Logs the results of a call to `silence_errors_in_file`"""
     warned = False
     for error in errors:
-        line_no = "" if not error.line_no else f":{error.line_no}"
         if error in safe_to_silence:
-            logger.info(
-                "Successfully silenced error: "
-                f"{error.filename}{line_no}:{error.error_code}"
-            )
+            logger.info(f"Successfully silenced error: {error!s}")
         else:
             if warned:
                 suffix = ""
@@ -178,9 +174,7 @@ def _log_silencing_results(
                 )
                 warned = True
             logger.warning(
-                "Unable to silence error: "
-                f"{error.filename}{line_no}:{error.error_code}"
-                f" {suffix}".strip()
+                f"Unable to silence error: {error!s}  {suffix}".strip()
             )
 
 
