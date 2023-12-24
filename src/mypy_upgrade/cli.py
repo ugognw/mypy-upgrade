@@ -46,16 +46,14 @@ class Options(NamedTuple):
 def _open(  # type: ignore[no-untyped-def]
     file: str | TextIO | TextIOWrapper, **kwargs
 ) -> Generator[TextIO, None, None]:
-    if isinstance(file, (TextIOWrapper, TextIO)):
-        if file is not sys.stdin:
+    if isinstance(file, (TextIOWrapper, TextIO)) or file == sys.stdin:
+        if isinstance(file, TextIO) and file is not sys.stdin:
             msg = (
                 "If not a filename or sys.stdin, file must be "
                 "a io.TextIOWrapper"
             )
             raise ValueError(msg)
         resource = file
-    elif file == "-":
-        resource = sys.stdin
     else:
         resource = open(file, **kwargs)  # noqa: SIM115, PTH123
 
