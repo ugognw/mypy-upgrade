@@ -15,15 +15,34 @@ This project implements a version of
 
 * `mypy_upgrade.logging`: logging/printing facilities
 
-* `dry_run` keyword argument added to `mypy_upgrade.silence.silence_errors_in_file`
+* `dry_run` keyword argument (and corresponding CLI option `--dry-run`)
+added to `mypy_upgrade.silence.silence_errors_in_file`
 and `mypy_upgrade.silence.silence_errors_in_report`
 
-* `-s/--silence-error` CLI option and
-`codes_to_silence` keyword argument added to
-`mypy_upgrade.silence.silence_errors_in_file`
+* `codes_to_silence` keyword argument (and corresponding CLI option
+`-s/--silence-error`) added to `mypy_upgrade.silence.silence_errors_in_file`
 and `mypy_upgrade.silence.silence_errors_in_report`
 
-* `-S/--summarize` CLI option
+* `-q/--quiet` CLI option aliases for `--suppress-warnings`
+
+* `-S/--summarize` CLI option: print optionally detailed summary
+
+* `-c/--colours` CLI option: print coloured messages
+
+### Changed
+
+* Printing results:
+    * Silenced and not silenced errors are printed out on-the-fly instead of
+    all at the end
+    * New format (see `mypy_upgrade.silence._log_silencing_results`)
+
+* `mypy_upgrade.cli.print_results` -> `mypy_upgrade.cli.summarize_results`;
+`options` keyword replaced with `verbosity`
+
+* CLI arguments encapsulated in `mypy_upgrade.cli.Options` class
+
+* Warning messages (e.g., `mypy_upgrade.warnings.MISSING_ERROR_CODES`)
+have been moved to the module in which they are emitted
 
 ### Removed
 
