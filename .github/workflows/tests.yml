@@ -2,6 +2,8 @@ name: tests
 
 on:
   push:
+    tags-ignore:
+      - 'v*'
   pull_request:
     types: [opened, ready_for_review, reopened, review_requested, synchronize]
 
