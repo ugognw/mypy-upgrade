@@ -529,6 +529,7 @@ logic
 
 * First release
 
+[0.0.1-beta.6]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.5...release-0.0.1-beta.6
 [0.0.1-beta.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.4...release-0.0.1-beta.5
 [0.0.1-beta.4]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.3...release-0.0.1-beta.4
 [0.0.1-beta.3]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.2...release-0.0.1-beta.3
