@@ -59,6 +59,8 @@ comments
 
 * Optional inclusion of `mypy` error description messages
 
+* Selective suppression of specific mypy error codes
+
 ## Basic Usage
 
 There are two idioms for invocation. To silence all errors in a package, one
@@ -100,9 +102,15 @@ pass them in as positional arguments:
 
     mypy-upgrade --report mypy_report.txt path/to/a/package/ path/to/a/module.py
 
+To selectively silence a particular kind of type error, use the `--silence-error` option:
+
+    mypy-upgrade --report mypy_report.txt --silence-error "type-arg"
+
 For a full list of all options and their descriptions, run `mypy-upgrade --help`
 
-    usage: mypy-upgrade [-h] [-m MODULE] [-p PACKAGE] [-r REPORT] [-d {full,none}] [--fix-me FIX_ME] [-v] [-V] [--suppress-warnings] [files ...]
+    usage: mypy-upgrade [-h] [-m MODULE] [-p PACKAGE] [-r REPORT] [-d {full,none}] [--fix-me FIX_ME] [-v] [-q] [-V]
+                        [-S] [-c] [--dry-run] [-s CODES_TO_SILENCE]
+                        [files ...]
 
     Place in-line comments into files to silence mypy errors.
 
@@ -111,22 +119,32 @@ For a full list of all options and their descriptions, run `mypy-upgrade --help`
     files                 Silence errors from the provided files/directories.
 
     options:
-    -h, --help            show this help message and exit
-    -m MODULE, --module MODULE
-                            Silence errors from the provided (importable) module. This flag may be repeated multiple times.
-    -p PACKAGE, --package PACKAGE
-                            Silence errors from the provided (importable) package. This flag may be repeated multiple times.
-    -r REPORT, --report REPORT
-                            The path to a text file containing a mypy type checking report. If not specified, input is read from standard input.
-    -d {full,none}, --description-style {full,none}
-                            Specify the style in which mypy error descriptions are expressed in the error suppression comment. Defaults to "none".
-    --fix-me FIX_ME       Specify a custom 'Fix Me' message to be placed after the error suppression comment. Pass " " to omit a 'Fix Me' message altogether. Defaults to
-                            "FIX ME".
-    -v, --verbose         Control the verbosity. 0: Only warnings are printed. 1: Print detailed warnings, a short summary of silenced errors, and a detailed list of errors
-                            that were not silenced. 2: Print detailed warnings, a detailed list of silenced errors, and a detailed list of errors that were not silenced.
-                            Defaults to 0. This flag may be repeated multiple times.
-    -V, --version         Print the version.
-    --suppress-warnings   Suppress all warnings. Disabled by default.
+      -h, --help            show this help message and exit
+      -m MODULE, --module MODULE
+                            Silence errors from the provided (importable) module. This flag may be repeated multiple
+                            times.
+      -p PACKAGE, --package PACKAGE
+                            Silence errors from the provided (importable) package. This flag may be repeated multiple
+                            times.
+      -r REPORT, --report REPORT
+                            The path to a text file containing a mypy type checking report. If not specified, input
+                            is read from standard input.
+      -d {full,none}, --description-style {full,none}
+                            Specify the style in which mypy error descriptions are expressed in the error suppression
+                            comment. Defaults to "none".
+      --fix-me FIX_ME       Specify a custom 'Fix Me' message to be placed after the error suppression comment. Pass
+                            " " to omit a 'Fix Me' message altogether. Defaults to "FIX ME".
+      -v, --verbose         Control the verbosity. Defaults to 0. 0: Print warnings and messages for each unsilenced
+                            error. 1: Also print messages for each silenced error.2: Used for debugging.
+      -q, --quiet, --suppress-warnings
+                            Suppress all warnings. Disabled by default.
+      -V, --version         Print the version.
+      -S, --summarize       Print a summary after running. If the verbosity>0, a detailed summary will also be
+                            printed.
+      -c, --colours         Enable coloured output.
+      --dry-run             Don't actually silence anything, just print what would be.
+      -s CODES_TO_SILENCE, --silence-error CODES_TO_SILENCE
+                            Silence mypy errors by error code. This flag may be repeated multiple times.
 
 ## Using the API
 
@@ -150,9 +168,10 @@ with mypy_report.open(mode="r", encoding="utf-8") as report:
         files=["path/to/a/package/", "path/to/a/module.py"],
         description_style="full",
         fix_me="FIX THIS",
+        codes_to_silence=["arg-type", "no-untyped-def"],
     )
 
-silenced_errors, not_silenced_errors, messages = result
+silenced_errors, not_silenced_errors = result
 ```
 
 ## Recommended Mypy Flags
