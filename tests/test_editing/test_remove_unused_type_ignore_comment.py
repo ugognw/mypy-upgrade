@@ -86,7 +86,7 @@ class TestAllCombinations:
             assert not result.startswith("# type: ignore")
 
     @staticmethod
-    def test_should_remove_type_ignore_comment_if_asterisk_in_codes_to_remove(  # noqa: E501
+    def test_should_remove_type_ignore_comment_if_asterisk_in_codes_to_remove(
         comment: str,
         error_codes: Collection[str],
     ) -> None:
