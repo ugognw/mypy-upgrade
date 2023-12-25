@@ -319,7 +319,7 @@ class TestFindUnsilenceableRegions:
 
 class TestIsSafeToSilence:
     @staticmethod
-    def test_should_return_false_if_error_in_explicitly_continued_line() -> (  # noqa: E501
+    def test_should_return_false_if_error_in_explicitly_continued_line() -> (
         None
     ):
         error = MypyError("", 1, 0, "", "")
