@@ -13,15 +13,15 @@ This project implements a version of
 
 ### Added
 
-* `mypy_upgrade.logging`: logging/printing facilities
+* `mypy_upgrade.logging`: logging/printing facilities (see [issue-12])
 
 * `dry_run` keyword argument (and corresponding CLI option `--dry-run`)
 added to `mypy_upgrade.silence.silence_errors_in_file`
-and `mypy_upgrade.silence.silence_errors_in_report`
+and `mypy_upgrade.silence.silence_errors_in_report` (see [issue-14])
 
 * `codes_to_silence` keyword argument (and corresponding CLI option
 `-s/--silence-error`) added to `mypy_upgrade.silence.silence_errors_in_file`
-and `mypy_upgrade.silence.silence_errors_in_report`
+and `mypy_upgrade.silence.silence_errors_in_report` (see [issue-15])
 
 * `-q/--quiet` CLI option aliases for `--suppress-warnings`
 
@@ -528,6 +528,10 @@ logic
 ## [0.0.1-alpha.1] - 2023-07-31
 
 * First release
+
+[issue-12]: https://github.com/ugognw/mypy-upgrade/issues/12
+[issue-14]: https://github.com/ugognw/mypy-upgrade/issues/14
+[issue-15]: https://github.com/ugognw/mypy-upgrade/issues/15
 
 [0.0.1-beta.6]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.5...release-0.0.1-beta.6
 [0.0.1-beta.5]: https://github.com/ugognw/mypy-upgrade/compare/release-0.0.1-beta.4...release-0.0.1-beta.5
