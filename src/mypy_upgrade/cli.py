@@ -115,7 +115,6 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         "--verbose",
         action="count",
         default=0,
-        type=lambda x: 30 - int(x) * 10,  # convert to logging level
         help=(
             "Control the verbosity. "
             "0=Print warnings and messages for each unsilenced error. "
@@ -129,7 +128,7 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         "--quiet",
         "--suppress-warnings",
         action="store_const",
-        const=logging.ERROR,
+        const=-1,
         dest="verbosity",
         help="Suppress all warnings. Disabled by default.",
     )
@@ -269,10 +268,11 @@ def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
 
 
 def _configure_printing(*, verbosity: int, colours: bool) -> None:
-    logger.setLevel(verbosity)
+    level = 30 - (verbosity * 10)
+    logger.setLevel(level)
 
     ch = logging.StreamHandler()
-    ch.setLevel(verbosity)
+    ch.setLevel(level)
 
     fmt = "%(message)s"
     formatter = ColouredFormatter(fmt) if colours else logging.Formatter(fmt)
