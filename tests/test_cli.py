@@ -103,7 +103,7 @@ class TestCLI:
         report_input_method: str,
         mypy_report_pre_filename: pathlib.Path,
     ) -> list[str]:
-        args: list[str] = ["--dry-run"]
+        args: list[str] = ["--dry-run", "--colours"]
 
         if summarize:
             args.append("--summarize")
