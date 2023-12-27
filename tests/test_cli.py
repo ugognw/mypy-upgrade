@@ -38,6 +38,7 @@ class TestSummarizeResults:
             not_silenced=(
                 MypyError("file2.py", 1, 1, "message", "error-code"),
             ),
+            ignored=(MypyError("file3.py", 1, 1, "message", "error-code"),),
         )
         return results
 
