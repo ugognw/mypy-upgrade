@@ -35,9 +35,7 @@ class TestSummarizeResults:
                 MypyError("file1.py", 1, 1, "message", "error-code"),
                 MypyError("file1.py", 2, 2, "message", "error-code"),
             ),
-            not_silenced=(
-                MypyError("file2.py", 1, 1, "message", "error-code"),
-            ),
+            failures=(MypyError("file2.py", 1, 1, "message", "error-code"),),
             ignored=(MypyError("file3.py", 1, 1, "message", "error-code"),),
         )
         return results
