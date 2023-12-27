@@ -211,6 +211,7 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         dest="codes_to_silence",
         help="Silence mypy errors by error code. This flag may be repeated "
         "multiple times.",
+        metavar="ERROR_CODE",
     )
     filter_group.add_argument(
         "files",
