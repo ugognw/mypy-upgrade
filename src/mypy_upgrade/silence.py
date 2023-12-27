@@ -22,7 +22,11 @@ from mypy_upgrade.editing import (
     format_type_ignore_comment,
     remove_unused_type_ignore_comments,
 )
-from mypy_upgrade.filter import filter_by_silenceability, filter_by_source
+from mypy_upgrade.filter import (
+    filter_by_code,
+    filter_by_silenceability,
+    filter_by_source,
+)
 from mypy_upgrade.parsing import (
     MypyError,
     parse_mypy_report,
@@ -36,7 +40,7 @@ from mypy_upgrade.utils import (
 logger = logging.getLogger(__name__)
 
 TRY_SHOW_ABSOLUTE_PATH = (
-    "Unable to find file {filename}. This may be due to running "
+    "Unable to find file {0}. This may be due to running "
     "mypy in a different directory than mypy-upgrade. Please try "
     "running mypy with the --show-absolute-path flag set."
 )
@@ -62,12 +66,15 @@ class MypyUpgradeResult(NamedTuple):
     Attributes:
         silenced: a tuple of `MypyError` instances, each of which
             representing an error that was silenced
-        non_silenced: a tuple of `MypyError` instances, each of which
-            representing an error that was not silenced
+        failures: a tuple of `MypyError` instances, each of which
+            representing an error that `mypy-upgrade` failed to silence
+        ignored: a tuple of `MypyError` instances, each of which
+            representing an error that `mypy-upgrade` did not try to silence
     """
 
     silenced: tuple[MypyError, ...]
     not_silenced: tuple[MypyError, ...]
+    ignored: tuple[MypyError, ...]
 
 
 def _extract_error_details(
@@ -277,23 +284,21 @@ def silence_errors_in_report(
     Returns:
         A `MypyUpgradeResult` object. The errors that are silenced via type
         checking suppression comments are stored in the `silenced` attribute.
-        Those that are unable to be silenced are stored in the `not_silenced`
-        attribute. Note that the errors which are filtered out as a result of
-        packages, modules, files, or codes_to_silence will not be recorded.
+        Those that are unable to be silenced are stored in the `failures`
+        attribute. Those that are ignored (as a result of `packages`,
+        `modules`, `files`, or `codes_to_silence`) are stored in the `ignored`
+        attribute.
     """
     errors = parse_mypy_report(report=report)
     source_filtered_errors = filter_by_source(
         errors=errors, packages=packages, modules=modules, files=files
     )
-    if codes_to_silence is not None:
-        source_filtered_errors = [
-            error
-            for error in source_filtered_errors
-            if error.error_code in codes_to_silence
-        ]
+    code_filtered_errors = filter_by_code(
+        errors=source_filtered_errors, codes_to_silence=codes_to_silence
+    )
     silenced: list[MypyError] = []
     for filename, filename_grouped_errors in itertools.groupby(
-        source_filtered_errors, key=attrgetter("filename")
+        code_filtered_errors, key=attrgetter("filename")
     ):
         try:
             with pathlib.Path(filename).open(
@@ -308,13 +313,12 @@ def silence_errors_in_report(
                 )
             silenced.extend(safely_silenced)
         except FileNotFoundError:
-            msg = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
-            logger.warning(msg)
+            logger.warning(TRY_SHOW_ABSOLUTE_PATH.format(filename))
         except tokenize.TokenError:
-            msg = f"Unable to tokenize file: {filename}"
-            logger.warning(msg)
+            logger.warning(f"Unable to tokenize file: {filename}")
 
-    not_silenced = [e for e in source_filtered_errors if e not in silenced]
     return MypyUpgradeResult(
-        silenced=(*silenced,), not_silenced=(*not_silenced,)
+        silenced=(*silenced,),
+        failures=tuple(e for e in code_filtered_errors if e not in silenced),
+        ignored=tuple(e for e in errors if e not in code_filtered_errors),
     )
