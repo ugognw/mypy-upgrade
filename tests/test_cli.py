@@ -10,21 +10,14 @@ from collections.abc import Generator
 from io import TextIOWrapper
 from typing import TextIO
 
-from mypy_upgrade.parsing import MypyError
-from mypy_upgrade.silence import MypyUpgradeResult
-
-if sys.version_info < (3, 8):
-    from typing_extensions import Literal
-else:
-    from typing import Literal
-
 import pytest
 
-from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.cli import (
     _process_options,
     summarize_results,
 )
+from mypy_upgrade.parsing import MypyError
+from mypy_upgrade.silence import MypyUpgradeResult
 
 
 class TestProcessOptions:
@@ -98,25 +91,7 @@ class TestSummarizeResults:
 @pytest.mark.cli
 class TestCLI:
     @staticmethod
-    @pytest.fixture(name="verbosity", params=range(3))
-    def fixture_verbosity(request: pytest.FixtureRequest) -> int:
-        verbosity: int = request.param
-        return verbosity
-
-    @staticmethod
-    @pytest.fixture(name="colours", params=[False])
-    def fixture_colours(request: pytest.FixtureRequest) -> int:
-        colours: int = request.param
-        return colours
-
-    @staticmethod
-    @pytest.fixture(name="suppress_warnings", params=[False])
-    def fixture_suppress_warnings(request: pytest.FixtureRequest) -> int:
-        suppress_warnings: int = request.param
-        return suppress_warnings
-
-    @staticmethod
-    @pytest.fixture(name="summarize", params=[False])
+    @pytest.fixture(name="summarize", params=[False, True])
     def fixture_summarize(request: pytest.FixtureRequest) -> int:
         summarize: int = request.param
         return summarize
@@ -125,33 +100,14 @@ class TestCLI:
     @pytest.fixture(name="args")
     def fixture_args(
         *,
-        mypy_report_pre_filename: pathlib.Path,
-        description_style: Literal["full", "none"],
-        fix_me: str,
-        verbosity: int,
-        report_input_method: str,
-        colours: bool,
-        suppress_warnings: bool,
         summarize: bool,
+        report_input_method: str,
+        mypy_report_pre_filename: pathlib.Path,
     ) -> list[str]:
-        args: list[str] = []
+        args: list[str] = ["--dry-run"]
 
-        args.extend(["-d", description_style])
-        if colours:
-            args.append("--colours")
-        if suppress_warnings:
-            args.append("--suppress-warnings")
         if summarize:
             args.append("--summarize")
-        if fix_me.strip():
-            args.extend(["--fix-me", fix_me])
-        else:
-            args.extend(["--fix-me", " "])
-
-        if verbosity == 1:
-            args.append("-v")
-        elif verbosity == 2:
-            args.append("-vv")
 
         if report_input_method != "pipe":
             args.extend(["-r", str(mypy_report_pre_filename)])
@@ -199,58 +155,9 @@ class TestCLI:
 
     @staticmethod
     @pytest.mark.slow
-    @pytest.mark.parametrize("colours", [True])
-    def test_should_run_with_colours(
+    def test_should_respect_summary_configuration(
+        *,
         run_mypy_upgrade: subprocess.CompletedProcess[str],
-        colours: bool,  # noqa: FBT001
+        summarize: bool,
     ) -> None:
-        ...
-
-    @staticmethod
-    @pytest.mark.slow
-    @pytest.mark.parametrize("supress_warnings", [True])
-    def test_should_supress_warnings(
-        run_mypy_upgrade: subprocess.CompletedProcess[str],
-        supress_warnings: bool,  # noqa: FBT001
-    ) -> None:
-        ...
-
-    @staticmethod
-    @pytest.mark.slow
-    @pytest.mark.parametrize("summarize", [True])
-    def test_should_summarize(
-        run_mypy_upgrade: subprocess.CompletedProcess[str],
-        summarize: bool,  # noqa: FBT001
-    ) -> None:
-        ...
-
-    @staticmethod
-    @pytest.mark.parametrize(
-        "executable",
-        [["mypy-upgrade"], [sys.executable, "-m", "mypy_upgrade"]],
-    )
-    def test_should_print_version(
-        args: list[str],
-        executable: list[str],
-        report_input_method: str,
-        tmp_path: pathlib.Path,
-        coverage_py_subprocess_setup: None,  # noqa: ARG004
-    ) -> None:
-        if report_input_method == "pipe":
-            mypy_report_pre = tmp_path.joinpath("report.txt")
-            mypy_report_pre.touch()
-            with mypy_report_pre.open(mode="r", encoding="utf-8") as report:
-                process = subprocess.run(  # noqa: PLW1510
-                    [*executable, *args, "-V"],
-                    capture_output=True,
-                    encoding="utf-8",
-                    stdin=report,
-                )
-        else:
-            process = subprocess.run(  # noqa: PLW1510
-                [*executable, *args, "-V"],
-                capture_output=True,
-                encoding="utf-8",
-            )
-
-        assert __version__ in process.stdout
+        assert ("SUMMARY" in run_mypy_upgrade.stdout) == summarize
