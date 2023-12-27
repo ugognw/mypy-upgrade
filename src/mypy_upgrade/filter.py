@@ -94,7 +94,9 @@ def filter_by_source(
 
 
 def filter_by_code(
-    *, errors: Iterable, codes_to_silence: Iterable[str] | None = None
+    *,
+    errors: Iterable[MypyError],
+    codes_to_silence: Iterable[str] | None = None,
 ) -> list[MypyError]:
     """Filter `MypyError`s by error code.
 
@@ -108,7 +110,7 @@ def filter_by_code(
         A list of `MypyError`s including only those with error codes in
         `codes_to_silence`.
     """
-    code_filtered_errors = errors
+    code_filtered_errors = list(errors)
     if codes_to_silence is not None:
         code_filtered_errors = [
             error
