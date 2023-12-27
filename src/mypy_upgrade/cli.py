@@ -61,7 +61,7 @@ def _process_options(*args) -> Options:
         prog="mypy-upgrade",
         usage="%(prog)s [-h] [-v] [-V] [more options; see below]\n"
         "                    [-m MODULE] [-p PACKAGE] [-r REPORT] "
-        "[-s CODES_TO_SILENCE] "
+        "[-s ERROR_CODE] "
         "[files ...]",
         description="""
 Place in-line comments into files to silence mypy errors.
