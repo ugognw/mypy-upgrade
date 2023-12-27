@@ -241,17 +241,19 @@ def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
     print(" SUMMARY ".center(width, "-"))  # noqa: T201
 
     num_silenced = len(results.silenced)
-    not_silenced_warning = (
-        f"{num_silenced} {_to_verb(num_silenced)} silenced.\n\n"
-    )
-    print(_fill(not_silenced_warning))  # noqa: T201
+    silenced_summary = f"{num_silenced} {_to_verb(num_silenced)} silenced.\n\n"
+    print(_fill(silenced_summary))  # noqa: T201
 
-    num_not_silenced = len(results.not_silenced)
-    not_silenced_warning = (
+    num_not_silenced = len(results.failures)
+    not_silenced_summary = (
         f"{num_not_silenced} {_to_verb(num_not_silenced)} not silenced due "
         "to syntax limitations."
     )
-    print(_fill(not_silenced_warning))  # noqa: T201
+    print(_fill(not_silenced_summary))  # noqa: T201
+
+    num_ignored = len(results.ignored)
+    ignored_summary = f"{num_ignored} {_to_verb(num_ignored)} ignored."
+    print(_fill(ignored_summary))  # noqa: T201
 
     if verbosity > 0:
         print(" SILENCED ".center(width, "-"))  # noqa: T201
@@ -262,7 +264,13 @@ def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
 
         print(" NOT SILENCED ".center(width, "-"))  # noqa: T201
         for error in sorted(
-            results.not_silenced, key=MypyError.filename_and_line_number
+            results.failures, key=MypyError.filename_and_line_number
+        ):
+            print(str(error))  # noqa: T201
+
+        print(" IGNORED ".center(width, "-"))  # noqa: T201
+        for error in sorted(
+            results.ignored, key=MypyError.filename_and_line_number
         ):
             print(str(error))  # noqa: T201
 
