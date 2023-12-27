@@ -73,7 +73,7 @@ class MypyUpgradeResult(NamedTuple):
     """
 
     silenced: tuple[MypyError, ...]
-    not_silenced: tuple[MypyError, ...]
+    failures: tuple[MypyError, ...]
     ignored: tuple[MypyError, ...]
 
 
