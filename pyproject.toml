@@ -143,6 +143,9 @@ python = [
 [tool.hatch.version]
 path = "src/mypy_upgrade/__about__.py"
 
+[tool.mypy]
+strict = true
+
 [tool.pytest.ini_options]
 addopts = [
     "-n",

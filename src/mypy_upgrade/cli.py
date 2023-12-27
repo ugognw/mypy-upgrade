@@ -56,7 +56,7 @@ def _open(  # type: ignore[no-untyped-def]
         resource.close()
 
 
-def _process_options(*args) -> Options:
+def _process_options(*args) -> Options:  # type: ignore[no-untyped-def]
     parser = argparse.ArgumentParser(
         prog="mypy-upgrade",
         usage="%(prog)s [-h] [-v] [-V] [more options; see below]\n"
