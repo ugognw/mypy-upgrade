@@ -16,12 +16,12 @@ This project implements a version of
 * `mypy_upgrade.logging`: logging/printing facilities (see [issue-12])
 
 * `dry_run` keyword argument (and corresponding CLI option `--dry-run`)
-added to `mypy_upgrade.silence.silence_errors_in_file`
-and `mypy_upgrade.silence.silence_errors_in_report` (see [issue-14])
+  added to `mypy_upgrade.silence.silence_errors_in_file`
+  and `mypy_upgrade.silence.silence_errors_in_report` (see [issue-14])
 
 * `codes_to_silence` keyword argument (and corresponding CLI option
-`-s/--silence-error`) added to `mypy_upgrade.silence.silence_errors_in_file`
-and `mypy_upgrade.silence.silence_errors_in_report` (see [issue-15])
+  `-s/--silence-error`) added to `mypy_upgrade.silence.silence_errors_in_file`
+  and `mypy_upgrade.silence.silence_errors_in_report` (see [issue-15])
 
 * `-q/--quiet` CLI option aliases for `--suppress-warnings`
 
@@ -32,21 +32,33 @@ and `mypy_upgrade.silence.silence_errors_in_report` (see [issue-15])
 ### Changed
 
 * Printing results:
+
     * Silenced and not silenced errors are printed out on-the-fly instead of
-    all at the end
+      all at the end
+
     * New format (see `mypy_upgrade.silence._log_silencing_results`)
+    
+    * A sorted of results can still be printed using the `--summarize` option
+      together with the `--verbose` option
 
 * `mypy_upgrade.cli.print_results` -> `mypy_upgrade.cli.summarize_results`;
-`options` keyword replaced with `verbosity`
+   `options` keyword replaced with `verbosity`
+
+* `--suppress-warnings` (and new CLI option `-q/--quiet`) is enforced as
+  mutually exclusive with `-v/--verbose`
 
 * CLI arguments encapsulated in `mypy_upgrade.cli.Options` class
 
 * Warning messages (e.g., `mypy_upgrade.warnings.MISSING_ERROR_CODES`)
-have been moved to the module in which they are emitted
+  have been moved to the module in which they are emitted
+  (e.g., `mypy_upgrade.parsing`)
 
-* `mypy_upgrade.silence.MypyUpgradeResult` is now a 2-tuple (`silenced`,
-`not_silenced`); messages can be retrieved by adding a `logging.Handler`
-to the appropriate logger (e.g., `mypy_upgrade.cli.logger`)
+* Each of the 3 elements of a `mypy_upgrade.silence.MypyUpgradeResult` (now
+  named, `silenced`, `failures`, and `ignored`) is a tuple of
+  `MypyUpgradeResult`s
+
+    * messages can be retrieved by adding a `logging.Handler` to the
+      appropriate logger (e.g., `mypy_upgrade.cli.logger`)
 
 ### Removed
 
