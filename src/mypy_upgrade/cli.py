@@ -57,7 +57,7 @@ def _open(  # type: ignore[no-untyped-def]
         resource.close()
 
 
-def _create_argument_parser() -> argparse.ArgumentParser:
+def _process_options(*args) -> Options:
     parser = argparse.ArgumentParser(
         prog="mypy-upgrade",
         description="""
@@ -89,54 +89,24 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
 """,
     )
     parser.add_argument(
-        "-m",
-        "--module",
-        default=[],
-        dest="modules",
-        metavar="MODULE",
-        action="append",
-        help="Silence errors from the provided (importable) module. "
-        "This flag may be repeated multiple times.",
+        "-V",
+        "--version",
+        default=False,
+        action="version",
+        version=f"%(prog)s {__version__}",
+        help="Show program's version number and exit.",
     )
     parser.add_argument(
-        "-p",
-        "--package",
-        default=[],
-        dest="packages",
-        metavar="PACKAGE",
-        action="append",
-        help="Silence errors from the provided (importable) package. "
-        "This flag may be repeated multiple times.",
+        "--dry-run",
+        action="store_true",
+        default=False,
+        help="Don't actually silence anything, just print what would be.",
     )
-    parser.add_argument(
-        "-r",
-        "--report",
-        default=sys.stdin,
-        help="""
-        The path to a text file containing a mypy type checking report. If not
-        specified, input is read from standard input.
-        """,
+    printing_group = parser.add_argument_group(
+        title="Printing",
+        description="Control what information is printed and how.",
     )
-    parser.add_argument(
-        "-d",
-        "--description-style",
-        default="none",
-        choices=["full", "none"],
-        help="""
-        Specify the style in which mypy error descriptions are expressed in the
-        error suppression comment. Defaults to "none".
-        """,
-    )
-    parser.add_argument(
-        "--fix-me",
-        default="FIX ME",
-        help="""
-        Specify a custom 'Fix Me' message to be placed after the error
-        suppression comment. Pass " " to omit a 'Fix Me' message altogether.
-        Defaults to "FIX ME".
-        """,
-    )
-    parser.add_argument(
+    printing_group.add_argument(
         "-v",
         "--verbose",
         action="count",
@@ -149,7 +119,7 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
             "2: Used for debugging."
         ),
     )
-    parser.add_argument(
+    printing_group.add_argument(
         "-q",
         "--quiet",
         "--suppress-warnings",
@@ -158,15 +128,7 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         action="store_true",
         help="Suppress all warnings. Disabled by default.",
     )
-    parser.add_argument(
-        "-V",
-        "--version",
-        default=False,
-        action="version",
-        version=f"%(prog)s {__version__}",
-        help="Print the version.",
-    )
-    parser.add_argument(
+    printing_group.add_argument(
         "-S",
         "--summarize",
         action="store_true",
@@ -174,20 +136,70 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         help="Print a summary after running. If the verbosity>0, a detailed "
         "summary will also be printed.",
     )
-    parser.add_argument(
+    printing_group.add_argument(
         "-c",
         "--colours",
         action="store_true",
         default=False,
         help="Enable coloured output.",
     )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        default=False,
-        help="Don't actually silence anything, just print what would be.",
+    format_group = parser.add_argument_group(
+        title="Comment Formatting",
+        description="Format how error suppression comments are placed.",
     )
-    parser.add_argument(
+    format_group.add_argument(
+        "-d",
+        "--description-style",
+        default="none",
+        choices=["full", "none"],
+        help="""
+        Specify the style in which mypy error descriptions are expressed in the
+        error suppression comment. Defaults to "none".
+        """,
+    )
+    format_group.add_argument(
+        "--fix-me",
+        default="FIX ME",
+        help="""
+        Specify a custom 'Fix Me' message to be placed after the error
+        suppression comment. Pass " " to omit a 'Fix Me' message altogether.
+        Defaults to "FIX ME".
+        """,
+    )
+    filter_group = parser.add_argument_group(
+        title="Error Filtering",
+        description="Specify which errors will be silenced",
+    )
+    filter_group.add_argument(
+        "-r",
+        "--report",
+        default=sys.stdin,
+        help="""
+        The path to a text file containing a mypy type checking report. If not
+        specified, input is read from standard input.
+        """,
+    )
+    filter_group.add_argument(
+        "-m",
+        "--module",
+        default=[],
+        dest="modules",
+        metavar="MODULE",
+        action="append",
+        help="Silence errors from the provided (importable) module. "
+        "This flag may be repeated multiple times.",
+    )
+    filter_group.add_argument(
+        "-p",
+        "--package",
+        default=[],
+        dest="packages",
+        metavar="PACKAGE",
+        action="append",
+        help="Silence errors from the provided (importable) package. "
+        "This flag may be repeated multiple times.",
+    )
+    filter_group.add_argument(
         "-s",
         "--silence-error",
         action="append",
@@ -195,13 +207,13 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         help="Silence mypy errors by error code. This flag may be repeated "
         "multiple times.",
     )
-    parser.add_argument(
+    filter_group.add_argument(
         "files",
         default=[],
         nargs="*",
         help="Silence errors from the provided files/directories.",
     )
-    return parser
+    return Options(**vars(parser.parse_args(*args)))
 
 
 def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
@@ -277,8 +289,7 @@ def _configure_printing(
 
 def main() -> None:
     """An interface to `mypy-upgrade` from the command-line."""
-    parser = _create_argument_parser()
-    options = Options(**vars(parser.parse_args()))
+    options = _process_options()
     _configure_printing(
         suppress_warnings=options.suppress_warnings,
         verbosity=options.verbosity,
