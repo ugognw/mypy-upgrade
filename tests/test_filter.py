@@ -14,6 +14,7 @@ from mypy_upgrade.filter import (
     _find_unsilenceable_regions,
     _get_module_paths,
     _is_safe_to_silence,
+    filter_by_code,
     filter_by_silenceability,
     filter_by_source,
 )
@@ -271,6 +272,39 @@ class TestFilterBySource:
             files=[mypy_upgrade_module],
         )
         assert filtered_errors == [error]
+
+
+class TestFilterByCode:
+    @staticmethod
+    @pytest.mark.slow
+    @pytest.mark.parametrize(
+        "codes_to_silence", [("arg-type", "type-arg", "no-untyped-def"), ()]
+    )
+    def test_should_filter_out_unspecified_error_codes(
+        parsed_errors: list[MypyError], codes_to_silence: list[str]
+    ) -> None:
+        filtered_errors = filter_by_code(
+            errors=parsed_errors,
+            codes_to_silence=codes_to_silence,
+        )
+
+        assert all(
+            error.error_code in codes_to_silence for error in filtered_errors
+        )
+
+    @staticmethod
+    @pytest.mark.slow
+    @pytest.mark.parametrize(
+        "codes_to_silence", [("arg-type", "type-arg", "no-untyped-def"), ()]
+    )
+    def test_should_not_filter_any_errors_if_error_codes_is_none(
+        parsed_errors: list[MypyError],
+    ) -> None:
+        filtered_errors = filter_by_code(
+            errors=parsed_errors,
+            codes_to_silence=None,
+        )
+        assert filtered_errors == parsed_errors
 
 
 class TestFindUnsilenceableRegions:
