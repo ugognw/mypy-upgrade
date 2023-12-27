@@ -125,7 +125,7 @@ class TestSilenceErrorsInReport:
         missed_errors = [
             error
             for error in errors
-            if error not in mypy_upgrade_result.not_silenced
+            if error not in mypy_upgrade_result.failures
             and error.error_code != "unused-ignore"
         ]
         assert not missed_errors
@@ -163,7 +163,7 @@ class TestCatchFileNotFoundError:
             description_style="full",
             fix_me="",
         )
-        filename = result.not_silenced[0].filename
+        filename = result.failures[0].filename
         message = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
         with log_file.open(mode="r", encoding="utf-8") as file:
             assert any(message in msg for msg in file.readlines())
@@ -204,7 +204,7 @@ class TestCatchTokenError:
             description_style="full",
             fix_me="",
         )
-        filename = result.not_silenced[0].filename
+        filename = result.failures[0].filename
         message = f"Unable to tokenize file: {filename}"
         with log_file.open(mode="r", encoding="utf-8") as file:
             assert any(message in msg for msg in file.readlines())
