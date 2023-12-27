@@ -93,6 +93,32 @@ def filter_by_source(
     return selected
 
 
+def filter_by_code(
+    *, errors: Iterable, codes_to_silence: Iterable[str] | None = None
+) -> list[MypyError]:
+    """Filter `MypyError`s by error code.
+
+    Args:
+        errors: a list of `MypyError`s.
+        codes_to_silence: an optional list of strings indicating the only mypy
+            error codes to silence. If not supplied, all errors will be
+            suppressed. Defaults to None.
+
+    Returns:
+        A list of `MypyError`s including only those with error codes in
+        `codes_to_silence`.
+    """
+    code_filtered_errors = errors
+    if codes_to_silence is not None:
+        code_filtered_errors = [
+            error
+            for error in code_filtered_errors
+            if error.error_code in codes_to_silence
+        ]
+
+    return code_filtered_errors
+
+
 class UnsilenceableRegion(NamedTuple):
     """A region within a source code that cannot be silenced by an inline
     comment.

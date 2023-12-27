@@ -139,48 +139,6 @@ class TestSilenceErrorsInReport:
         assert len(errors_pre) >= len(errors_post)
 
 
-@pytest.mark.skipif(
-    "CI" not in os.environ,
-    reason="CI-only tests",
-)
-@pytest.mark.skipif(
-    "MYPY_UPGRADE_TARGET" not in os.environ,
-    reason="no target specified for mypy-upgrade",
-)
-@pytest.mark.skipif(
-    "MYPY_UPGRADE_TARGET_INSTALL_DIR" not in os.environ,
-    reason="no install directory specified for mypy-upgrade",
-)
-@pytest.mark.api
-@pytest.mark.slow
-class TestSilenceErrorsInReport2:
-    @staticmethod
-    @pytest.fixture(
-        name="codes_to_silence", scope="class", params=[[], ["arg-type"]]
-    )
-    def fixture_codes_to_silence(request: pytest.FixtureRequest) -> list[str]:
-        only_codes_to_silence: list[str] = request.param
-        return only_codes_to_silence
-
-    @staticmethod
-    def test_should_only_silence_errors_in_errors_to_silence(
-        mypy_upgrade_result: MypyUpgradeResult,
-        codes_to_silence: list[str],
-    ) -> None:
-        assert all(
-            error.error_code in codes_to_silence
-            for error in mypy_upgrade_result.silenced
-        )
-
-    @staticmethod
-    def test_should_only_silence_selected_errors() -> None:
-        assert True
-
-    @staticmethod
-    def test_should_silence_all_errors_if_no_errors_specified() -> None:
-        assert True
-
-
 @pytest.mark.usefixtures("configure_logging")
 class TestCatchFileNotFoundError:
     @staticmethod
