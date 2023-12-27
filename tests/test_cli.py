@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-import argparse
+import contextlib
 import os
 import pathlib
 import shutil
 import subprocess
 import sys
 from collections.abc import Generator
+from io import TextIOWrapper
 from typing import TextIO
+
+from mypy_upgrade.parsing import MypyError
+from mypy_upgrade.silence import MypyUpgradeResult
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -18,158 +22,65 @@ import pytest
 
 from mypy_upgrade.__about__ import __version__
 from mypy_upgrade.cli import (
-    _create_argument_parser,
+    _process_options,
+    summarize_results,
 )
 
 
-class TestParseArgs:
+class TestProcessOptions:
     @staticmethod
-    @pytest.fixture(
-        name="modules",
-        params=(
-            [],
-            ["module"],
-            ["package.module"],
-            ["module", "package.module"],
-        ),
-        scope="module",
-    )
-    def fixture_modules(request: pytest.FixtureRequest) -> list[str]:
-        _modules = request.param
-        modules = []
-        for module in _modules:
-            modules.append("-m")
-            modules.append(module)
+    def test_should_read_from_defaults() -> None:
+        assert _process_options()
 
-        return modules
 
+class TestSummarizeResults:
     @staticmethod
-    @pytest.fixture(
-        name="packages",
-        params=(
-            [],
-            ["package"],
-            ["package.subpackage"],
-            ["package", "package.subpackage"],
-        ),
-        scope="module",
-    )
-    def fixture_packages(request: pytest.FixtureRequest) -> list[str]:
-        _packages = request.param
-        packages = []
-        for package in _packages:
-            packages.append("-p")
-            packages.append(package)
-
-        return packages
-
-    @staticmethod
-    @pytest.fixture(name="report", params=([], "report.txt"), scope="module")
-    def fixture_report(request: pytest.FixtureRequest) -> list[str]:
-        return ["-r", request.param] if request.param else []
-
-    @staticmethod
-    @pytest.fixture(
-        name="description_style", params=("full", "none"), scope="module"
-    )
-    def fixture_description_style(request: pytest.FixtureRequest) -> list[str]:
-        description_style: str = request.param
-        return ["--description-style", description_style]
-
-    @staticmethod
-    @pytest.fixture(name="fix_me", params=("FIX ME", ""), scope="module")
-    def fixture_fix_me(request: pytest.FixtureRequest) -> list[str]:
-        fix_me: str = request.param
-        return ["--fix-me", fix_me]
-
-    @staticmethod
-    @pytest.fixture(
-        name="files",
-        params=(
-            [],
-            ["file.py"],
-            ["directory/file.py"],
-            ["file.py", "directory/file.py"],
-        ),
-        scope="module",
-    )
-    def fixture_files(request: pytest.FixtureRequest) -> list[str]:
-        return request.param or []
-
-    @staticmethod
-    @pytest.fixture(name="parser", scope="module")
-    def fixture_parser() -> argparse.ArgumentParser:
-        return _create_argument_parser()
-
-    @staticmethod
-    @pytest.fixture(name="args", scope="module")
-    def fixture_args(
-        modules: list[str],
-        packages: list[str],
-        report: list[str],
-        description_style: list[str],
-        fix_me: list[str],
-        files: list[str],
-        parser: argparse.ArgumentParser,
-    ) -> argparse.Namespace:
-        return parser.parse_args(
-            modules + packages + report + description_style + fix_me + files
+    @pytest.fixture(name="results")
+    def fixture_results() -> MypyUpgradeResult:
+        results = MypyUpgradeResult(
+            silenced=(
+                MypyError("file1.py", 1, 1, "message", "error-code"),
+                MypyError("file1.py", 2, 2, "message", "error-code"),
+            ),
+            not_silenced=(
+                MypyError("file2.py", 1, 1, "message", "error-code"),
+            ),
         )
+        return results
 
     @staticmethod
-    def test_should_store_modules(
-        args: argparse.Namespace, modules: list[str]
-    ) -> None:
-        if modules:
-            _modules = (
-                [m for m in modules if "-" not in m] if modules else None
-            )
-            assert args.modules == _modules
-        else:
-            assert args.modules == []
+    @pytest.fixture(name="summarized_results")
+    def fixture_summarized_results(
+        results: MypyUpgradeResult, verbosity: int, tmp_path: pathlib.Path
+    ) -> Generator[TextIOWrapper, None, None]:
+        output = tmp_path.joinpath("output.txt")
+        with output.open(
+            mode="w", encoding="utf-8"
+        ) as file, contextlib.redirect_stdout(file):
+            summarize_results(results=results, verbosity=verbosity)
+
+        with output.open(mode="r", encoding="utf-8") as file:
+            yield file
 
     @staticmethod
-    def test_should_store_packages(
-        args: argparse.Namespace, packages: list[str]
+    @pytest.mark.parametrize("verbosity", [0])
+    def test_should_print_simple_summary_with_no_verbosity(
+        summarized_results: TextIO,
     ) -> None:
-        if packages:
-            _packages = (
-                [p for p in packages if "-" not in p] if packages else None
-            )
-            assert args.packages == _packages
-        else:
-            assert args.packages == []
+        start = summarized_results.tell()
+        summary = summarized_results.read()
+        summarized_results.seek(start)
+        assert "SUMMARY" in summary
 
     @staticmethod
-    def test_should_store_files(
-        args: argparse.Namespace, files: list[str]
+    @pytest.mark.parametrize("verbosity", [1])
+    def test_should_print_long_summary_with_verbosity(
+        summarized_results: TextIO,
     ) -> None:
-        if files:
-            _files = [f for f in files if f.endswith(".py")] if files else None
-            assert args.files == _files
-        else:
-            assert args.files == files
-
-    @staticmethod
-    def test_should_store_description_style(
-        args: argparse.Namespace, description_style: list[str]
-    ) -> None:
-        assert args.description_style == description_style[1]
-
-    @staticmethod
-    def test_should_store_fix_me(
-        args: argparse.Namespace, fix_me: list[str]
-    ) -> None:
-        assert args.fix_me == fix_me[1]
-
-    @staticmethod
-    def test_should_store_report(
-        args: argparse.Namespace, report: list[str]
-    ) -> None:
-        if report:
-            assert report[1] == args.report
-        else:
-            assert args.report is sys.stdin
+        start = summarized_results.tell()
+        summary = summarized_results.read()
+        summarized_results.seek(start)
+        assert "SILENCED" in summary
 
 
 @pytest.mark.skipif(
