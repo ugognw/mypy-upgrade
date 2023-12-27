@@ -18,18 +18,18 @@
 
 - [What is `mypy-upgrade`?](#what-is-mypy-upgrade)
 - [Features](#features)
-- [Basic Usage](#basic-usage)
-- [Recommended Mypy Flags](#recommended-mypy-flags)
-- [Using the API](#using-the-api)
-- [Command-Line Options](#command-line-options)
 - [Quick Start](#quick-start)
+- [Basic Usage](#basic-usage)
+- [Advanced Usage](#advanced-usage)
+- [Using the API](#using-the-api)
+- [Recommended Mypy Flags](#recommended-mypy-flags)
 - [Known Limitations](#known-limitations)
 - [Similar Projects](#similar-projects)
 
 ## What is `mypy-upgrade`?
 
-`mypy-upgrade` is primarily a command-line utility that provides automatic
-error suppression for [`mypy`](http://mypy.readthedocs.io/) (analogous to
+`mypy-upgrade` provides automatic error suppression for
+[`mypy`](http://mypy.readthedocs.io/) (analogous to
 [`pyre-upgrade`](https://pyre-check.org/docs/types-in-python/#upgrade) and
 [`pylint-silent`](https://github.com/udifuchs/pylint-silent/)). In addition,
 `mypy-upgrade` exposes an API with the same functionality.
@@ -59,7 +59,21 @@ comments
 
 * Optional inclusion of `mypy` error description messages
 
-* Selective suppression of specific mypy error codes
+* Selective suppression of type errors by file, directory, package, module,
+  or mypy error codes
+
+## Quick Start
+
+`mypy-upgrade` can be installed via `pip`.
+
+    python3 -m pip install mypy-upgrade
+
+If you want to run the latest version of the code, you can install from the
+repo directly:
+
+    python3 -m pip install -U git+https://github.com/ugognw/mypy-upgrade.git@development
+    # or if you don't have 'git' installed
+    python3 -m pip install -U https://github.com/ugognw/mypy-upgrade/tree/development
 
 ## Basic Usage
 
@@ -78,7 +92,7 @@ can:
 
         mypy-upgrade --report mypy_report.txt
 
-## Command-Line Options
+## Advanced Usage
 
 You may want to include the error messages provided by `mypy` in the
 suppression comments so that you can fix them later. You can do so using
@@ -108,43 +122,60 @@ To selectively silence a particular kind of type error, use the `--silence-error
 
 For a full list of all options and their descriptions, run `mypy-upgrade --help`
 
-    usage: mypy-upgrade [-h] [-m MODULE] [-p PACKAGE] [-r REPORT] [-d {full,none}] [--fix-me FIX_ME] [-v] [-q] [-V]
-                        [-S] [-c] [--dry-run] [-s CODES_TO_SILENCE]
-                        [files ...]
+    usage: mypy-upgrade [-h] [-v] [-V] [more options; see below]
+                        [-m MODULE] [-p PACKAGE] [-r REPORT] [-s ERROR_CODE] [files ...]
 
     Place in-line comments into files to silence mypy errors.
 
 
-    positional arguments:
-    files                 Silence errors from the provided files/directories.
-
     options:
-      -h, --help            show this help message and exit
-      -m MODULE, --module MODULE
-                            Silence errors from the provided (importable) module. This flag may be repeated multiple
-                            times.
-      -p PACKAGE, --package PACKAGE
-                            Silence errors from the provided (importable) package. This flag may be repeated multiple
-                            times.
-      -r REPORT, --report REPORT
-                            The path to a text file containing a mypy type checking report. If not specified, input
-                            is read from standard input.
-      -d {full,none}, --description-style {full,none}
-                            Specify the style in which mypy error descriptions are expressed in the error suppression
-                            comment. Defaults to "none".
-      --fix-me FIX_ME       Specify a custom 'Fix Me' message to be placed after the error suppression comment. Pass
-                            " " to omit a 'Fix Me' message altogether. Defaults to "FIX ME".
-      -v, --verbose         Control the verbosity. Defaults to 0. 0: Print warnings and messages for each unsilenced
-                            error. 1: Also print messages for each silenced error.2: Used for debugging.
-      -q, --quiet, --suppress-warnings
-                            Suppress all warnings. Disabled by default.
-      -V, --version         Print the version.
-      -S, --summarize       Print a summary after running. If the verbosity>0, a detailed summary will also be
-                            printed.
-      -c, --colours         Enable coloured output.
-      --dry-run             Don't actually silence anything, just print what would be.
-      -s CODES_TO_SILENCE, --silence-error CODES_TO_SILENCE
-                            Silence mypy errors by error code. This flag may be repeated multiple times.
+    -h, --help            show this help message and exit
+    -V, --version         Show program's version number and exit.
+    --dry-run             Don't actually silence anything, just print what would
+                          be.
+
+    Printing:
+    Control what information is printed and how.
+
+    -v, --verbose         Control the verbosity. 0=Print warnings and messages
+                          for each unsilenced error. 1=Also print messages for
+                          each silenced error. 2=Used for debugging. Defaults to
+                          0.
+    -q, --quiet, --suppress-warnings
+                          Suppress all warnings. Disabled by default.
+    -S, --summarize       Print a summary after running. If the verbosity is
+                          greater than zero, a detailed summary will also be
+                          printed.
+    -c, --colours         Enable coloured output.
+
+    Comment Formatting:
+    Format how error suppression comments are placed.
+
+    -d {full,none}, --description-style {full,none}
+                          Specify the style in which mypy error descriptions are
+                          expressed in the error suppression comment. Defaults
+                          to "none".
+    --fix-me FIX_ME       Specify a custom 'Fix Me' message to be placed after
+                          the error suppression comment. Pass " " to omit a 'Fix
+                          Me' message altogether. Defaults to "FIX ME".
+
+    Error Filtering:
+    Specify which errors will be silenced.
+
+    -r REPORT, --report REPORT
+                          The path to a text file containing a mypy type
+                          checking report. If not specified, input is read from
+                          standard input.
+    -m MODULE, --module MODULE
+                          Silence errors from the provided (importable) module.
+                          This flag may be repeated multiple times.
+    -p PACKAGE, --package PACKAGE
+                          Silence errors from the provided (importable) package.
+                          This flag may be repeated multiple times.
+    -s ERROR_CODE, --silence-error ERROR_CODE
+                          Silence mypy errors by error code. This flag may be
+                          repeated multiple times.
+    files                 Silence errors from the provided files/directories.
 
 ## Using the API
 
@@ -162,16 +193,17 @@ mypy_report = pathlib.Path("mypy_report.txt")
 
 with mypy_report.open(mode="r", encoding="utf-8") as report:
     result = silence_errors_in_report(
-        report=report
+        report=report,
         packages=["package1", "package2"],
         modules=["package1.module1", "package2.module2"],
         files=["path/to/a/package/", "path/to/a/module.py"],
         description_style="full",
         fix_me="FIX THIS",
         codes_to_silence=["arg-type", "no-untyped-def"],
+        dry_run=False,
     )
 
-silenced_errors, not_silenced_errors = result
+silenced, failures, ignored = result
 ```
 
 ## Recommended Mypy Flags
@@ -202,19 +234,6 @@ following flags should be set when creating the type checking report to pass to 
     * When used with `--show-error-codes`, permits `mypy-upgrade` to replace existing
     `type: ignore` comments with code-specific `type: ignore` comments (enable from the
     command line with the `mypy` option `--enable-error-code`)
-
-## Quick Start
-
-`mypy-upgrade` can be installed via `pip`.
-
-    python3 -m pip install mypy-upgrade
-
-If you want to run the latest version of the code, you can install from the
-repo directly:
-
-    python3 -m pip install -U git+https://github.com/ugognw/mypy-upgrade.git@development
-    # or if you don't have 'git' installed
-    python3 -m pip install -U https://github.com/ugognw/mypy-upgrade/tree/development
 
 ## Known Limitations
 
