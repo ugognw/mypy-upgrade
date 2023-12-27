@@ -294,9 +294,6 @@ class TestFilterByCode:
 
     @staticmethod
     @pytest.mark.slow
-    @pytest.mark.parametrize(
-        "codes_to_silence", [("arg-type", "type-arg", "no-untyped-def"), ()]
-    )
     def test_should_not_filter_any_errors_if_error_codes_is_none(
         parsed_errors: list[MypyError],
     ) -> None:
