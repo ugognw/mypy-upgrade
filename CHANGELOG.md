@@ -37,7 +37,7 @@ This project implements a version of
       all at the end
 
     * New format (see `mypy_upgrade.silence._log_silencing_results`)
-    
+
     * A sorted of results can still be printed using the `--summarize` option
       together with the `--verbose` option
 
