@@ -63,17 +63,6 @@ include = [
   "/tests",
 ]
 
-[[tool.hatch.envs.test.matrix]]
-python = [
-  "3.7",
-  "3.8",
-  "3.9",
-  "3.10",
-  "3.11",
-  "3.12",
-  "3.13",
-]
-
 [tool.hatch.envs.default]
 dependencies = [
   "mypy==1.4.1; python_version<'3.8'",
@@ -127,6 +116,27 @@ fmt = [
 all = [
   "style",
   "typing",
+]
+
+[tool.hatch.envs.test]
+dependencies = [
+  "mypy==1.4.1; python_version<'3.8'",
+  "mypy==1.8.0; python_version>='3.8'",
+  "pytest==7.4.0",
+  "pytest-cov==4.1.0",
+  "pytest-datadir==1.4.1",
+  "pytest-xdist==3.3.1",
+]
+
+[[tool.hatch.envs.test.matrix]]
+python = [
+  "3.7",
+  "3.8",
+  "3.9",
+  "3.10",
+  "3.11",
+  "3.12",
+  "3.13",
 ]
 
 [tool.hatch.version]
