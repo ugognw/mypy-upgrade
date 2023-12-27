@@ -164,7 +164,7 @@ class TestCatchFileNotFoundError:
             fix_me="",
         )
         filename = result.failures[0].filename
-        message = TRY_SHOW_ABSOLUTE_PATH.replace("{filename}", filename)
+        message = TRY_SHOW_ABSOLUTE_PATH.format(filename)
         with log_file.open(mode="r", encoding="utf-8") as file:
             assert any(message in msg for msg in file.readlines())
 
