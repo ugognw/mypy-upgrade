@@ -60,10 +60,13 @@ def _open(  # type: ignore[no-untyped-def]
 def _process_options(*args) -> Options:
     parser = argparse.ArgumentParser(
         prog="mypy-upgrade",
+        usage="%(prog)s [-h] [-v] [-V] [more options; see below]\n"
+        "                    [-m MODULE] [-p PACKAGE] [-r REPORT] "
+        "[-s CODES_TO_SILENCE] "
+        "[files ...]",
         description="""
 Place in-line comments into files to silence mypy errors.
         """,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples
 --------
@@ -87,6 +90,7 @@ mypy-upgrade --report mypy_report.txt package/module.py package/
 mypy --strict -p package > mypy_report.txt
 mypy-upgrade --report mypy_report.txt  --silence-error arg-type
 """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "-V",
@@ -113,10 +117,10 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         default=0,
         dest="verbosity",
         help=(
-            "Control the verbosity. Defaults to 0. "
-            "0: Print warnings and messages for each unsilenced error. "
-            "1: Also print messages for each silenced error."
-            "2: Used for debugging."
+            "Control the verbosity. "
+            "0=Print warnings and messages for each unsilenced error. "
+            "1=Also print messages for each silenced error. "
+            "2=Used for debugging. Defaults to 0."
         ),
     )
     printing_group.add_argument(
@@ -133,8 +137,8 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         "--summarize",
         action="store_true",
         default=False,
-        help="Print a summary after running. If the verbosity>0, a detailed "
-        "summary will also be printed.",
+        help="Print a summary after running. If the verbosity is greater than "
+        "zero, a detailed summary will also be printed.",
     )
     printing_group.add_argument(
         "-c",
@@ -168,7 +172,7 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
     )
     filter_group = parser.add_argument_group(
         title="Error Filtering",
-        description="Specify which errors will be silenced",
+        description="Specify which errors will be silenced.",
     )
     filter_group.add_argument(
         "-r",
