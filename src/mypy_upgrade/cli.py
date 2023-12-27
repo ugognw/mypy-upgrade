@@ -37,7 +37,6 @@ class Options(NamedTuple):
     summarize: bool
     colours: bool
     version: bool
-    suppress_warnings: bool
     files: list[str]
     codes_to_silence: list[str] | None
 
@@ -110,26 +109,28 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         title="Printing",
         description="Control what information is printed and how.",
     )
-    printing_group.add_argument(
+    verbosity = printing_group.add_mutually_exclusive_group()
+    verbosity.add_argument(
         "-v",
         "--verbose",
         action="count",
         default=0,
-        dest="verbosity",
+        type=lambda x: 30 - int(x) * 10,  # convert to logging level
         help=(
             "Control the verbosity. "
             "0=Print warnings and messages for each unsilenced error. "
             "1=Also print messages for each silenced error. "
             "2=Used for debugging. Defaults to 0."
         ),
+        dest="verbosity",
     )
-    printing_group.add_argument(
+    verbosity.add_argument(
         "-q",
         "--quiet",
         "--suppress-warnings",
-        default=False,
-        dest="suppress_warnings",
-        action="store_true",
+        action="store_const",
+        const=logging.ERROR,
+        dest="verbosity",
         help="Suppress all warnings. Disabled by default.",
     )
     printing_group.add_argument(
@@ -138,20 +139,20 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         action="store_true",
         default=False,
         help="Print a summary after running. If the verbosity is greater than "
-        "zero, a detailed summary will also be printed.",
+        "zero, a detailed summary will also be printed. Disabled by default.",
     )
     printing_group.add_argument(
         "-c",
         "--colours",
         action="store_true",
         default=False,
-        help="Enable coloured output.",
+        help="Enable coloured output. Disabled by default.",
     )
-    format_group = parser.add_argument_group(
+    comment_group = parser.add_argument_group(
         title="Comment Formatting",
         description="Format how error suppression comments are placed.",
     )
-    format_group.add_argument(
+    comment_group.add_argument(
         "-d",
         "--description-style",
         default="none",
@@ -161,9 +162,10 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
         error suppression comment. Defaults to "none".
         """,
     )
-    format_group.add_argument(
+    comment_group.add_argument(
         "--fix-me",
         default="FIX ME",
+        type=lambda x: x.rstrip(),
         help="""
         Specify a custom 'Fix Me' message to be placed after the error
         suppression comment. Pass " " to omit a 'Fix Me' message altogether.
@@ -266,22 +268,11 @@ def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
             print(str(error))  # noqa: T201
 
 
-def _configure_printing(
-    *, suppress_warnings: bool, verbosity: int, colours: bool
-) -> None:
-    if suppress_warnings:
-        level = logging.ERROR
-    elif verbosity == 0:
-        level = logging.WARNING
-    elif verbosity == 1:
-        level = logging.INFO
-    elif verbosity > 1:
-        level = logging.DEBUG
-
-    logger.setLevel(level)
+def _configure_printing(*, verbosity: int, colours: bool) -> None:
+    logger.setLevel(verbosity)
 
     ch = logging.StreamHandler()
-    ch.setLevel(level)
+    ch.setLevel(verbosity)
 
     fmt = "%(message)s"
     formatter = ColouredFormatter(fmt) if colours else logging.Formatter(fmt)
@@ -295,7 +286,6 @@ def main() -> None:
     """An interface to `mypy-upgrade` from the command-line."""
     options = _process_options()
     _configure_printing(
-        suppress_warnings=options.suppress_warnings,
         verbosity=options.verbosity,
         colours=options.colours,
     )
@@ -308,7 +298,7 @@ def main() -> None:
             files=options.files,
             codes_to_silence=options.codes_to_silence,
             description_style=options.description_style,
-            fix_me=options.fix_me.rstrip(),
+            fix_me=options.fix_me,
             dry_run=options.dry_run,
         )
     if options.summarize:
