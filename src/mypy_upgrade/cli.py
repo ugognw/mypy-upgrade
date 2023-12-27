@@ -301,5 +301,6 @@ def main() -> None:
             fix_me=options.fix_me,
             dry_run=options.dry_run,
         )
+
     if options.summarize:
         summarize_results(results=results, verbosity=options.verbosity)
