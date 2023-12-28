@@ -8,9 +8,9 @@ import logging
 import pathlib
 import sys
 import tokenize
-from collections.abc import Iterable
+from collections.abc import Iterable, Sized
 from operator import attrgetter
-from typing import NamedTuple, TextIO
+from typing import Any, NamedTuple, TextIO
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -77,20 +77,23 @@ class MypyUpgradeResult(NamedTuple):
     ignored: tuple[MypyError, ...]
 
     def __str__(self) -> str:
-        def _to_verb(count: int) -> str:
+        def _to_stem(count: int) -> str:
+            prefix = str(count)
             if count == 1:
-                return "error was"
-            return "errors were"
+                return f"{prefix} error was"
+            return f"{prefix} errors were"
 
-        def _summarize(num: int, suffix: str) -> str:
-            return f"{num} {_to_verb(num)}{suffix}"
+        def _summarize(errors: Sized[Any], suffix: str) -> str:
+            num = len(errors)
+            stem = _to_stem(num)
+            return stem + suffix
 
-        silenced = _summarize(num=len(self.silenced), suffix=" silenced.")
+        silenced = _summarize(errors=self.silenced, suffix=" silenced.")
         failures = _summarize(
-            num=len(self.failures),
+            errors=self.failures,
             suffix=" not silenced due to syntax limitations.",
         )
-        ignored = _summarize(num=len(self.ignored), suffix=" ignored.")
+        ignored = _summarize(errors=self.ignored, suffix=" ignored.")
         return f"{silenced}\n{failures}\n{ignored}\n"
 
 
