@@ -27,18 +27,14 @@ class ColouredFormatter(logging.Formatter):
         colours: "dict[int, int] | None" = None,
     ) -> None:
         self.colours = colours or DEFAULT_COLOURS
-        kwargs: dict[str, Any] = {}
-
-        if sys.version_info >= (3, 8):
-            super().__init__(fmt, datefmt, style, validate=validate)
-            if sys.version_info >= (3, 10):
-                kwargs["validate"] = validate
-
-                super().__init__(
-                    fmt, datefmt, style, validate=validate, defaults=defaults
-                )
-        else:
+        if sys.version_info < (3, 8):
             super().__init__(fmt, datefmt, style)
+        elif sys.version_info < (3, 10):
+            super().__init__(fmt, datefmt, style, validate=validate)
+        else:
+            super().__init__(
+                fmt, datefmt, style, validate=validate, defaults=defaults
+            )
 
     def formatMessage(self, record: logging.LogRecord) -> str:  # noqa: N802
         colour_code = self.colours[record.levelno]
