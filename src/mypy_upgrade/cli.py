@@ -46,7 +46,7 @@ class Options(NamedTuple):
 
 @contextmanager
 def _open(
-    file: str | TextIO | TextIOWrapper, **kwargs: dict[str, Any]
+    file: str | TextIO | TextIOWrapper, **kwargs: Any
 ) -> Generator[TextIO, None, None]:
     if isinstance(file, (TextIOWrapper, TextIO)):
         resource = file
