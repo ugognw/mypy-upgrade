@@ -121,7 +121,12 @@ def fixture_errors_to_filter() -> list[MypyError]:
         "call-overload",
     ]
     errors_to_filter = []
-    for file, code in zip(files, error_codes, strict=True):
+    if sys.version_info < (3, 10):
+        files_and_codes = zip(files, error_codes)
+    else:
+        files_and_codes = zip(files, error_codes, strict=True)
+
+    for file, code in files_and_codes:
         errors_to_filter.append(MypyError(str(file), 1, 1, "message", code))
 
     return errors_to_filter
