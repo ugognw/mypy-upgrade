@@ -184,4 +184,4 @@ def _fixture_coverage_py_subprocess_setup() -> None:
         with pathlib.Path.cwd().joinpath("sitecustomize.py").open(
             mode="a", encoding="utf-8"
         ) as file:
-            file.write("import coverage\ncoverage.process_startup()")
+            file.write("import coverage\ncoverage.process_startup()\n")
