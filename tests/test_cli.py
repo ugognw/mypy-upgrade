@@ -90,6 +90,20 @@ class TestSummarizeResults:
 @pytest.mark.cli
 class TestCLI:
     @staticmethod
+    @pytest.fixture(name="mypy_args")
+    def fixture_mypy_args(
+        mypy_config_file: str, mypy_upgrade_target: str
+    ) -> list[str]:
+        return [
+            "--config-file",
+            mypy_config_file,
+            "--show-absolute-path",
+            "--hide-error-codes",
+            "-p",
+            mypy_upgrade_target,
+        ]
+
+    @staticmethod
     @pytest.fixture(name="summarize", params=[False, True])
     def fixture_summarize(request: pytest.FixtureRequest) -> int:
         summarize: int = request.param
@@ -128,17 +142,12 @@ class TestCLI:
         coverage_py_subprocess_setup: None,  # noqa: ARG004
     ) -> Generator[subprocess.CompletedProcess[str], None, None]:
         executable: list[str] = request.param
-        if report_input_method == "pipe":
-            yield subprocess.run(  # noqa: PLW1510
-                [*executable, *args],
-                capture_output=True,
-                encoding="utf-8",
-                stdin=mypy_report_pre,
-            )
-        else:
-            yield subprocess.run(  # noqa: PLW1510
-                [*executable, *args], capture_output=True, encoding="utf-8"
-            )
+        yield subprocess.run(  # noqa: PLW1510
+            [*executable, *args],
+            capture_output=True,
+            encoding="utf-8",
+            stdin=mypy_report_pre if report_input_method == "pipe" else None,
+        )
         if sys.version_info < (3, 8):
             shutil.rmtree(python_path)
             shutil.copytree(install_dir, python_path)
@@ -150,6 +159,7 @@ class TestCLI:
     def test_should_exit_with_zero(
         run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
+        assert not run_mypy_upgrade.stderr
         assert run_mypy_upgrade.returncode == 0
 
     @staticmethod
