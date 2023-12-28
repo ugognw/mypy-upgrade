@@ -11,7 +11,7 @@ import textwrap
 from collections.abc import Generator
 from contextlib import contextmanager
 from io import TextIOWrapper
-from typing import NamedTuple, TextIO
+from typing import Any, NamedTuple, TextIO
 
 from mypy_upgrade.parsing import MypyError
 
@@ -43,8 +43,8 @@ class Options(NamedTuple):
 
 
 @contextmanager
-def _open(  # type: ignore[no-untyped-def]
-    file: str | TextIO | TextIOWrapper, **kwargs
+def _open(
+    file: str | TextIO | TextIOWrapper, **kwargs: dict[str, Any]
 ) -> Generator[TextIO, None, None]:
     if isinstance(file, (TextIOWrapper, TextIO)):
         resource = file
@@ -57,7 +57,7 @@ def _open(  # type: ignore[no-untyped-def]
         resource.close()
 
 
-def _process_options(*args) -> Options:  # type: ignore[no-untyped-def]
+def _process_options(*args: list[str]) -> Options:
     parser = argparse.ArgumentParser(
         prog="mypy-upgrade",
         usage="%(prog)s [-h] [-v] [-V] [more options; see below]\n"
