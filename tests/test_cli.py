@@ -90,7 +90,7 @@ class TestSummarizeResults:
 @pytest.mark.cli
 class TestCLI:
     @staticmethod
-    @pytest.fixture(name="mypy_args")
+    @pytest.fixture(name="mypy_args", scope="session")
     def fixture_mypy_args(
         mypy_config_file: str, mypy_upgrade_target: str
     ) -> list[str]:
