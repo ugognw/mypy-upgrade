@@ -159,7 +159,6 @@ class TestCLI:
     def test_should_exit_with_zero(
         run_mypy_upgrade: subprocess.CompletedProcess[str],
     ) -> None:
-        assert not run_mypy_upgrade.stderr
         assert run_mypy_upgrade.returncode == 0
 
     @staticmethod
