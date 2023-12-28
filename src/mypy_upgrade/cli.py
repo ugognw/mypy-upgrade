@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import pathlib
 import shutil
 import sys
 import textwrap
@@ -48,7 +49,7 @@ def _open(  # type: ignore[no-untyped-def]
     if isinstance(file, (TextIOWrapper, TextIO)):
         resource = file
     else:
-        resource = open(file, **kwargs)  # noqa: SIM115, PTH123
+        resource = pathlib.Path(file).open(**kwargs)  # noqa: SIM115
 
     try:
         yield resource
