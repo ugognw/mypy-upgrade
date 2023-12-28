@@ -42,8 +42,8 @@ def fixture_report(
         yield report
 
 
-@pytest.fixture(name="parsed_errors")
-def fixture_parsed_errors(report: typing.TextIO) -> list[MypyError]:
+@pytest.fixture(name="errors_to_filter")
+def fixture_errors_to_filter(report: typing.TextIO) -> list[MypyError]:
     parsed_errors: list[MypyError] = parse_mypy_report(report=report)
     report.seek(0)
     return parsed_errors
