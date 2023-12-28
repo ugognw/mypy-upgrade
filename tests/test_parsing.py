@@ -13,48 +13,48 @@ from mypy_upgrade.parsing import MypyError, string_to_error_codes
 class TestParseReport:
     @staticmethod
     def test_should_return_as_many_entries_as_errors(
-        parsed_errors: list[MypyError], report: typing.TextIO
+        errors_to_filter: list[MypyError], report: typing.TextIO
     ) -> None:
         summary = report.readlines()[-1]
 
         match = re.search(r"Found (?P<num_errors>\d+) error", summary)
         assert match is not None
         num_errors = int(match.group("num_errors"))
-        assert num_errors == len(parsed_errors)
+        assert num_errors == len(errors_to_filter)
 
     @staticmethod
     def test_should_only_return_mypyerrors(
-        parsed_errors: list[MypyError],
+        errors_to_filter: list[MypyError],
     ) -> None:
-        assert all(isinstance(e, MypyError) for e in parsed_errors)
+        assert all(isinstance(e, MypyError) for e in errors_to_filter)
 
     @staticmethod
     def test_should_convert_line_number_to_integer(
-        parsed_errors: list[MypyError],
+        errors_to_filter: list[MypyError],
     ) -> None:
-        assert all(isinstance(e.line_no, int) for e in parsed_errors)
+        assert all(isinstance(e.line_no, int) for e in errors_to_filter)
 
     @staticmethod
     def test_should_strip_whitespace_from_message(
-        parsed_errors: list[MypyError],
+        errors_to_filter: list[MypyError],
     ) -> None:
-        assert (e.message.strip() == e.message for e in parsed_errors)
+        assert (e.message.strip() == e.message for e in errors_to_filter)
 
     @staticmethod
     def test_should_sort_mypyerrors_with_respect_to_filename_first(
-        parsed_errors: list[MypyError],
+        errors_to_filter: list[MypyError],
     ) -> None:
-        filenames = [e.filename for e in parsed_errors]
+        filenames = [e.filename for e in errors_to_filter]
         assert filenames == sorted(filenames)
 
     @staticmethod
     def test_should_sort_mypyerrors_with_respect_to_line_number_second(
-        parsed_errors: list[MypyError],
+        errors_to_filter: list[MypyError],
     ) -> None:
         group_filename = None
         last_line_number = 0
         increasing_within_group = []
-        for error in parsed_errors:
+        for error in errors_to_filter:
             if group_filename == error.filename:
                 increasing_within_group.append(
                     error.line_no >= last_line_number
