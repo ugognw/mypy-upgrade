@@ -10,7 +10,7 @@ import sys
 import tokenize
 from collections.abc import Iterable, Sized
 from operator import attrgetter
-from typing import Any, NamedTuple, TextIO
+from typing import NamedTuple, TextIO
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -83,7 +83,7 @@ class MypyUpgradeResult(NamedTuple):
                 return f"{prefix} error was"
             return f"{prefix} errors were"
 
-        def _summarize(errors: Sized[Any], suffix: str) -> str:
+        def _summarize(errors: Sized, suffix: str) -> str:
             num = len(errors)
             stem = _to_stem(num)
             return stem + suffix
