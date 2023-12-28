@@ -110,6 +110,23 @@ def fixture_files_to_include(request: pytest.FixtureRequest) -> list[str]:
     return files_to_include
 
 
+@pytest.fixture(name="errors_to_filter")
+def fixture_errors_to_filter() -> list[MypyError]:
+    modules = ["pathlib", "xml.sax.handler", "os", "collections.abc"]
+    files = [p for p in _get_module_paths(modules=modules) if p]
+    error_codes = [
+        "arg-type",
+        "no-untyped-def",
+        "attr-defined",
+        "call-overload",
+    ]
+    errors_to_filter = []
+    for file, code in zip(files, error_codes, strict=True):
+        errors_to_filter.append(MypyError(str(file), 1, 1, "message", code))
+
+    return errors_to_filter
+
+
 class TestFilterBySource:
     @staticmethod
     @pytest.fixture(
@@ -130,52 +147,61 @@ class TestFilterBySource:
     @staticmethod
     @pytest.mark.slow
     def test_should_only_include_selected_packages(
-        parsed_errors: list[MypyError], packages_to_include: list[str]
+        errors_to_filter: list[MypyError], packages_to_include: list[str]
     ) -> None:
         filtered_errors = filter_by_source(
-            errors=parsed_errors,
+            errors=errors_to_filter,
             packages=packages_to_include,
             modules=[],
             files=[],
         )
         if packages_to_include:
-            packages_supposed_to_be_included = []
-            for error in filtered_errors:
-                packages_supposed_to_be_included.append(
-                    any(p in error.filename for p in packages_to_include)
+            packages_supposed_to_be_included = [
+                str(p) for p in _get_module_paths(modules=packages_to_include)
+            ]
+            errors_in_packages = []
+            for e in filtered_errors:
+                errors_in_packages.append(
+                    any(
+                        p in e.filename
+                        for p in packages_supposed_to_be_included
+                    )
                 )
-            assert all(packages_supposed_to_be_included)
+            assert all(errors_in_packages)
         else:
-            assert filtered_errors == parsed_errors
+            assert filtered_errors == errors_to_filter
 
     @staticmethod
     @pytest.mark.slow
     def test_should_only_include_selected_modules(
-        parsed_errors: list[MypyError], modules_to_include: list[str]
+        errors_to_filter: list[MypyError], modules_to_include: list[str]
     ) -> None:
         filtered_errors = filter_by_source(
-            errors=parsed_errors,
+            errors=errors_to_filter,
             packages=[],
             modules=modules_to_include,
             files=[],
         )
         if modules_to_include:
-            modules_supposed_to_be_included = []
-            for error in filtered_errors:
-                modules_supposed_to_be_included.append(
-                    any(m in error.filename for m in modules_to_include)
+            modules_to_include = [
+                str(p) for p in _get_module_paths(modules=modules_to_include)
+            ]
+            errors_in_packages = []
+            for e in filtered_errors:
+                errors_in_packages.append(
+                    any(p in e.filename for p in modules_to_include)
                 )
-            assert all(modules_supposed_to_be_included)
+            assert all(errors_in_packages)
         else:
-            assert filtered_errors == parsed_errors
+            assert filtered_errors == errors_to_filter
 
     @staticmethod
     @pytest.mark.slow
     def test_should_only_include_selected_files(
-        parsed_errors: list[MypyError], files_to_include: list[str]
+        errors_to_filter: list[MypyError], files_to_include: list[str]
     ) -> None:
         filtered_errors = filter_by_source(
-            errors=parsed_errors,
+            errors=errors_to_filter,
             packages=[],
             modules=[],
             files=files_to_include,
@@ -185,18 +211,18 @@ class TestFilterBySource:
                 error.filename in files_to_include for error in filtered_errors
             )
         else:
-            assert filtered_errors == parsed_errors
+            assert filtered_errors == errors_to_filter
 
     @staticmethod
     @pytest.mark.slow
     def test_should_only_include_selected_combinations(
-        parsed_errors: list[MypyError],
+        errors_to_filter: list[MypyError],
         packages_to_include: list[str],
         modules_to_include: list[str],
         files_to_include: list[str],
     ) -> None:
         filtered_errors = filter_by_source(
-            errors=parsed_errors,
+            errors=errors_to_filter,
             packages=packages_to_include,
             modules=modules_to_include,
             files=files_to_include,
@@ -205,13 +231,20 @@ class TestFilterBySource:
         to_include = (
             packages_to_include + modules_to_include + files_to_include
         )
-        if to_include:
-            assert all(
-                any(path in error.filename for path in to_include)
-                for error in filtered_errors
+        if packages_to_include + modules_to_include + files_to_include:
+            to_include = files_to_include
+            to_include.extend(
+                str(p)
+                for p in _get_module_paths(
+                    modules=packages_to_include + modules_to_include
+                )
             )
+            res = []
+            for e in filtered_errors:
+                res.append(any(p in e.filename for p in to_include))
+            assert all(res)
         else:
-            assert filtered_errors == parsed_errors
+            assert filtered_errors == errors_to_filter
 
     @staticmethod
     def test_should_include_selected_package(mypy_upgrade_module: str) -> None:
@@ -281,10 +314,10 @@ class TestFilterByCode:
         "codes_to_silence", [("arg-type", "type-arg", "no-untyped-def"), ()]
     )
     def test_should_filter_out_unspecified_error_codes(
-        parsed_errors: list[MypyError], codes_to_silence: list[str]
+        errors_to_filter: list[MypyError], codes_to_silence: list[str]
     ) -> None:
         filtered_errors = filter_by_code(
-            errors=parsed_errors,
+            errors=errors_to_filter,
             codes_to_silence=codes_to_silence,
         )
 
@@ -295,13 +328,13 @@ class TestFilterByCode:
     @staticmethod
     @pytest.mark.slow
     def test_should_not_filter_any_errors_if_error_codes_is_none(
-        parsed_errors: list[MypyError],
+        errors_to_filter: list[MypyError],
     ) -> None:
         filtered_errors = filter_by_code(
-            errors=parsed_errors,
+            errors=errors_to_filter,
             codes_to_silence=None,
         )
-        assert filtered_errors == parsed_errors
+        assert filtered_errors == errors_to_filter
 
 
 class TestFindUnsilenceableRegions:
