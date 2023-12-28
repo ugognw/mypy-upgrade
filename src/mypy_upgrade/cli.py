@@ -26,6 +26,8 @@ from mypy_upgrade.silence import MypyUpgradeResult, silence_errors_in_report
 
 logger = logging.getLogger()
 
+TEXT_WIDTH = min(79, shutil.get_terminal_size(fallback=(79, 0)).columns)
+
 
 class Options(NamedTuple):
     modules: list[str]
@@ -223,6 +225,20 @@ mypy-upgrade --report mypy_report.txt  --silence-error arg-type
     return Options(**vars(parser.parse_args(*args)))
 
 
+def _print_header(header: str) -> None:
+    print(f" {header} ".center(TEXT_WIDTH, "-"))  # noqa: T201
+
+
+def _fill(text: str) -> str:
+    return textwrap.fill(text, width=TEXT_WIDTH)
+
+
+def _detailed_summarize(header: str, errors: Iterable[MypyError]) -> None:
+    _print_header(header=header)
+    for error in errors:
+        print(str(error))  # noqa: T201
+
+
 def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
     """Print the results contained in a `MypyUpgradeResult` object.
 
@@ -230,27 +246,10 @@ def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
         results: a `MypyUpgradeResult` object.
         verbosity: an integer specifying the verbosity of the summary.
     """
-    width = min(79, shutil.get_terminal_size(fallback=(79, 0)).columns)
-
-    def _fill(text: str) -> str:
-        return textwrap.fill(text, width=width)
-
-    def _print_header(header: str) -> None:
-        print(f" {header} ".center(width, "-"))  # noqa: T201
-
     _print_header("SUMMARY")
-
     print(_fill(f"{results!s}\n"))  # noqa: T201
 
     if verbosity > 0:
-
-        def _detailed_summarize(
-            header: str, errors: Iterable[MypyError]
-        ) -> None:
-            _print_header(header=header)
-            for error in errors:
-                print(str(error))  # noqa: T201
-
         _detailed_summarize(header="SILENCED", errors=results.silenced)
         _detailed_summarize(
             header="FAILED TO SILENCE", errors=results.failures
