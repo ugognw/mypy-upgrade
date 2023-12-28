@@ -8,7 +8,7 @@ import pathlib
 import shutil
 import sys
 import textwrap
-from collections.abc import Generator
+from collections.abc import Generator, Iterable
 from contextlib import contextmanager
 from io import TextIOWrapper
 from typing import Any, NamedTuple, TextIO
@@ -235,46 +235,27 @@ def summarize_results(*, results: MypyUpgradeResult, verbosity: int) -> None:
     def _fill(text: str) -> str:
         return textwrap.fill(text, width=width)
 
-    def _to_verb(count: int) -> str:
-        if count == 1:
-            return "error was"
-        return "errors were"
+    def _print_header(header: str) -> None:
+        print(f" {header} ".center(width, "-"))  # noqa: T201
 
-    print(" SUMMARY ".center(width, "-"))  # noqa: T201
+    _print_header("SUMMARY")
 
-    num_silenced = len(results.silenced)
-    silenced_summary = f"{num_silenced} {_to_verb(num_silenced)} silenced.\n\n"
-    print(_fill(silenced_summary))  # noqa: T201
-
-    num_not_silenced = len(results.failures)
-    not_silenced_summary = (
-        f"{num_not_silenced} {_to_verb(num_not_silenced)} not silenced due "
-        "to syntax limitations."
-    )
-    print(_fill(not_silenced_summary))  # noqa: T201
-
-    num_ignored = len(results.ignored)
-    ignored_summary = f"{num_ignored} {_to_verb(num_ignored)} ignored."
-    print(_fill(ignored_summary))  # noqa: T201
+    print(_fill(f"{results!s}\n"))  # noqa: T201
 
     if verbosity > 0:
-        print(" SILENCED ".center(width, "-"))  # noqa: T201
-        for error in sorted(
-            results.silenced, key=MypyError.filename_and_line_number
-        ):
-            print(str(error))  # noqa: T201
 
-        print(" NOT SILENCED ".center(width, "-"))  # noqa: T201
-        for error in sorted(
-            results.failures, key=MypyError.filename_and_line_number
-        ):
-            print(str(error))  # noqa: T201
+        def _detailed_summarize(
+            header: str, errors: Iterable[MypyError]
+        ) -> None:
+            _print_header(header=header)
+            for error in errors:
+                print(str(error))  # noqa: T201
 
-        print(" IGNORED ".center(width, "-"))  # noqa: T201
-        for error in sorted(
-            results.ignored, key=MypyError.filename_and_line_number
-        ):
-            print(str(error))  # noqa: T201
+        _detailed_summarize(header="SILENCED", errors=results.silenced)
+        _detailed_summarize(
+            header="FAILED TO SILENCE", errors=results.failures
+        )
+        _detailed_summarize(header="IGNORED", errors=results.ignored)
 
 
 def _configure_printing(*, verbosity: int, colours: bool) -> None:

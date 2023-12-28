@@ -76,6 +76,23 @@ class MypyUpgradeResult(NamedTuple):
     failures: tuple[MypyError, ...]
     ignored: tuple[MypyError, ...]
 
+    def __str__(self) -> str:
+        def _to_verb(count: int) -> str:
+            if count == 1:
+                return "error was"
+            return "errors were"
+
+        def _summarize(num: int, suffix: str) -> str:
+            return f"{num} {_to_verb(num)}{suffix}"
+
+        silenced = _summarize(num=len(self.silenced), suffix=" silenced.")
+        failures = _summarize(
+            num=len(self.failures),
+            suffix=" not silenced due to syntax limitations.",
+        )
+        ignored = _summarize(num=len(self.ignored), suffix=" ignored.")
+        return f"{silenced}\n{failures}\n{ignored}\n"
+
 
 def _extract_error_details(
     *,
