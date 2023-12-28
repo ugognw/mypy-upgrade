@@ -83,7 +83,9 @@ jobs:
         uses: coverallsapp/github-action@v2
         continue-on-error: true
         with:
+          file: coverage.lcov
           flag-name: ${{ matrix.python-version }}-${{ matrix.package.name }}-${{ matrix.pytest.coveralls-flag }}
+          format: lcov
           parallel: true
 
   typing:
