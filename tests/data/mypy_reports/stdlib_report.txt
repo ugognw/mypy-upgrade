@@ -2,4 +2,4 @@
 /usr/local/Cellar/python@3.11/3.11.4_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/os.py:1:1: error: Function is missing a return type annotation  [valid-type]
 /usr/local/Cellar/python@3.11/3.11.4_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/xml/sax/handler.py:1:1: error: Function is missing a return type annotation  [type-arg]
 /usr/local/Cellar/python@3.11/3.11.4_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/collections/abc.py:1:1: error: Function is missing a return type annotation  [arg-type]
-Found 1 error in 1 file (checked 1 source file)
+Found 4 errors in 4 files (checked 4 source files)
