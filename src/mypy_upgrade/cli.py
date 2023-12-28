@@ -280,7 +280,7 @@ def _configure_printing(*, verbosity: int, colours: bool) -> None:
     level = 30 - (verbosity * 10)
     logger.setLevel(level)
 
-    ch = logging.StreamHandler()
+    ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(level)
 
     fmt = "%(message)s"
