@@ -1,4 +1,5 @@
 import logging
+import sys
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -26,7 +27,18 @@ class ColouredFormatter(logging.Formatter):
         colours: "dict[int, int] | None" = None,
     ) -> None:
         self.colours = colours or DEFAULT_COLOURS
-        super().__init__(fmt, datefmt, style, validate, defaults=defaults)
+        kwargs: dict[str, Any] = {}
+
+        if sys.version_info >= (3, 8):
+            super().__init__(fmt, datefmt, style, validate=validate)
+            if sys.version_info >= (3, 10):
+                kwargs["validate"] = validate
+
+                super().__init__(
+                    fmt, datefmt, style, validate=validate, defaults=defaults
+                )
+        else:
+            super().__init__(fmt, datefmt, style)
 
     def formatMessage(self, record: logging.LogRecord) -> str:  # noqa: N802
         colour_code = self.colours[record.levelno]
