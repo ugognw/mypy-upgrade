@@ -47,7 +47,10 @@ skip-string-normalization = true
 
 [tool.coverage.run]
 branch = true
-parallel = true
+source = [
+  "src/mypy_upgrade",
+  "tests",
+]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -82,7 +85,7 @@ COVERAGE_PROCESS_START="pyproject.toml"
 
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
-test-cov = "pytest -n auto --cov=src/mypy_upgrade --cov-report=html --cov-report=lcov --cov-report=xml --cov-report=term-missing {args:tests/}"
+test-cov = "pytest -n auto --cov --cov-report=html --cov-report=lcov --cov-report=xml --cov-report=term-missing {args:tests/}"
 test-cov-unit = "test-cov -m 'not (slow and (api or cli))' tests/"
 test-cov-api = "test-cov -m 'api' tests/"
 test-cov-cli = "test-cov -m 'cli' tests/"
