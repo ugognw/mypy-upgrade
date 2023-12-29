@@ -38,7 +38,7 @@ This project implements a version of
 
     * New format (see `mypy_upgrade.silence._log_silencing_results`)
 
-    * A sorted of results can still be printed using the `--summarize` option
+    * A sorted summary of results can still be printed using the `--summarize` option
       together with the `--verbose` option
 
 * `mypy_upgrade.cli.print_results` -> `mypy_upgrade.cli.summarize_results`;
@@ -54,7 +54,7 @@ This project implements a version of
   (e.g., `mypy_upgrade.parsing`)
 
 * Each of the 3 elements of a `mypy_upgrade.silence.MypyUpgradeResult` (now
-  named, `silenced`, `failures`, and `ignored`) is a tuple of
+  named `silenced`, `failures`, and `ignored`) is a tuple of
   `MypyUpgradeResult`s
 
     * messages can be retrieved by adding a `logging.Handler` to the
