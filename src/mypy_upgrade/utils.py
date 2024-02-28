@@ -10,6 +10,7 @@ from typing import NamedTuple
 class CommentSplitLine(NamedTuple):
     code: str
     comment: str
+    newline: str
 
 
 def split_into_code_and_comment(
@@ -29,16 +30,21 @@ def split_into_code_and_comment(
     """
     code_lines = source.splitlines()
     comments = [""] * len(code_lines)
+    newlines = ["\n"] * len(code_lines)
 
+    line = 0
     for token in tokens:
         if token.exact_type == tokenize.COMMENT:
             line = token.start[0] - 1
             comments[line] = token.string
             code_lines[line] = code_lines[line][: token.start[1]]
+        elif token.exact_type in (tokenize.NEWLINE, tokenize.NL):
+            line = token.start[0] - 1
+            newlines[line] = token.string
 
     lines = [
-        CommentSplitLine(code, comment)
-        for code, comment in zip(code_lines, comments)
+        CommentSplitLine(code, comment, newline)
+        for code, comment, newline in zip(code_lines, comments, newlines)
     ]
 
     return lines

@@ -179,7 +179,8 @@ def _writelines(*, file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
             to_write.append(line.code)
         else:
             to_write.append(line.comment)
-    return file.write("\n".join(to_write))
+        to_write.append(line.newline)
+    return file.writelines(to_write)
 
 
 def _log_silencing_results(
@@ -252,7 +253,7 @@ def silence_errors_in_file(
             description_style=description_style,
             fix_me=fix_me,
         )
-        lines[i] = CommentSplitLine(lines[i].code, new_comment)
+        lines[i] = CommentSplitLine(lines[i].code, new_comment, lines[i].newline)
 
     file.seek(start)
 
