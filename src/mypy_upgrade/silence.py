@@ -151,17 +151,20 @@ def create_suppression_comment(
         comment=comment, codes_to_remove=to_remove
     )
     formatted_comment = format_type_ignore_comment(comment=pruned_comment)
-    suppression_comment = add_type_ignore_comment(
-        comment=formatted_comment,
-        error_codes=to_add,
-    )
-    if fix_me:
-        suppression_comment += f" # {fix_me}"
+    if to_add:
+        suppression_comment = add_type_ignore_comment(
+            comment=formatted_comment,
+            error_codes=to_add,
+        )
+        if fix_me:
+            suppression_comment += f" # {fix_me}"
 
-    if description_style == "full" and descriptions:
-        suppression_comment += f" # {', '.join(descriptions)}"
+        if description_style == "full" and descriptions:
+            suppression_comment += f" # {', '.join(descriptions)}"
 
-    return suppression_comment
+        return suppression_comment
+    else:
+        return formatted_comment
 
 
 def _writelines(*, file: TextIO, lines: Iterable[CommentSplitLine]) -> int:
