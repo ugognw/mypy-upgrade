@@ -10,7 +10,7 @@ import sys
 import textwrap
 from collections.abc import Generator, Iterable
 from contextlib import contextmanager
-from io import TextIOWrapper
+from io import TextIOWrapper, StringIO
 from typing import Any, NamedTuple, TextIO
 
 from mypy_upgrade.parsing import MypyError
@@ -50,6 +50,8 @@ def _open(
 ) -> Generator[TextIO, None, None]:
     if isinstance(file, (TextIOWrapper, TextIO)):
         resource = file
+        if not resource.seekable():
+            resource = StringIO(resource.read())
     else:
         resource = pathlib.Path(file).open(**kwargs)  # noqa: SIM115
 
