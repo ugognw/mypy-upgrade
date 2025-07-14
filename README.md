@@ -229,7 +229,7 @@ following flags should be set when creating the type checking report to pass to 
 
     * Ensures that unused `type: ignore` comments are removed
 
-* `ignore-without-code`
+* [`ignore-without-code`](https://mypy.readthedocs.io/en/stable/error_code_list2.html#check-that-type-ignore-include-an-error-code-ignore-without-code)
 
     * When used with `--show-error-codes`, permits `mypy-upgrade` to replace existing
     `type: ignore` comments with code-specific `type: ignore` comments (enable from the

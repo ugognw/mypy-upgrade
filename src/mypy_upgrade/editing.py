@@ -73,14 +73,15 @@ def remove_unused_type_ignore_comments(
         r"#\s*type\s*:\s*ignore(\[(?P<error_code>[a-z, \-]+)\])?"
     )
     match = type_ignore.search(comment)
+    if "*" in codes_to_remove:
+        return type_ignore.sub("", comment)
+
     old_codes = match.group("error_code") if match is not None else ""
 
     if not old_codes:
         return comment
 
-    if "*" in codes_to_remove or all(
-        code.strip() in codes_to_remove for code in old_codes.split(",")
-    ):
+    if all(code.strip() in codes_to_remove for code in old_codes.split(",")):
         return type_ignore.sub("", comment)
 
     new_codes = old_codes
